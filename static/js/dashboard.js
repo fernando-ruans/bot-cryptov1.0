@@ -1335,6 +1335,41 @@ class SimpleTradingDashboard {
             }
         });
     }
+
+    showNotification(message, type = 'info') {
+        const container = document.getElementById('notificationContainer');
+        if (!container) {
+            console.warn('Container de notificações não encontrado');
+            return;
+        }
+        
+        const id = 'notification-' + Date.now();
+        
+        const alertClass = {
+            'success': 'alert-success',
+            'error': 'alert-danger',
+            'warning': 'alert-warning',
+            'info': 'alert-info'
+        }[type] || 'alert-info';
+
+        const notification = document.createElement('div');
+        notification.id = id;
+        notification.className = `alert ${alertClass} alert-dismissible fade show notification`;
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        container.appendChild(notification);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.remove();
+            }
+        }, 5000);
+    }
 }
 
 // Função global para fechar trades (chamada pelo onclick nos botões)

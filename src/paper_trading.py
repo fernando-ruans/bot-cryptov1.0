@@ -266,28 +266,122 @@ class PaperTradingManager:
             del self.active_trades[trade_id]
     
     def _process_closed_trade(self, trade: PaperTrade):
-        """Processa um trade fechado"""
+        """Processa um trade fechado com notificações aprimoradas"""
         # Atualizar balanço
         self.current_balance += trade.realized_pnl
         
         # Mover para histórico
         self.trade_history.append(trade)
         
-        # Log detalhado
+        # Emojis e mensagens baseadas no resultado
         result_emoji = "🎯" if trade.exit_reason == 'take_profit' else "🛑" if trade.exit_reason == 'stop_loss' else "🔒"
         pnl_emoji = "📈" if trade.realized_pnl >= 0 else "📉"
         
-        logger.info(f"{result_emoji} Trade fechado: {trade.id[:8]}")
-        logger.info(f"   📊 {trade.symbol} {trade.trade_type.upper()}")
-        logger.info(f"   💵 ${trade.entry_price:.2f} → ${trade.exit_price:.2f}")
-        logger.info(f"   {pnl_emoji} P&L: ${trade.realized_pnl:.2f} ({trade.pnl_percent:.2f}%)")
-        logger.info(f"   ⚡ Motivo: {trade.exit_reason}")
-        logger.info(f"   🕐 Duração: {trade.exit_timestamp - trade.timestamp}")
-        logger.info(f"   💰 Novo balanço: ${self.current_balance:.2f}")
+        # Calcular métricas adicionais
+        duration = trade.exit_timestamp - trade.timestamp
+        duration_str = self._format_duration(duration)
+        price_change = ((trade.exit_price - trade.entry_price) / trade.entry_price) * 100
         
-        # Notificação em tempo real
+        # Log detalhado com mais informações
+        logger.info(f"\n{result_emoji} ═══ TRADE FECHADO ═══")
+        logger.info(f"   🆔 ID: {trade.id[:8]}")
+        logger.info(f"   📊 Par: {trade.symbol} | Tipo: {trade.trade_type.upper()}")
+        logger.info(f"   💵 Preços: ${trade.entry_price:.2f} → ${trade.exit_price:.2f} ({price_change:+.2f}%)")
+        logger.info(f"   {pnl_emoji} P&L: ${trade.realized_pnl:.2f} ({trade.pnl_percent:.2f}%)")
+        logger.info(f"   ⚡ Motivo: {self._get_exit_reason_description(trade.exit_reason)}")
+        logger.info(f"   🕐 Duração: {duration_str}")
+        logger.info(f"   📈 Timeframe: {trade.timeframe or 'N/A'}")
+        logger.info(f"   💰 Balanço: ${self.current_balance - trade.realized_pnl:.2f} → ${self.current_balance:.2f}")
+        
+        # Notificação detalhada
+        notification = self._create_trade_notification(trade, duration_str, price_change)
+        
+        # Enviar notificação em tempo real
         if self.realtime_updates:
             self.realtime_updates.notify_trade_closed(trade.to_dict())
+            
+        # Salvar no histórico detalhado
+        self._save_to_detailed_history(trade, notification)
+        
+        # Exibir notificação no console
+        self._display_trade_notification(notification)
+        
+        logger.info(f"═══════════════════════════\n")
+    
+    def _format_duration(self, duration) -> str:
+        """Formata duração de forma legível"""
+        total_seconds = int(duration.total_seconds())
+        hours, remainder = divmod(total_seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        
+        if hours > 0:
+            return f"{hours}h {minutes}m {seconds}s"
+        elif minutes > 0:
+            return f"{minutes}m {seconds}s"
+        else:
+            return f"{seconds}s"
+    
+    def _get_exit_reason_description(self, reason: str) -> str:
+        """Retorna descrição detalhada do motivo de saída"""
+        descriptions = {
+            'take_profit': '🎯 Take Profit Atingido',
+            'stop_loss': '🛑 Stop Loss Ativado',
+            'manual': '🔒 Fechamento Manual'
+        }
+        return descriptions.get(reason, reason)
+    
+    def _create_trade_notification(self, trade: PaperTrade, duration_str: str, price_change: float) -> Dict:
+        """Cria notificação estruturada do trade"""
+        return {
+            'type': 'trade_closed',
+            'timestamp': datetime.now().isoformat(),
+            'trade_id': trade.id,
+            'symbol': trade.symbol,
+            'trade_type': trade.trade_type,
+            'entry_price': trade.entry_price,
+            'exit_price': trade.exit_price,
+            'price_change_percent': price_change,
+            'realized_pnl': trade.realized_pnl,
+            'pnl_percent': trade.pnl_percent,
+            'exit_reason': trade.exit_reason,
+            'exit_reason_description': self._get_exit_reason_description(trade.exit_reason),
+            'duration': duration_str,
+            'timeframe': trade.timeframe,
+            'new_balance': self.current_balance,
+            'success': trade.realized_pnl > 0,
+            'emoji': '🎯' if trade.exit_reason == 'take_profit' else '🛑' if trade.exit_reason == 'stop_loss' else '🔒'
+        }
+    
+    def _save_to_detailed_history(self, trade: PaperTrade, notification: Dict):
+        """Salva trade no histórico detalhado"""
+        try:
+            # Adicionar à lista de notificações (pode ser salvo em arquivo ou banco)
+            if not hasattr(self, 'trade_notifications'):
+                self.trade_notifications = []
+            
+            self.trade_notifications.append(notification)
+            
+            # Manter apenas as últimas 100 notificações
+            if len(self.trade_notifications) > 100:
+                self.trade_notifications = self.trade_notifications[-100:]
+                
+        except Exception as e:
+            logger.error(f"❌ Erro ao salvar no histórico detalhado: {e}")
+    
+    def _display_trade_notification(self, notification: Dict):
+        """Exibe notificação formatada no console"""
+        emoji = notification['emoji']
+        symbol = notification['symbol']
+        pnl = notification['realized_pnl']
+        pnl_pct = notification['pnl_percent']
+        reason = notification['exit_reason_description']
+        duration = notification['duration']
+        
+        print(f"\n{emoji} ═══ NOTIFICAÇÃO DE TRADE ═══")
+        print(f"   {symbol} | P&L: ${pnl:.2f} ({pnl_pct:+.2f}%)")
+        print(f"   {reason} | Duração: {duration}")
+        print(f"   Novo Saldo: ${notification['new_balance']:.2f}")
+        print(f"═══════════════════════════════\n")
     
     def close_trade_manually(self, trade_id: str) -> bool:
         """Fecha um trade manualmente"""
@@ -346,6 +440,68 @@ class PaperTradingManager:
     def get_active_trades(self) -> List[Dict]:
         """Obtém lista de trades ativos"""
         return [trade.to_dict() for trade in self.active_trades.values()]
+    
+    def get_trade_notifications(self, limit: int = 20) -> List[Dict]:
+        """Obtém histórico de notificações de trades"""
+        if not hasattr(self, 'trade_notifications'):
+            return []
+        
+        # Retornar as mais recentes primeiro
+        notifications = self.trade_notifications[-limit:] if limit else self.trade_notifications
+        return list(reversed(notifications))
+    
+    def get_detailed_stats(self) -> Dict:
+        """Obtém estatísticas detalhadas do portfolio"""
+        basic_stats = self.get_portfolio_stats()
+        
+        if not self.trade_history:
+            return basic_stats
+        
+        # Estatísticas avançadas
+        profits = [t.realized_pnl for t in self.trade_history if t.realized_pnl > 0]
+        losses = [t.realized_pnl for t in self.trade_history if t.realized_pnl < 0]
+        
+        # Métricas de performance
+        avg_profit = sum(profits) / len(profits) if profits else 0
+        avg_loss = sum(losses) / len(losses) if losses else 0
+        profit_factor = abs(sum(profits) / sum(losses)) if losses else float('inf')
+        
+        # Análise por motivo de saída
+        exit_reasons = {}
+        for trade in self.trade_history:
+            reason = trade.exit_reason
+            if reason not in exit_reasons:
+                exit_reasons[reason] = {'count': 0, 'total_pnl': 0}
+            exit_reasons[reason]['count'] += 1
+            exit_reasons[reason]['total_pnl'] += trade.realized_pnl
+        
+        # Análise por timeframe
+        timeframe_stats = {}
+        for trade in self.trade_history:
+            tf = trade.timeframe or 'unknown'
+            if tf not in timeframe_stats:
+                timeframe_stats[tf] = {'count': 0, 'total_pnl': 0, 'wins': 0}
+            timeframe_stats[tf]['count'] += 1
+            timeframe_stats[tf]['total_pnl'] += trade.realized_pnl
+            if trade.realized_pnl > 0:
+                timeframe_stats[tf]['wins'] += 1
+        
+        # Calcular win rate por timeframe
+        for tf_data in timeframe_stats.values():
+            tf_data['win_rate'] = (tf_data['wins'] / tf_data['count']) * 100 if tf_data['count'] > 0 else 0
+        
+        basic_stats.update({
+            'avg_profit': avg_profit,
+            'avg_loss': avg_loss,
+            'profit_factor': profit_factor,
+            'largest_profit': max(profits) if profits else 0,
+            'largest_loss': min(losses) if losses else 0,
+            'exit_reasons': exit_reasons,
+            'timeframe_stats': timeframe_stats,
+            'total_notifications': len(getattr(self, 'trade_notifications', []))
+        })
+        
+        return basic_stats
     
     def get_trade_history(self, limit: int = 50) -> List[PaperTrade]:
         """Obtém histórico de trades"""
