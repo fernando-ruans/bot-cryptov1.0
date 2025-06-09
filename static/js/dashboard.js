@@ -530,6 +530,7 @@ class SimpleTradingDashboard {
         // Atualizar interface
         document.getElementById('currentSymbol').textContent = newSymbol;
         document.getElementById('navCurrentAsset').textContent = newSymbol;
+        document.getElementById('selectedAssetBadge').textContent = newSymbol;
         
         // Atualizar gráfico TradingView
         this.updateTradingViewChart(newSymbol);
