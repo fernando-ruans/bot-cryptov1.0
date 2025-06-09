@@ -150,13 +150,10 @@ class SignalGenerator:
             else:
                 logger.info(f"✓ Confluência desabilitada")
             
-            # Verificar confiança mínima
-            min_confidence = self.config.SIGNAL_CONFIG['min_confidence']
-            logger.info(f"Verificando confiança mínima ({min_confidence:.2f}) para {symbol}")
-            if combined_signal['confidence'] < min_confidence:
-                logger.info(f"Confiança insuficiente para {symbol}: {combined_signal['confidence']:.2f} < {min_confidence:.2f}")
-                return None
-            logger.info(f"✓ Confiança suficiente para {symbol}: {combined_signal['confidence']:.2f}")
+            # REMOVIDA: Verificação de confiança mínima
+            # Agora sempre gera o sinal com a confiança calculada
+            # O usuário decide se aceita ou não o sinal na interface
+            logger.info(f"✓ Sinal será gerado com confiança: {combined_signal['confidence']:.2f}")
             
             # Calcular níveis de entrada, stop loss e take profit
             logger.info(f"Obtendo preço atual para {symbol}")

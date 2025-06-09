@@ -176,6 +176,9 @@ class TradingBotDashboard {
             case 'positions':
                 this.loadPositions();
                 break;
+            case 'paper-trading':
+                this.initializePaperTrading();
+                break;
             case 'performance':
                 this.loadPerformanceData();
                 break;
@@ -1028,6 +1031,435 @@ class TradingBotDashboard {
 
     resumeUpdates() {
         this.startPeriodicUpdates();
+    }
+
+    // Paper Trading Methods
+    initializePaperTrading() {
+        this.initializeTradingViewWidget();
+        this.loadPaperTradingData();
+        this.setupPaperTradingEventListeners();
+    }
+
+    setupPaperTradingEventListeners() {
+        // Generate Signal Button
+        const generateSignalBtn = document.getElementById('generateSignalBtn');
+        if (generateSignalBtn) {
+            generateSignalBtn.addEventListener('click', () => {
+                this.generateSignalForPaperTrading();
+            });
+        }
+
+        // Confirm Signal Button
+        const confirmSignalBtn = document.getElementById('confirmSignalBtn');
+        if (confirmSignalBtn) {
+            confirmSignalBtn.addEventListener('click', () => {
+                this.confirmPaperTradingSignal();
+            });
+        }
+
+        // Reject Signal Button
+        const rejectSignalBtn = document.getElementById('rejectSignalBtn');
+        if (rejectSignalBtn) {
+            rejectSignalBtn.addEventListener('click', () => {
+                this.rejectPaperTradingSignal();
+            });
+        }
+
+        // Refresh buttons
+        const refreshTradesBtn = document.getElementById('refreshTradesBtn');
+        if (refreshTradesBtn) {
+            refreshTradesBtn.addEventListener('click', () => {
+                this.loadActiveTrades();
+            });
+        }
+
+        const refreshHistoryBtn = document.getElementById('refreshHistoryBtn');
+        if (refreshHistoryBtn) {
+            refreshHistoryBtn.addEventListener('click', () => {
+                this.loadTradeHistory();
+            });
+        }
+
+        // Export History Button
+        const exportHistoryBtn = document.getElementById('exportHistoryBtn');
+        if (exportHistoryBtn) {
+            exportHistoryBtn.addEventListener('click', () => {
+                this.exportTradeHistory();
+            });
+        }
+    }
+
+    initializeTradingViewWidget() {
+        if (typeof TradingView !== 'undefined' && document.getElementById('tradingview_chart')) {
+            this.tradingViewWidget = new TradingView.widget({
+                "width": "100%",
+                "height": 500,
+                "symbol": "BINANCE:BTCUSDT",
+                "interval": "1H",
+                "timezone": "America/Sao_Paulo",
+                "theme": "light",
+                "style": "1",
+                "locale": "pt",
+                "toolbar_bg": "#f1f3f6",
+                "enable_publishing": false,
+                "allow_symbol_change": true,
+                "container_id": "tradingview_chart",
+                "studies": [
+                    "RSI@tv-basicstudies",
+                    "BB@tv-basicstudies",
+                    "MACD@tv-basicstudies"
+                ]
+            });
+        }
+    }
+
+    async generateSignalForPaperTrading() {
+        try {
+            this.showLoading(true);
+            const assetSelect = document.getElementById('assetSelect');
+            const symbol = assetSelect ? assetSelect.value : 'BTCUSDT';
+
+            const response = await fetch('/api/generate_signal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ symbol: symbol })
+            });
+
+            const data = await response.json();
+            
+            if (data.success && data.signal) {
+                this.displaySignalForConfirmation(data.signal);
+                this.showNotification('Sinal gerado com sucesso', 'success');
+            } else {
+                this.showNotification('Erro ao gerar sinal: ' + (data.message || 'Erro desconhecido'), 'error');
+            }
+        } catch (error) {
+            console.error('Error generating signal:', error);
+            this.showNotification('Erro ao gerar sinal', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    displaySignalForConfirmation(signal) {
+        const lastSignalDiv = document.getElementById('lastSignal');
+        const signalDetailsDiv = document.getElementById('signalDetails');
+        
+        if (lastSignalDiv && signalDetailsDiv) {
+            lastSignalDiv.style.display = 'none';
+            signalDetailsDiv.style.display = 'block';
+
+            // Update signal details
+            document.getElementById('signalSymbol').textContent = signal.symbol || '-';
+            
+            const signalTypeSpan = document.getElementById('signalType');
+            signalTypeSpan.textContent = signal.signal || '-';
+            signalTypeSpan.className = `badge ${signal.signal === 'BUY' ? 'bg-success' : signal.signal === 'SELL' ? 'bg-danger' : 'bg-warning'}`;
+            
+            document.getElementById('signalConfidence').textContent = (signal.confidence || 0).toFixed(2);
+            document.getElementById('signalPrice').textContent = (signal.entry_price || 0).toFixed(2);
+            document.getElementById('signalStopLoss').textContent = (signal.stop_loss || 0).toFixed(2);
+            document.getElementById('signalTakeProfit').textContent = (signal.take_profit || 0).toFixed(2);
+
+            // Store signal for confirmation
+            this.currentSignal = signal;
+        }
+    }
+
+    async confirmPaperTradingSignal() {
+        if (!this.currentSignal) {
+            this.showNotification('Nenhum sinal disponível para confirmação', 'warning');
+            return;
+        }
+
+        try {
+            this.showLoading(true);
+            const response = await fetch('/api/paper_trading/confirm_signal', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(this.currentSignal)
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                this.showNotification('Trade criado com sucesso no paper trading', 'success');
+                this.rejectPaperTradingSignal(); // Clear the signal
+                this.loadPaperTradingData(); // Refresh data
+            } else {
+                this.showNotification('Erro ao criar trade: ' + (data.message || 'Erro desconhecido'), 'error');
+            }
+        } catch (error) {
+            console.error('Error confirming signal:', error);
+            this.showNotification('Erro ao confirmar sinal', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    rejectPaperTradingSignal() {
+        const lastSignalDiv = document.getElementById('lastSignal');
+        const signalDetailsDiv = document.getElementById('signalDetails');
+        
+        if (lastSignalDiv && signalDetailsDiv) {
+            lastSignalDiv.style.display = 'block';
+            signalDetailsDiv.style.display = 'none';
+            this.currentSignal = null;
+        }
+    }
+
+    async loadPaperTradingData() {
+        await Promise.all([
+            this.loadPortfolioStats(),
+            this.loadActiveTrades(),
+            this.loadTradeHistory()
+        ]);
+    }
+
+    async loadPortfolioStats() {
+        try {
+            const response = await fetch('/api/paper_trading/portfolio');
+            const data = await response.json();
+            
+            if (data.success) {
+                const stats = data.stats;
+                
+                document.getElementById('portfolioBalance').textContent = `$${(stats.balance || 0).toFixed(2)}`;
+                
+                const pnlElement = document.getElementById('portfolioPnL');
+                const pnlValue = stats.unrealized_pnl || 0;
+                pnlElement.textContent = `$${pnlValue.toFixed(2)}`;
+                pnlElement.className = pnlValue >= 0 ? 'fw-bold text-success' : 'fw-bold text-danger';
+                
+                document.getElementById('activeTrades').textContent = stats.active_trades || 0;
+                document.getElementById('winRate').textContent = `${(stats.win_rate || 0).toFixed(1)}%`;
+                
+                // Update quick stats
+                document.getElementById('totalTrades').textContent = stats.total_trades || 0;
+                document.getElementById('winTrades').textContent = stats.profitable_trades || 0;
+                document.getElementById('lossTrades').textContent = stats.losing_trades || 0;
+                
+                const totalReturnElement = document.getElementById('totalReturn');
+                const totalReturn = stats.total_return || 0;
+                totalReturnElement.textContent = `${totalReturn.toFixed(2)}%`;
+                totalReturnElement.className = totalReturn >= 0 ? 'fw-bold text-success' : 'fw-bold text-danger';
+            }
+        } catch (error) {
+            console.error('Error loading portfolio stats:', error);
+        }
+    }
+
+    async loadActiveTrades() {
+        try {
+            const response = await fetch('/api/paper_trading/portfolio');
+            const data = await response.json();
+            
+            if (data.success) {
+                const activeTrades = data.active_trades || [];
+                this.updateActiveTradesTable(activeTrades);
+            }
+        } catch (error) {
+            console.error('Error loading active trades:', error);
+        }
+    }
+
+    updateActiveTradesTable(trades) {
+        const tbody = document.getElementById('activeTradesTable');
+        if (!tbody) return;
+
+        if (trades.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="10" class="text-center text-muted">
+                        <i class="fas fa-chart-line fa-2x mb-2"></i>
+                        <p>Nenhum trade ativo</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = trades.map(trade => {
+            const pnlClass = trade.unrealized_pnl >= 0 ? 'text-success' : 'text-danger';
+            const pnlIcon = trade.unrealized_pnl >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+            
+            return `
+                <tr>
+                    <td>${trade.id}</td>
+                    <td>${trade.symbol}</td>
+                    <td><span class="badge ${trade.side === 'BUY' ? 'bg-success' : 'bg-danger'}">${trade.side}</span></td>
+                    <td>$${trade.entry_price.toFixed(2)}</td>
+                    <td>$${trade.current_price.toFixed(2)}</td>
+                    <td class="${pnlClass}">
+                        <i class="fas ${pnlIcon} me-1"></i>
+                        $${trade.unrealized_pnl.toFixed(2)}
+                    </td>
+                    <td>$${trade.stop_loss.toFixed(2)}</td>
+                    <td>$${trade.take_profit.toFixed(2)}</td>
+                    <td>${new Date(trade.entry_time).toLocaleString('pt-BR')}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-danger" onclick="dashboard.closeTrade('${trade.id}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    async closeTrade(tradeId) {
+        if (!confirm('Deseja realmente fechar este trade?')) {
+            return;
+        }
+
+        try {
+            this.showLoading(true);
+            const response = await fetch('/api/paper_trading/close_trade', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ trade_id: tradeId })
+            });
+
+            const data = await response.json();
+            
+            if (data.success) {
+                this.showNotification('Trade fechado com sucesso', 'success');
+                this.loadPaperTradingData(); // Refresh data
+            } else {
+                this.showNotification('Erro ao fechar trade: ' + (data.message || 'Erro desconhecido'), 'error');
+            }
+        } catch (error) {
+            console.error('Error closing trade:', error);
+            this.showNotification('Erro ao fechar trade', 'error');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    async loadTradeHistory() {
+        try {
+            const response = await fetch('/api/paper_trading/history');
+            const data = await response.json();
+            
+            if (data.success) {
+                const history = data.trades || [];
+                this.updateTradeHistoryTable(history);
+            }
+        } catch (error) {
+            console.error('Error loading trade history:', error);
+        }
+    }
+
+    updateTradeHistoryTable(trades) {
+        const tbody = document.getElementById('tradeHistoryTable');
+        if (!tbody) return;
+
+        if (trades.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="10" class="text-center text-muted">
+                        <i class="fas fa-history fa-2x mb-2"></i>
+                        <p>Nenhum trade no histórico</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = trades.map(trade => {
+            const pnlClass = trade.realized_pnl >= 0 ? 'text-success' : 'text-danger';
+            const pnlIcon = trade.realized_pnl >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+            const pnlPercentClass = trade.pnl_percentage >= 0 ? 'text-success' : 'text-danger';
+            
+            let statusBadge = '';
+            switch (trade.status) {
+                case 'completed':
+                    statusBadge = '<span class="badge bg-success">Completo</span>';
+                    break;
+                case 'stopped_out':
+                    statusBadge = '<span class="badge bg-danger">Stop Loss</span>';
+                    break;
+                case 'took_profit':
+                    statusBadge = '<span class="badge bg-success">Take Profit</span>';
+                    break;
+                default:
+                    statusBadge = '<span class="badge bg-secondary">Fechado</span>';
+            }
+            
+            return `
+                <tr>
+                    <td>${trade.id}</td>
+                    <td>${trade.symbol}</td>
+                    <td><span class="badge ${trade.side === 'BUY' ? 'bg-success' : 'bg-danger'}">${trade.side}</span></td>
+                    <td>$${trade.entry_price.toFixed(2)}</td>
+                    <td>$${(trade.exit_price || 0).toFixed(2)}</td>
+                    <td class="${pnlClass}">
+                        <i class="fas ${pnlIcon} me-1"></i>
+                        $${trade.realized_pnl.toFixed(2)}
+                    </td>
+                    <td class="${pnlPercentClass}">${trade.pnl_percentage.toFixed(2)}%</td>
+                    <td>${statusBadge}</td>
+                    <td>${new Date(trade.entry_time).toLocaleString('pt-BR')}</td>
+                    <td>${trade.exit_time ? new Date(trade.exit_time).toLocaleString('pt-BR') : '-'}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    async exportTradeHistory() {
+        try {
+            const response = await fetch('/api/paper_trading/history');
+            const data = await response.json();
+            
+            if (data.success) {
+                const trades = data.trades || [];
+                const csv = this.convertTradesToCSV(trades);
+                this.downloadCSV(csv, 'paper_trading_history.csv');
+                this.showNotification('Histórico exportado com sucesso', 'success');
+            }
+        } catch (error) {
+            console.error('Error exporting trade history:', error);
+            this.showNotification('Erro ao exportar histórico', 'error');
+        }
+    }
+
+    convertTradesToCSV(trades) {
+        const headers = ['ID', 'Símbolo', 'Tipo', 'Preço Entrada', 'Preço Saída', 'P&L', 'P&L%', 'Status', 'Abertura', 'Fechamento'];
+        const csvContent = [
+            headers.join(','),
+            ...trades.map(trade => [
+                trade.id,
+                trade.symbol,
+                trade.side,
+                trade.entry_price.toFixed(2),
+                (trade.exit_price || 0).toFixed(2),
+                trade.realized_pnl.toFixed(2),
+                trade.pnl_percentage.toFixed(2),
+                trade.status,
+                new Date(trade.entry_time).toISOString(),
+                trade.exit_time ? new Date(trade.exit_time).toISOString() : ''
+            ].join(','))
+        ].join('\n');
+        
+        return csvContent;
+    }
+
+    downloadCSV(content, filename) {
+        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 }
 

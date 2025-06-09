@@ -8,6 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -405,6 +406,9 @@
                     <a class="nav-link" href="#positions" data-section="positions">
                         <i class="fas fa-chart-line me-2"></i>Posições
                     </a>
+                    <a class="nav-link" href="#paper-trading" data-section="paper-trading">
+                        <i class="fas fa-chart-area me-2"></i>Paper Trading
+                    </a>
                     <a class="nav-link" href="#performance" data-section="performance">
                         <i class="fas fa-chart-bar me-2"></i>Performance
                     </a>
@@ -658,6 +662,217 @@
                                             </tr>
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Paper Trading Section -->
+                    <div id="paper-trading-section" class="content-section" style="display: none;">
+                        <div class="row mb-4">
+                            <!-- Portfolio Overview -->
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0"><i class="fas fa-wallet me-2"></i>Portfolio Virtual</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="text-center">
+                                            <h4 id="portfolioBalance" class="text-primary">$0.00</h4>
+                                            <small class="text-muted">Saldo Total</small>
+                                            <hr>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>P&L:</span>
+                                                <span id="portfolioPnL" class="fw-bold">$0.00</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Trades Ativos:</span>
+                                                <span id="activeTrades">0</span>
+                                            </div>
+                                            <div class="d-flex justify-content-between">
+                                                <span>Win Rate:</span>
+                                                <span id="winRate">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Signal Confirmation -->
+                            <div class="col-md-6">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0"><i class="fas fa-signal me-2"></i>Último Sinal Gerado</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="lastSignal" class="text-center text-muted">
+                                            <i class="fas fa-chart-line fa-3x mb-3"></i>
+                                            <p>Nenhum sinal disponível</p>
+                                            <button class="btn btn-primary" id="generateSignalBtn">
+                                                <i class="fas fa-magic me-2"></i>Gerar Sinal
+                                            </button>
+                                        </div>
+                                        
+                                        <div id="signalDetails" style="display: none;">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <strong>Símbolo:</strong> <span id="signalSymbol">-</span><br>
+                                                    <strong>Tipo:</strong> <span id="signalType" class="badge">-</span><br>
+                                                    <strong>Confiança:</strong> <span id="signalConfidence">-</span>%
+                                                </div>
+                                                <div class="col-6">
+                                                    <strong>Preço:</strong> $<span id="signalPrice">-</span><br>
+                                                    <strong>Stop Loss:</strong> $<span id="signalStopLoss">-</span><br>
+                                                    <strong>Take Profit:</strong> $<span id="signalTakeProfit">-</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-center mt-3">
+                                                <button class="btn btn-success me-2" id="confirmSignalBtn">
+                                                    <i class="fas fa-check me-2"></i>Confirmar Trade
+                                                </button>
+                                                <button class="btn btn-secondary" id="rejectSignalBtn">
+                                                    <i class="fas fa-times me-2"></i>Rejeitar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Stats -->
+                            <div class="col-md-3">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Estatísticas</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between">
+                                                <span>Total Trades:</span>
+                                                <span id="totalTrades">0</span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between">
+                                                <span>Wins:</span>
+                                                <span id="winTrades" class="text-success">0</span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between">
+                                                <span>Losses:</span>
+                                                <span id="lossTrades" class="text-danger">0</span>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between">
+                                                <span>Return:</span>
+                                                <span id="totalReturn" class="fw-bold">0%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- TradingView Chart -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h6 class="mb-0"><i class="fas fa-chart-candlestick me-2"></i>Gráfico TradingView</h6>
+                                    </div>
+                                    <div class="card-body p-0">
+                                        <div id="tradingview_chart" style="height: 500px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Active Trades -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0"><i class="fas fa-chart-line me-2"></i>Trades Ativos</h6>
+                                        <button class="btn btn-sm btn-outline-primary" id="refreshTradesBtn">
+                                            <i class="fas fa-sync-alt"></i>
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Símbolo</th>
+                                                        <th>Tipo</th>
+                                                        <th>Preço Entrada</th>
+                                                        <th>Preço Atual</th>
+                                                        <th>P&L</th>
+                                                        <th>Stop Loss</th>
+                                                        <th>Take Profit</th>
+                                                        <th>Data</th>
+                                                        <th>Ações</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="activeTradesTable">
+                                                    <tr>
+                                                        <td colspan="10" class="text-center text-muted">
+                                                            <i class="fas fa-chart-line fa-2x mb-2"></i>
+                                                            <p>Nenhum trade ativo</p>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Trade History -->
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0"><i class="fas fa-history me-2"></i>Histórico de Trades</h6>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-success me-2" id="exportHistoryBtn">
+                                                <i class="fas fa-download me-1"></i>Exportar
+                                            </button>
+                                            <button class="btn btn-sm btn-outline-primary" id="refreshHistoryBtn">
+                                                <i class="fas fa-sync-alt"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Símbolo</th>
+                                                        <th>Tipo</th>
+                                                        <th>Preço Entrada</th>
+                                                        <th>Preço Saída</th>
+                                                        <th>P&L</th>
+                                                        <th>P&L%</th>
+                                                        <th>Status</th>
+                                                        <th>Abertura</th>
+                                                        <th>Fechamento</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tradeHistoryTable">
+                                                    <tr>
+                                                        <td colspan="10" class="text-center text-muted">
+                                                            <i class="fas fa-spinner fa-spin me-2"></i>Carregando histórico...
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

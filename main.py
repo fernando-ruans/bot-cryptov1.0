@@ -19,6 +19,7 @@ from src.signal_generator import SignalGenerator
 from src.risk_manager import RiskManager
 from src.database import DatabaseManager
 from src.config import Config
+from src.paper_trading import PaperTradingManager
 
 # Configurar logging
 logging.basicConfig(
@@ -44,6 +45,7 @@ market_data = MarketDataManager(config)
 ai_engine = AITradingEngine(config)
 signal_generator = SignalGenerator(ai_engine, market_data)
 risk_manager = RiskManager(config)
+paper_trading = PaperTradingManager(market_data)
 
 # Configure socketio for signal notifications
 from src.signal_generator import set_socketio_instance
@@ -322,6 +324,137 @@ def api_update_settings():
     except Exception as e:
         logger.error(f"Erro ao atualizar configurações: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
+
+# ============= PAPER TRADING ENDPOINTS =============
+
+@app.route('/api/paper_trading/confirm_signal', methods=['POST'])
+def api_confirm_signal():
+    """API para confirmar um sinal e criar um paper trade"""
+    try:
+        data = request.get_json()
+        
+        # Aceitar tanto signal_id quanto dados completos do sinal
+        signal_id = data.get('signal_id') or data.get('id')
+        
+        # Se não tiver signal_id, criar sinal a partir dos dados fornecidos
+        if not signal_id and not all(k in data for k in ['symbol', 'signal_type', 'entry_price']):
+            return jsonify({'success': False, 'error': 'Signal ID ou dados completos do sinal obrigatórios'}), 400
+        
+        # Obter dados do sinal
+        symbol = data.get('symbol', 'BTCUSDT')
+        signal_type = data.get('signal_type') or data.get('signal', 'buy')
+        confidence = data.get('confidence', 0.5)
+        entry_price = data.get('entry_price')
+        stop_loss = data.get('stop_loss')
+        take_profit = data.get('take_profit')
+        
+        # Se não tiver preço de entrada, obter preço atual
+        if not entry_price:
+            entry_price = market_data.get_current_price(symbol)
+            if entry_price is None:
+                return jsonify({'success': False, 'error': 'Não foi possível obter preço atual'}), 500
+        
+        # Calcular stop loss e take profit se não fornecidos
+        if not stop_loss:
+            stop_loss = entry_price * (0.98 if signal_type.lower() == 'buy' else 1.02)
+        if not take_profit:
+            take_profit = entry_price * (1.04 if signal_type.lower() == 'buy' else 0.96)
+        
+        # Criar um sinal temporário para o paper trade
+        from src.signal_generator import Signal
+        from datetime import datetime
+        
+        signal = Signal(
+            symbol=symbol,
+            signal_type=signal_type.lower(),
+            confidence=confidence,
+            entry_price=float(entry_price),
+            stop_loss=float(stop_loss),
+            take_profit=float(take_profit),
+            timeframe=data.get('timeframe', '1h'),
+            timestamp=datetime.now(),
+            reasons=data.get('reasons', ['Sinal confirmado pelo usuário'])
+        )
+        
+        # Criar paper trade
+        trade_id = paper_trading.create_trade_from_signal(signal)
+        
+        if trade_id:
+            return jsonify({
+                'success': True,
+                'message': 'Paper trade criado com sucesso!',
+                'trade_id': trade_id,
+                'trade': paper_trading.get_trade_by_id(trade_id)
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Falha ao criar paper trade'}), 500
+            
+    except Exception as e:
+        logger.error(f"Erro ao confirmar sinal: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/paper_trading/portfolio')
+def api_paper_portfolio():
+    """API para obter estatísticas do portfólio de paper trading"""
+    try:
+        # Atualizar preços antes de retornar estatísticas
+        paper_trading.update_prices()
+        
+        stats = paper_trading.get_portfolio_stats()
+        active_trades = paper_trading.get_active_trades()
+        recent_history = paper_trading.get_trade_history(10)
+        
+        return jsonify({
+            'success': True,
+            'portfolio': stats,
+            'active_trades': active_trades,
+            'recent_trades': recent_history
+        })
+    except Exception as e:
+        logger.error(f"Erro ao obter portfólio: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/paper_trading/close_trade', methods=['POST'])
+def api_close_trade():
+    """API para fechar um trade manualmente"""
+    try:
+        data = request.get_json()
+        trade_id = data.get('trade_id')
+        
+        if not trade_id:
+            return jsonify({'success': False, 'error': 'Trade ID obrigatório'}), 400
+        
+        success = paper_trading.close_trade_manually(trade_id)
+        
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Trade fechado com sucesso!'
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Trade não encontrado ou já fechado'}), 404
+            
+    except Exception as e:
+        logger.error(f"Erro ao fechar trade: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/paper_trading/history')
+def api_trading_history():
+    """API para obter histórico completo de trades"""
+    try:
+        limit = request.args.get('limit', 50, type=int)
+        history = paper_trading.get_trade_history(limit)
+        
+        return jsonify({
+            'success': True,
+            'trades': history,
+            'total_count': len(paper_trading.trade_history)
+        })
+    except Exception as e:
+        logger.error(f"Erro ao obter histórico: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# ============= WEBSOCKET HANDLERS =============
 
 @socketio.on('connect')
 def handle_connect():
