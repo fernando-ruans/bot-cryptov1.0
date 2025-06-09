@@ -351,9 +351,8 @@ def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     
     # Substituir infinitos por NaN e depois preencher
     df = df.replace([np.inf, -np.inf], np.nan)
-    
-    # Preencher NaN com método forward fill e depois backward fill
-    df = df.fillna(method='ffill').fillna(method='bfill')
+      # Preencher NaN com método forward fill e depois backward fill
+    df = df.ffill().bfill()
     
     return df
 

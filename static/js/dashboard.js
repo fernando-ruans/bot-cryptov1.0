@@ -145,18 +145,7 @@ class SimpleTradingDashboard {
         document.getElementById('timeframeSelector').addEventListener('change', (e) => {
             console.log(`🔄 Timeframe selecionado: ${e.target.value}`);
             this.changeTimeframe(e.target.value);
-        });
-
-        // Seletor visual de ativos
-        document.querySelectorAll('.asset-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const symbol = e.target.closest('.asset-btn').dataset.symbol;
-                const category = e.target.closest('.asset-btn').dataset.category;
-                this.selectAssetFromCategory(symbol, category, e.target.closest('.asset-btn'));
-            });
-        });
-        
-        // Iniciar atualização automática de preços
+        });        // Iniciar atualização automática de preços
         this.startPriceUpdates();
         
         // Otimizar atualização baseada na visibilidade da página
@@ -1262,44 +1251,7 @@ class SimpleTradingDashboard {
         document.getElementById('signalContent').style.display = 'none';
         document.getElementById('signalActions').style.display = 'none';
         document.getElementById('generateSignalBtn').style.display = 'block';
-    }
-
-    selectAssetFromCategory(symbol, category, buttonElement) {
-        console.log(`🎯 Ativo selecionado: ${symbol} (${category})`);
-        
-        // Remover classe active de todos os botões
-        document.querySelectorAll('.asset-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        // Adicionar classe active ao botão clicado
-        buttonElement.classList.add('active');
-        
-        // Atualizar o seletor dropdown também
-        const assetSelector = document.getElementById('assetSelector');
-        if (assetSelector) {
-            assetSelector.value = symbol;
-        }
-        
-        // Mudar o ativo atual
-        this.changeAsset(symbol);
-        
-        // Mostrar notificação visual
-        this.showNotification(
-            `📊 Ativo alterado para ${symbol} (${category.toUpperCase()})`,
-            'info',
-            false,
-            true
-        );
-        
-        // Animar o botão selecionado
-        buttonElement.style.animation = 'pulse 0.5s ease-in-out';
-        setTimeout(() => {
-            buttonElement.style.animation = '';
-        }, 500);
-    }
-
-    enhancePriceDisplay() {
+    }    enhancePriceDisplay() {
         // Melhorar exibição de preços com animações
         const priceElements = document.querySelectorAll('[id*="price"], [id*="Price"]');
         

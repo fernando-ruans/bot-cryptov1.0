@@ -156,8 +156,7 @@ class MarketAnalyzer:
             else:
                 regime = "range"
                 strength = 1.0 - (adx_value / 25)
-            
-            # Armazenar regime para o símbolo
+              # Armazenar regime para o símbolo
             symbol = df['symbol'].iloc[0] if 'symbol' in df.columns else "unknown"
             self.market_regimes[symbol] = regime
             
@@ -169,7 +168,6 @@ class MarketAnalyzer:
                 "trend_direction": trend_direction,
                 "bb_width": bb_width
             }
-            
         except Exception as e:
             logger.error(f"Erro na detecção de regime de mercado: {e}")
             return {"regime": "unknown", "strength": 0.5}
@@ -177,8 +175,8 @@ class MarketAnalyzer:
     def _analyze_volatility(self, df: pd.DataFrame) -> Dict:
         """Analisa a volatilidade do mercado"""
         try:
-            # Calcular volatilidade histórica
-            returns = df['close'].pct_change().dropna()
+            # Calcular volatilidade histórica (corrigido)
+            returns = df['close'].pct_change(fill_method=None).dropna()
             hist_vol = returns.std() * np.sqrt(252)  # Anualizada
             
             # Comparar com ATR
@@ -233,10 +231,9 @@ class MarketAnalyzer:
             vol_current = df['volume'].iloc[-1]
             vol_avg_20 = df['volume'].rolling(20).mean().iloc[-1] if len(df) >= 20 else vol_current
             vol_avg_50 = df['volume'].rolling(50).mean().iloc[-1] if len(df) >= 50 else vol_current
-            
-            # Calcular relação com preço
-            price_change = df['close'].pct_change().iloc[-1] if len(df) > 1 else 0
-            vol_change = df['volume'].pct_change().iloc[-1] if len(df) > 1 else 0
+              # Calcular relação com preço (corrigido)
+            price_change = df['close'].pct_change(fill_method=None).iloc[-1] if len(df) > 1 else 0
+            vol_change = df['volume'].pct_change(fill_method=None).iloc[-1] if len(df) > 1 else 0
             
             # Volume em relação à média
             vol_ratio_20 = vol_current / vol_avg_20 if vol_avg_20 > 0 else 1.0
@@ -289,11 +286,10 @@ class MarketAnalyzer:
             macd = df['macd'].iloc[-1] if 'macd' in df.columns else 0
             macd_signal = df['macd_signal'].iloc[-1] if 'macd_signal' in df.columns else 0
             macd_hist = df['macd_hist'].iloc[-1] if 'macd_hist' in df.columns else 0
-            
-            # Calcular retornos
-            ret_1d = df['close'].pct_change(1).iloc[-1] if len(df) > 1 else 0
-            ret_5d = df['close'].pct_change(5).iloc[-1] if len(df) > 5 else 0
-            ret_20d = df['close'].pct_change(20).iloc[-1] if len(df) > 20 else 0
+              # Calcular retornos
+            ret_1d = df['close'].pct_change(1, fill_method=None).iloc[-1] if len(df) > 1 else 0
+            ret_5d = df['close'].pct_change(5, fill_method=None).iloc[-1] if len(df) > 5 else 0
+            ret_20d = df['close'].pct_change(20, fill_method=None).iloc[-1] if len(df) > 20 else 0
             
             # Determinar força e direção do momentum
             if rsi > 70:
@@ -367,11 +363,10 @@ class MarketAnalyzer:
                     if not df.empty:
                         close_data[pair] = df['close']
                 
-                # Criar DataFrame com todos os preços de fechamento
-                if close_data:
+                # Criar DataFrame com todos os preços de fechamento                if close_data:
                     price_df = pd.DataFrame(close_data)
-                    # Calcular retornos
-                    returns_df = price_df.pct_change().dropna()
+                    # Calcular retornos (corrigido para evitar FutureWarning)
+                    returns_df = price_df.pct_change(fill_method=None).dropna()
                     # Calcular matriz de correlação
                     self.correlation_matrix = returns_df.corr()
                     self.correlation_matrix.last_update = datetime.now()

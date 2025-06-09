@@ -70,15 +70,14 @@ class AITradingEngine:
             
             # Adicionar features de padrões
             df = self._add_pattern_features(df)
-            
-            # Tratar valores NaN - usar forward fill seguido de backward fill
+              # Tratar valores NaN - usar forward fill seguido de backward fill
             # e depois preencher valores restantes com a mediana
             numeric_columns = df.select_dtypes(include=[np.number]).columns
             for col in numeric_columns:
-                # Forward fill
-                df[col] = df[col].fillna(method='ffill')
+                # Forward fill (corrigido para evitar FutureWarning)
+                df[col] = df[col].ffill()
                 # Backward fill para valores ainda NaN no início
-                df[col] = df[col].fillna(method='bfill')
+                df[col] = df[col].bfill()
                 # Se ainda houver NaN, preencher com mediana
                 if df[col].isna().any():
                     df[col] = df[col].fillna(df[col].median())

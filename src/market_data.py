@@ -116,8 +116,7 @@ class MarketDataManager:
                 for symbol in self.config.CRYPTO_PAIRS:
                     for timeframe in self.config.TIMEFRAMES:
                         self._update_crypto_data(symbol, timeframe)
-                
-                # Atualizar dados de forex
+                  # Atualizar dados de forex
                 for symbol in self.config.FOREX_PAIRS:
                     self._update_forex_data(symbol)
                 
@@ -333,8 +332,7 @@ class MarketDataManager:
             ticker = yf.Ticker(yahoo_symbol)
             hist = ticker.history(period="1d", interval="1h")
             
-            if not hist.empty:
-                # Converter para formato padrão
+            if not hist.empty:                # Converter para formato padrão
                 df = hist[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
                 df.columns = ['open', 'high', 'low', 'close', 'volume']
                 
