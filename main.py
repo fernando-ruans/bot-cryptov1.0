@@ -145,9 +145,75 @@ def api_generate_signal():
             'signal': signal.to_dict()
         })
         
+    except ValueError as e:
+        error_msg = str(e)
+        logger.error(f"❌ Erro específico ao gerar sinal: {error_msg}")
+        
+        # Interpretar códigos de erro específicos
+        if error_msg.startswith('COOLDOWN:'):
+            return jsonify({
+                'success': False, 
+                'error': f'Aguarde alguns minutos antes de gerar outro sinal para {symbol}',
+                'error_type': 'cooldown'
+            }), 429
+        elif error_msg.startswith('NO_DATA:') or error_msg.startswith('EMPTY_DATA:'):
+            return jsonify({
+                'success': False, 
+                'error': f'Dados de mercado indisponíveis para {symbol}. Tente novamente em alguns instantes.',
+                'error_type': 'no_data'
+            }), 503
+        elif error_msg.startswith('INSUFFICIENT_DATA:'):
+            parts = error_msg.split(':')
+            count = parts[2] if len(parts) > 2 else 'poucos'
+            return jsonify({
+                'success': False, 
+                'error': f'Dados históricos insuficientes para {symbol} ({count} registros). Timeframes menores requerem mais dados.',
+                'error_type': 'insufficient_data'
+            }), 503
+        elif error_msg.startswith('MISSING_COLUMNS:'):
+            return jsonify({
+                'success': False, 
+                'error': f'Dados de mercado incompletos para {symbol}. Verifique a conexão com a exchange.',
+                'error_type': 'invalid_data'
+            }), 503
+        elif error_msg.startswith('INVALID_DATA:'):
+            return jsonify({
+                'success': False, 
+                'error': f'Dados de mercado inválidos para {symbol}. Tente outro símbolo ou timeframe.',
+                'error_type': 'invalid_data'
+            }), 503
+        elif error_msg.startswith('INDICATORS_FAILED:'):
+            return jsonify({
+                'success': False, 
+                'error': f'Falha no cálculo de indicadores técnicos para {symbol}. Dados podem estar corrompidos.',
+                'error_type': 'indicators_error'
+            }), 500
+        elif error_msg.startswith('LOW_CONFLUENCE:'):
+            return jsonify({
+                'success': False, 
+                'error': f'Condições de mercado não favoráveis para {symbol}. Indicadores não convergem para um sinal claro.',
+                'error_type': 'low_confluence'
+            }), 200
+        elif error_msg.startswith('PRICE_ERROR:'):
+            return jsonify({
+                'success': False, 
+                'error': f'Erro ao obter preço atual de {symbol}. Verifique se o símbolo está correto.',
+                'error_type': 'price_error'
+            }), 503
+        else:
+            return jsonify({
+                'success': False, 
+                'error': f'Erro técnico: {error_msg}',
+                'error_type': 'technical_error'
+            }), 500
+            
     except Exception as e:
-        logger.error(f"❌ Erro ao gerar sinal: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
+        logger.error(f"❌ Erro inesperado ao gerar sinal: {e}")
+        return jsonify({
+            'success': False, 
+            'error': f'Erro interno do sistema. Tente novamente em alguns instantes.',
+            'error_type': 'system_error'
+        }), 500
 
 # ==================== APIS PAPER TRADING ====================
 

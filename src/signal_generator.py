@@ -88,7 +88,7 @@ class SignalGenerator:
             # Verificar cooldown
             if self._is_in_cooldown(symbol):
                 logger.info(f"Símbolo {symbol} em cooldown")
-                return None
+                raise ValueError(f"COOLDOWN:{symbol}")
             logger.info(f"✓ Cooldown OK para {symbol}")
             
             # Obter dados de mercado
@@ -98,27 +98,27 @@ class SignalGenerator:
             # Validação robusta dos dados
             if df is None:
                 logger.error(f"DataFrame é None para {symbol}")
-                return None
+                raise ValueError(f"NO_DATA:{symbol}")
             
             if df.empty:
                 logger.warning(f"DataFrame vazio para {symbol}")
-                return None
+                raise ValueError(f"EMPTY_DATA:{symbol}")
                 
             if len(df) < 100:
                 logger.warning(f"Dados insuficientes para {symbol}: {len(df)} registros")
-                return None
+                raise ValueError(f"INSUFFICIENT_DATA:{symbol}:{len(df)}")
             
             # Verificar se as colunas essenciais existem
             required_columns = ['open', 'high', 'low', 'close', 'volume']
             missing_columns = [col for col in required_columns if col not in df.columns]
             if missing_columns:
                 logger.error(f"Colunas faltantes no DataFrame para {symbol}: {missing_columns}")
-                return None
+                raise ValueError(f"MISSING_COLUMNS:{symbol}:{','.join(missing_columns)}")
             
             # Verificar se há dados válidos (não NaN)
             if df[required_columns].isnull().all().any():
                 logger.error(f"Dados contêm apenas valores NaN para {symbol}")
-                return None
+                raise ValueError(f"INVALID_DATA:{symbol}")
                 
             logger.info(f"✓ Dados válidos para {symbol}: {len(df)} registros")
             
@@ -128,7 +128,7 @@ class SignalGenerator:
                 df = self.technical_indicators.calculate_all_indicators(df)
                 if df is None or df.empty:
                     logger.error(f"Falha ao calcular indicadores técnicos para {symbol}")
-                    return None
+                    raise ValueError(f"INDICATORS_FAILED:{symbol}")
                 logger.info(f"✓ Indicadores técnicos calculados para {symbol}")
             except Exception as e:
                 logger.error(f"Erro ao calcular indicadores técnicos para {symbol}: {e}")
@@ -190,7 +190,7 @@ class SignalGenerator:
                 logger.info(f"Verificando confluência para {symbol}")
                 if not self._check_confluence(combined_signal):
                     logger.info(f"Confluência insuficiente para {symbol}")
-                    return None
+                    raise ValueError(f"LOW_CONFLUENCE:{symbol}")
                 logger.info(f"✓ Confluência verificada para {symbol}")
             else:
                 logger.info(f"✓ Confluência desabilitada")
@@ -205,7 +205,7 @@ class SignalGenerator:
             current_price = self.market_data.get_current_price(symbol)
             if current_price is None:
                 logger.error(f"Não foi possível obter preço atual para {symbol}")
-                return None
+                raise ValueError(f"PRICE_ERROR:{symbol}")
             logger.info(f"✓ Preço atual obtido para {symbol}: ${current_price:.2f}")
             
             logger.info(f"Calculando níveis de trade para {symbol}")

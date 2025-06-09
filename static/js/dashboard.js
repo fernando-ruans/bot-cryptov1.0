@@ -239,11 +239,11 @@ class SimpleTradingDashboard {
                 this.showAlert(`Novo sinal detectado: ${data.signal.signal_type} ${data.signal.symbol}`, 'success');
             } else {
                 console.error('❌ Erro ao gerar sinal:', data.error);
-                this.showAlert('Erro ao gerar sinal: ' + (data.error || 'Erro desconhecido'), 'danger');
+                this.showSpecificErrorAlert(data.error, data.error_type);
             }
         } catch (error) {
             console.error('❌ Erro de conexão ao gerar sinal:', error);
-            this.showAlert('Erro de conexão ao gerar sinal', 'danger');
+            this.showAlert('Erro de conexão ao gerar sinal. Verifique sua internet.', 'danger');
         } finally {
             btn.innerHTML = originalText;
             btn.disabled = false;
@@ -603,6 +603,51 @@ class SimpleTradingDashboard {
                 alert.parentNode.removeChild(alert);
             }
         }, 5000);
+    }
+
+    showSpecificErrorAlert(errorMessage, errorType) {
+        let alertType = 'danger';
+        let icon = '❌';
+        let title = 'Erro';
+        
+        switch(errorType) {
+            case 'cooldown':
+                alertType = 'warning';
+                icon = '⏰';
+                title = 'Aguarde';
+                break;
+            case 'no_data':
+            case 'insufficient_data':
+            case 'invalid_data':
+                alertType = 'info';
+                icon = '📊';
+                title = 'Dados Indisponíveis';
+                break;
+            case 'low_confluence':
+                alertType = 'secondary';
+                icon = '📈';
+                title = 'Condições de Mercado';
+                break;
+            case 'price_error':
+                alertType = 'warning';
+                icon = '💰';
+                title = 'Erro de Preço';
+                break;
+            case 'indicators_error':
+            case 'technical_error':
+            case 'system_error':
+                alertType = 'danger';
+                icon = '⚠️';
+                title = 'Erro Técnico';
+                break;
+            default:
+                alertType = 'danger';
+                icon = '❌';
+                title = 'Erro';
+        }
+        
+        const message = `<strong>${icon} ${title}:</strong> ${errorMessage}`;
+        this.showAlert(message, alertType);
     }
 
     getAlertIcon(type) {
