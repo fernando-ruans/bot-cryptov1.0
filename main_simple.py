@@ -120,7 +120,8 @@ def api_stop():
 @app.route('/api/generate_signal', methods=['POST'])
 def api_generate_signal():
     """Gerar novo sinal (sem restrições de confiança)"""
-    try:        # Parâmetros da requisição
+    try:
+        # Parâmetros da requisição
         data = request.get_json() if request.is_json else {}
         symbol = data.get('symbol', 'BTCUSDT')
         timeframe = data.get('timeframe', '1h')
@@ -138,7 +139,7 @@ def api_generate_signal():
                 'signal': None
             })
         
-        logger.info(f"✅ Sinal gerado: {signal.signal_type} para {symbol} @ ${signal.entry_price}")
+        logger.info(f"✅ Sinal gerado: {signal.signal_type} para {symbol} @ ${signal.price}")
         return jsonify({
             'success': True,
             'message': f'Sinal {signal.signal_type} gerado',
@@ -257,12 +258,14 @@ def api_trading_history():
                 'action': trade.action,
                 'entry_price': trade.entry_price,
                 'exit_price': trade.exit_price,
-                'amount': trade.amount,                'pnl': trade.pnl or 0,
+                'amount': trade.amount,
+                'pnl': trade.pnl or 0,
                 'status': trade.status,
                 'timestamp': trade.timestamp.isoformat()
             })
         
         logger.info(f"📜 Histórico: {len(trades_data)} trades")
+        
         return jsonify({
             'success': True,
             'trades': trades_data,
@@ -271,35 +274,6 @@ def api_trading_history():
         
     except Exception as e:
         logger.error(f"❌ Erro ao obter histórico: {e}")
-        return jsonify({'success': False, 'error': str(e)}), 500
-
-@app.route('/api/price/<symbol>')
-def get_current_price_endpoint(symbol):
-    """Obter preço atual de um ativo"""
-    try:
-        logger.info(f"📊 Obtendo preço para {symbol}")
-        
-        # Normalizar símbolo (sempre maiúsculo)
-        symbol = symbol.upper()
-        
-        # Obter preço atual
-        current_price = market_data.get_current_price(symbol)
-        
-        if current_price is None:
-            return jsonify({
-                'success': False,
-                'error': f'Não foi possível obter preço para {symbol}'
-            }), 404
-        
-        return jsonify({
-            'success': True,
-            'symbol': symbol,
-            'price': current_price,
-            'timestamp': datetime.now().isoformat()
-        })
-        
-    except Exception as e:
-        logger.error(f"❌ Erro ao obter preço: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # ==================== WEBSOCKET EVENTS ====================

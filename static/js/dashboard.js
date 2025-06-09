@@ -1,1476 +1,605 @@
-// Dashboard JavaScript para Trading Bot AI
+/**
+ * Trading Bot AI - Dashboard Simplificado
+ * Sistema Paper Trading com Fluxo Simples:
+ * 1. Gerar Sinal → 2. Aprovar/Rejeitar → 3. Contabilizar P&L → 4. Calcular Win Rate
+ */
 
-class TradingBotDashboard {
+class SimpleTradingDashboard {
     constructor() {
         this.socket = null;
-        this.charts = {};
-        this.isConnected = false;
-        this.currentSection = 'dashboard';
+        this.currentSignal = null;
+        this.currentSymbol = 'BTCUSDT';
+        this.tradingViewWidget = null;
+        this.portfolio = {
+            total_trades: 0,
+            win_rate: 0,
+            total_pnl: 0,
+            active_trades: 0
+        };
         
         this.init();
     }
 
     init() {
-        this.initializeSocket();
-        this.setupEventListeners();
-        this.initializeCharts();
-        this.loadInitialData();
-        this.startPeriodicUpdates();
-        this.setupConfidenceSlider();
-    }
-
-    // Socket.IO Setup
-    initializeSocket() {
-        this.socket = io();
+        console.log('🚀 Inicializando Trading Bot AI - Versão Simplificada');
+        this.initTradingView();
+        this.initEventListeners();
+        this.initWebSocket();
+        this.loadPortfolio();
+        this.loadActiveTradesStatus();
+        this.loadTradesHistory();
         
-        this.socket.on('connect', () => {
-            console.log('Conectado ao servidor');
-            this.isConnected = true;
-            this.showNotification('Conectado ao servidor', 'success');
-        });
+        // Carregar preço inicial
+        this.updateCurrentPrice();
+        
+        // Auto-refresh a cada 30 segundos
+        setInterval(() => {
+            this.loadPortfolio();
+            this.loadActiveTradesStatus();
+            this.updateCurrentPrice();
+        }, 30000);
+        
+        // Atualizar preço a cada 10 segundos
+        setInterval(() => {
+            this.updateCurrentPrice();
+        }, 10000);
+        
+        console.log('✅ Dashboard inicializado com sucesso!');
+    }
 
-        this.socket.on('disconnect', () => {
-            console.log('Desconectado do servidor');
-            this.isConnected = false;
-            this.showNotification('Desconectado do servidor', 'warning');
-        });
-
-        this.socket.on('bot_status', (data) => {
-            this.updateBotStatus(data.status);
-        });
-
-        this.socket.on('new_signal', (data) => {
-            this.handleNewSignal(data);
-        });
-
-        this.socket.on('position_update', (data) => {
-            this.handlePositionUpdate(data);
-        });
-
-        this.socket.on('performance_update', (data) => {
-            this.updatePerformanceData(data);
+    initTradingView() {
+        console.log('📈 Inicializando TradingView...');
+        this.tradingViewWidget = new TradingView.widget({
+            "width": "100%",
+            "height": "500",
+            "symbol": "BINANCE:BTCUSDT",
+            "interval": "5",
+            "timezone": "America/Sao_Paulo",
+            "theme": "light",
+            "style": "1",
+            "locale": "pt_BR",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "hide_top_toolbar": false,
+            "hide_legend": true,
+            "save_image": false,
+            "container_id": "tradingview_chart",
+            "studies": [
+                "RSI@tv-basicstudies",
+                "MASimple@tv-basicstudies",
+                "MACD@tv-basicstudies"
+            ]
         });
     }
 
-    // Event Listeners
-    setupEventListeners() {
-        // Navigation
-        document.querySelectorAll('.nav-link[data-section]').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const section = e.target.closest('.nav-link').dataset.section;
-                this.showSection(section);
-            });
-        });
-
-        // Asset Selection
-        const assetSelect = document.getElementById('assetSelect');
-        if (assetSelect) {
-            assetSelect.addEventListener('change', (e) => {
-                this.updateCurrentAsset(e.target.value);
-            });
-        }
-
-        // Timeframe Selection
-        const timeframeSelect = document.getElementById('timeframeSelect');
-        if (timeframeSelect) {
-            timeframeSelect.addEventListener('change', (e) => {
-                this.updateTimeframe(e.target.value);
-            });
-        }
-
-        // Confidence Slider
-        const confidenceSlider = document.getElementById('confidenceSlider');
-        if (confidenceSlider) {
-            confidenceSlider.addEventListener('input', (e) => {
-                this.updateConfidence(e.target.value);
-            });
-        }
-
-        // Bot Controls
-        document.getElementById('startBot').addEventListener('click', () => {
-            this.startBot();
-        });
-
-        document.getElementById('stopBot').addEventListener('click', () => {
-            this.stopBot();
-        });
-
-        document.getElementById('generateSignal').addEventListener('click', () => {
+    initEventListeners() {
+        console.log('🎯 Configurando event listeners...');
+        
+        // Gerar sinal
+        document.getElementById('generateSignalBtn').addEventListener('click', () => {
             this.generateSignal();
         });
 
-        // Settings
-        const saveSettings = document.getElementById('saveSettings');
-        if (saveSettings) {
-            saveSettings.addEventListener('click', () => {
-                this.saveSettings();
-            });
-        }
+        // Confirmar sinal
+        document.getElementById('confirmSignalBtn').addEventListener('click', () => {
+            this.confirmSignal();
+        });
 
-        // Test Signal Generation
-        const generateTestSignal = document.getElementById('generateTestSignal');
-        if (generateTestSignal) {
-            generateTestSignal.addEventListener('click', () => {
-                this.generateTestSignal();
-            });
-        }
+        // Rejeitar sinal
+        document.getElementById('rejectSignalBtn').addEventListener('click', () => {
+            this.rejectSignal();
+        });
 
-        // Real Signal Generation
-        const generateRealSignal = document.getElementById('generateRealSignal');
-        if (generateRealSignal) {
-            generateRealSignal.addEventListener('click', () => {
-                this.generateRealSignal();
-            });
-        }
+        // Atualizar histórico
+        document.getElementById('refreshHistoryBtn').addEventListener('click', () => {
+            this.loadTradesHistory();
+        });
 
-        // Auto-refresh toggle
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                this.pauseUpdates();
-            } else {
-                this.resumeUpdates();
-            }
+        // Seletor de ativos
+        document.getElementById('assetSelector').addEventListener('change', (e) => {
+            this.changeAsset(e.target.value);
         });
     }
 
-    // Navigation
-    showSection(sectionName) {
-        // Hide all sections
-        document.querySelectorAll('.content-section').forEach(section => {
-            section.style.display = 'none';
-        });
-
-        // Show selected section
-        const targetSection = document.getElementById(`${sectionName}-section`);
-        if (targetSection) {
-            targetSection.style.display = 'block';
-        }
-
-        // Update navigation for both sidebar and mobile nav
-        document.querySelectorAll('.nav-link[data-section]').forEach(link => {
-            link.classList.remove('active');
-        });
+    initWebSocket() {
+        console.log('🔗 Conectando WebSocket...');
+        this.socket = io();
         
-        // Update all links with the same data-section attribute
-        document.querySelectorAll(`[data-section="${sectionName}"]`).forEach(link => {
-            link.classList.add('active');
+        this.socket.on('connect', () => {
+            console.log('✅ WebSocket conectado');
+            this.updateBotStatus(true);
         });
 
-        this.currentSection = sectionName;
+        this.socket.on('disconnect', () => {
+            console.log('❌ WebSocket desconectado');
+            this.updateBotStatus(false);
+        });
+
+        this.socket.on('price_update', (data) => {
+            this.handlePriceUpdate(data);
+        });
+
+        this.socket.on('trade_update', (data) => {
+            this.handleTradeUpdate(data);
+        });
+    }
+
+    updateBotStatus(isRunning) {
+        const statusElement = document.getElementById('botStatus');
+        const statusTextElement = document.getElementById('botStatusText');
         
-        // Load section-specific data
-        this.loadSectionData(sectionName);
-        
-        // Scroll to top on mobile
-        if (window.innerWidth <= 768) {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-    }
-
-    loadSectionData(section) {
-        switch (section) {
-            case 'signals':
-                this.loadSignals();
-                break;
-            case 'positions':
-                this.loadPositions();
-                break;
-            case 'paper-trading':
-                this.initializePaperTrading();
-                break;
-            case 'performance':
-                this.loadPerformanceData();
-                break;
-            case 'settings':
-                this.loadSettings();
-                break;
-        }
-    }
-
-    // Bot Controls
-    async startBot() {
-        try {
-            this.showLoading(true);
-            const response = await fetch('/api/start', { method: 'POST' });
-            const data = await response.json();
-            
-            if (data.success) {
-                this.showNotification('Bot iniciado com sucesso', 'success');
-                this.updateBotStatus('running');
-            } else {
-                this.showNotification(`Erro ao iniciar bot: ${data.message}`, 'error');
-            }
-        } catch (error) {
-            this.showNotification('Erro de conexão ao iniciar bot', 'error');
-        } finally {
-            this.showLoading(false);
-        }
-    }
-
-    async stopBot() {
-        try {
-            this.showLoading(true);
-            const response = await fetch('/api/stop', { method: 'POST' });
-            const data = await response.json();
-            
-            if (data.success) {
-                this.showNotification('Bot parado com sucesso', 'success');
-                this.updateBotStatus('stopped');
-            } else {
-                this.showNotification(`Erro ao parar bot: ${data.message}`, 'error');
-            }
-        } catch (error) {
-            this.showNotification('Erro de conexão ao parar bot', 'error');
-        } finally {
-            this.showLoading(false);
+        if (isRunning) {
+            statusElement.className = 'status-indicator status-running';
+            statusTextElement.textContent = 'Online';
+        } else {
+            statusElement.className = 'status-indicator status-stopped';
+            statusTextElement.textContent = 'Offline';
         }
     }
 
     async generateSignal() {
+        console.log('🎰 Gerando novo sinal...');
+        const btn = document.getElementById('generateSignalBtn');
+        const originalText = btn.innerHTML;
+        
         try {
-            this.showLoading(true);
-            
-            const assetSelect = document.getElementById('assetSelect');
-            const timeframeSelect = document.getElementById('timeframeSelect');
-            const confidenceSlider = document.getElementById('confidenceSlider');
-            
-            const selectedAsset = assetSelect ? assetSelect.value : 'BTCUSDT';
-            const selectedTimeframe = timeframeSelect ? timeframeSelect.value : '1h';
-            const minConfidence = confidenceSlider ? confidenceSlider.value : 70;
-            
-            this.showNotification(`Gerando sinal para ${selectedAsset} (${selectedTimeframe})...`, 'info');
-            
-            const response = await fetch('/api/generate_signal', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    symbol: selectedAsset,
-                    timeframe: selectedTimeframe,
-                    min_confidence: minConfidence / 100
-                })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-                this.showNotification(`Sinal gerado para ${selectedAsset}!`, 'success');
-                this.loadSignals();
-                this.displayNewSignal(data.signal);
-            } else {
-                this.showNotification(`Erro ao gerar sinal: ${data.message}`, 'error');
-            }
-        } catch (error) {
-            this.showNotification('Erro de conexão ao gerar sinal', 'error');
-        } finally {
-            this.showLoading(false);
-        }
-    }
-
-    async generateTestSignal() {
-        try {
-            this.showNotification('Gerando sinal de teste...', 'info');
-            
-            const response = await fetch('/api/generate_test_signal', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const data = await response.json();
-            
-            if (data.success) {
-                this.showNotification(`✅ Sinal de teste gerado: ${data.signal.signal_type.toUpperCase()} ${data.signal.symbol} - Confiança: ${(data.signal.confidence * 100).toFixed(1)}%`, 'success');
-                
-                // Reload signals if we're on the signals section
-                if (this.currentSection === 'signals' || this.currentSection === 'dashboard') {
-                    setTimeout(() => {
-                        this.loadSectionData(this.currentSection);
-                    }, 1000);
-                }
-            } else {
-                this.showNotification(`❌ Erro ao gerar sinal de teste: ${data.error}`, 'error');
-            }
-        } catch (error) {
-            this.showNotification('Erro de conexão ao gerar sinal de teste', 'error');
-        }
-    }
-
-    async generateRealSignal() {
-        try {
-            this.showNotification('Gerando sinal real com dados de mercado...', 'info');
-            
-            const response = await fetch('/api/generate_signal', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    symbol: 'BTCUSDT',
-                    timeframe: '1h'
-                })
-            });
-
-            const data = await response.json();
-            
-            if (data.success) {
-                this.showNotification(`🎯 Sinal real gerado: ${data.signal.signal_type.toUpperCase()} ${data.signal.symbol} - Confiança: ${(data.signal.confidence * 100).toFixed(1)}%`, 'success');
-                
-                // Reload signals if we're on the signals section
-                if (this.currentSection === 'signals' || this.currentSection === 'dashboard') {
-                    setTimeout(() => {
-                        this.loadSectionData(this.currentSection);
-                    }, 1000);
-                }
-            } else {
-                this.showNotification(`⚠️ ${data.message || 'Nenhum sinal gerado no momento'}`, 'warning');
-            }
-        } catch (error) {
-            this.showNotification('Erro de conexão ao gerar sinal real', 'error');
-        }
-    }
-
-    // Asset Selection Functions
-    updateCurrentAsset(asset) {
-        const assetDisplay = asset.replace('USDT', '/USDT').replace('USD', '/USD');
-        const currentAssetElement = document.getElementById('currentAsset');
-        if (currentAssetElement) {
-            currentAssetElement.textContent = assetDisplay;
-        }
-        this.showNotification(`Ativo alterado para ${assetDisplay}`, 'info');
-    }
-
-    updateTimeframe(timeframe) {
-        this.showNotification(`Timeframe alterado para ${timeframe}`, 'info');
-    }
-
-    updateConfidence(confidence) {
-        const confidenceValueElement = document.getElementById('confidenceValue');
-        if (confidenceValueElement) {
-            confidenceValueElement.textContent = `${confidence}%`;
-        }
-    }
-
-    // Display New Signal with Details
-    displayNewSignal(signal) {
-        if (!signal) return;
-        
-        const signalHtml = `
-            <div class="alert alert-info alert-dismissible fade show" role="alert">
-                <h6><i class="fas fa-bullhorn me-2"></i>Novo Sinal Gerado!</h6>
-                <div class="row">
-                    <div class="col-md-6">
-                        <strong>Ativo:</strong> ${signal.symbol || 'N/A'}<br>
-                        <strong>Tipo:</strong> <span class="badge bg-${signal.signal_type === 'BUY' ? 'success' : signal.signal_type === 'SELL' ? 'danger' : 'warning'}">${signal.signal_type || 'HOLD'}</span><br>
-                        <strong>Confiança:</strong> ${signal.confidence ? (signal.confidence * 100).toFixed(1) : 'N/A'}%
-                    </div>
-                    <div class="col-md-6">
-                        <strong>Entrada:</strong> $${signal.entry_price || 'N/A'}<br>
-                        <strong>Stop Loss:</strong> $${signal.stop_loss || 'N/A'}<br>
-                        <strong>Take Profit:</strong> $${signal.take_profit || 'N/A'}
-                    </div>
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-        
-        const container = document.querySelector('#dashboard-section .container-fluid');
-        if (container) {
-            container.insertAdjacentHTML('afterbegin', signalHtml);
-        }
-    }
-
-    // Data Loading
-    async loadInitialData() {
-        await Promise.all([
-            this.loadBotStatus(),
-            this.loadDashboardStats(),
-            this.loadRecentSignals()
-        ]);
-    }
-
-    async loadBotStatus() {
-        try {
-            const response = await fetch('/api/status');
-            const data = await response.json();
-            this.updateBotStatus(data.status);
-        } catch (error) {
-            console.error('Erro ao carregar status do bot:', error);
-        }
-    }
-
-    async loadDashboardStats() {
-        try {
-            const response = await fetch('/api/stats');
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-            const data = await response.json();
-            this.updateDashboardStats(data);
-        } catch (error) {
-            console.error('Erro ao carregar estatísticas:', error);
-            // Use dados simulados se a API falhar
-            this.updateDashboardStats({
-                total_pnl: 0,
-                active_signals: 0,
-                open_positions: 0,
-                win_rate: 0
-            });
-        }
-    }
-
-    async loadRecentSignals() {
-        try {
-            const response = await fetch('/api/signals?limit=5');
-            const data = await response.json();
-            this.displayRecentSignals(data.signals || []);
-        } catch (error) {
-            console.error('Erro ao carregar sinais recentes:', error);
-        }
-    }
-
-    async loadSignals() {
-        try {
-            const response = await fetch('/api/signals');
-            const data = await response.json();
-            this.displaySignalsTable(data.signals || []);
-        } catch (error) {
-            console.error('Erro ao carregar sinais:', error);
-        }
-    }
-
-    async loadPositions() {
-        try {
-            const response = await fetch('/api/positions');
-            const data = await response.json();
-            this.displayPositionsTable(data.positions || []);
-        } catch (error) {
-            console.error('Erro ao carregar posições:', error);
-        }
-    }
-
-    async loadPerformanceData() {
-        try {
-            const response = await fetch('/api/performance');
-            const data = await response.json();
-            this.updatePerformanceCharts(data);
-        } catch (error) {
-            console.error('Erro ao carregar dados de performance:', error);
-        }
-    }
-
-    async loadSettings() {
-        try {
-            const response = await fetch('/api/settings');
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-            const data = await response.json();
-            this.populateSettings(data.settings || {});
-        } catch (error) {
-            console.error('Erro ao carregar configurações:', error);
-            // Carregar configurações padrão
-            this.populateSettings({
-                risk_per_trade: 2,
-                max_drawdown: 20,
-                max_daily_loss: 10,
-                primary_timeframe: '1h',
-                min_confidence: 70,
-                max_positions: 5
-            });
-        }
-    }
-
-    async saveSettings() {
-        try {
-            const settings = {
-                risk_per_trade: parseFloat(document.getElementById('riskPerTrade').value),
-                max_drawdown: parseFloat(document.getElementById('maxDrawdown').value),
-                max_daily_loss: parseFloat(document.getElementById('maxDailyLoss').value),
-                primary_timeframe: document.getElementById('primaryTimeframe').value,
-                min_confidence: parseFloat(document.getElementById('minConfidence').value),
-                max_positions: parseInt(document.getElementById('maxPositions').value)
-            };
-
-            const response = await fetch('/api/settings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ settings })
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            if (data.success) {
-                this.showNotification('Configurações salvas com sucesso', 'success');
-            } else {
-                this.showNotification(`Erro ao salvar: ${data.message}`, 'error');
-            }
-        } catch (error) {
-            console.error('Erro ao salvar configurações:', error);
-            this.showNotification('Erro ao salvar configurações', 'error');
-        }
-    }
-
-    populateSettings(settings) {
-        document.getElementById('riskPerTrade').value = settings.risk_per_trade || 2;
-        document.getElementById('maxDrawdown').value = settings.max_drawdown || 20;
-        document.getElementById('maxDailyLoss').value = settings.max_daily_loss || 10;
-        document.getElementById('primaryTimeframe').value = settings.primary_timeframe || '1h';
-        document.getElementById('minConfidence').value = settings.min_confidence || 70;
-        document.getElementById('maxPositions').value = settings.max_positions || 5;
-    }
-
-    // UI Updates
-    updateBotStatus(status) {
-        const statusIndicator = document.getElementById('botStatus');
-        const statusText = document.getElementById('botStatusText');
-        
-        statusIndicator.className = 'status-indicator';
-        
-        if (status === 'running') {
-            statusIndicator.classList.add('status-running');
-            statusText.textContent = 'Executando';
-        } else {
-            statusIndicator.classList.add('status-stopped');
-            statusText.textContent = 'Parado';
-        }
-    }
-
-    updateDashboardStats(stats) {
-        document.getElementById('totalPnl').textContent = this.formatCurrency(stats.total_pnl || 0);
-        document.getElementById('activeSignals').textContent = stats.active_signals || 0;
-        document.getElementById('openPositions').textContent = stats.open_positions || 0;
-        document.getElementById('winRate').textContent = this.formatPercentage(stats.win_rate || 0);
-    }
-
-    displayRecentSignals(signals) {
-        const container = document.getElementById('recentSignals');
-        
-        if (signals.length === 0) {
-            container.innerHTML = '<div class="text-center text-muted">Nenhum sinal recente</div>';
-            return;
-        }
-
-        container.innerHTML = signals.map(signal => `
-            <div class="signal-card card mb-2 ${signal.signal_type}">
-                <div class="card-body py-2">
-                    <div class="row align-items-center">
-                        <div class="col-md-2">
-                            <strong>${signal.symbol}</strong>
-                        </div>
-                        <div class="col-md-2">
-                            <span class="badge badge-custom bg-${this.getSignalColor(signal.signal_type)}">
-                                ${signal.signal_type.toUpperCase()}
-                            </span>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="confidence-bar">
-                                <div class="confidence-fill" style="width: ${signal.confidence}%"></div>
-                            </div>
-                            <small>${signal.confidence}%</small>
-                        </div>
-                        <div class="col-md-2">
-                            $${signal.entry_price}
-                        </div>
-                        <div class="col-md-2">
-                            ${signal.timeframe}
-                        </div>
-                        <div class="col-md-2">
-                            <small class="text-muted">${this.formatDate(signal.timestamp)}</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    displaySignalsTable(signals) {
-        const tbody = document.getElementById('signalsTable');
-        
-        if (signals.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">Nenhum sinal encontrado</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = signals.map(signal => `
-            <tr>
-                <td><strong>${signal.symbol}</strong></td>
-                <td>
-                    <span class="badge badge-custom bg-${this.getSignalColor(signal.signal_type)}">
-                        ${signal.signal_type.toUpperCase()}
-                    </span>
-                </td>
-                <td>
-                    <div class="confidence-bar mb-1">
-                        <div class="confidence-fill" style="width: ${signal.confidence}%"></div>
-                    </div>
-                    ${signal.confidence}%
-                </td>
-                <td>$${signal.entry_price}</td>
-                <td>$${signal.stop_loss}</td>
-                <td>$${signal.take_profit}</td>
-                <td>${signal.timeframe}</td>
-                <td>
-                    <span class="badge badge-custom bg-${this.getStatusColor(signal.status)}">
-                        ${signal.status}
-                    </span>
-                </td>
-                <td>${this.formatDate(signal.timestamp)}</td>
-            </tr>
-        `).join('');
-    }
-
-    displayPositionsTable(positions) {
-        const tbody = document.getElementById('positionsTable');
-        
-        if (positions.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">Nenhuma posição encontrada</td></tr>';
-            return;
-        }
-
-        tbody.innerHTML = positions.map(position => `
-            <tr>
-                <td><strong>${position.symbol}</strong></td>
-                <td>
-                    <span class="badge badge-custom bg-${position.side === 'buy' ? 'success' : 'danger'}">
-                        ${position.side.toUpperCase()}
-                    </span>
-                </td>
-                <td>${position.size}</td>
-                <td>$${position.entry_price}</td>
-                <td>$${position.current_price || 'N/A'}</td>
-                <td class="${position.unrealized_pnl >= 0 ? 'text-success' : 'text-danger'}">
-                    ${this.formatCurrency(position.unrealized_pnl || 0)}
-                </td>
-                <td>
-                    <span class="badge badge-custom bg-${this.getStatusColor(position.status)}">
-                        ${position.status}
-                    </span>
-                </td>
-                <td>${this.formatDate(position.open_time)}</td>
-            </tr>
-        `).join('');
-    }
-
-    // Charts
-    initializeCharts() {
-        this.initEquityChart();
-        this.initSignalsChart();
-        this.initPerformanceChart();
-    }
-
-    initEquityChart() {
-        const ctx = document.getElementById('equityChart').getContext('2d');
-        this.charts.equity = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'Equity',
-                    data: [],
-                    borderColor: '#3498db',
-                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
-                    fill: true,
-                    tension: 0.4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toLocaleString();
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                }
-            }
-        });
-    }
-
-    initSignalsChart() {
-        const ctx = document.getElementById('signalsChart').getContext('2d');
-        this.charts.signals = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Buy', 'Sell', 'Hold'],
-                datasets: [{
-                    data: [0, 0, 0],
-                    backgroundColor: ['#27ae60', '#e74c3c', '#f39c12']
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
-            }
-        });
-    }
-
-    initPerformanceChart() {
-        const ctx = document.getElementById('performanceChart').getContext('2d');
-        this.charts.performance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: [],
-                datasets: [{
-                    label: 'PnL Diário',
-                    data: [],
-                    backgroundColor: function(context) {
-                        const value = context.parsed && context.parsed.y !== undefined ? context.parsed.y : 0;
-                        return value >= 0 ? '#27ae60' : '#e74c3c';
-                    }
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '$' + value.toLocaleString();
-                            }
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    updatePerformanceCharts(data) {
-        // Update equity chart
-        if (data.equity_curve) {
-            this.charts.equity.data.labels = data.equity_curve.dates;
-            this.charts.equity.data.datasets[0].data = data.equity_curve.values;
-            this.charts.equity.update();
-        }
-
-        // Update signals distribution
-        if (data.signal_distribution) {
-            this.charts.signals.data.datasets[0].data = [
-                data.signal_distribution.buy || 0,
-                data.signal_distribution.sell || 0,
-                data.signal_distribution.hold || 0
-            ];
-            this.charts.signals.update();
-        }
-
-        // Update performance chart
-        if (data.daily_pnl) {
-            this.charts.performance.data.labels = data.daily_pnl.dates;
-            this.charts.performance.data.datasets[0].data = data.daily_pnl.values;
-            this.charts.performance.update();
-        }
-
-        // Update performance stats
-        if (data.stats) {
-            this.displayPerformanceStats(data.stats);
-        }
-    }
-
-    displayPerformanceStats(stats) {
-        const container = document.getElementById('performanceStats');
-        container.innerHTML = `
-            <div class="row">
-                <div class="col-6 mb-3">
-                    <div class="text-center">
-                        <h6 class="text-muted">Sharpe Ratio</h6>
-                        <h4>${(stats.sharpe_ratio || 0).toFixed(2)}</h4>
-                    </div>
-                </div>
-                <div class="col-6 mb-3">
-                    <div class="text-center">
-                        <h6 class="text-muted">Sortino Ratio</h6>
-                        <h4>${(stats.sortino_ratio || 0).toFixed(2)}</h4>
-                    </div>
-                </div>
-                <div class="col-6 mb-3">
-                    <div class="text-center">
-                        <h6 class="text-muted">Max Drawdown</h6>
-                        <h4 class="text-danger">${this.formatPercentage(stats.max_drawdown || 0)}</h4>
-                    </div>
-                </div>
-                <div class="col-6 mb-3">
-                    <div class="text-center">
-                        <h6 class="text-muted">Profit Factor</h6>
-                        <h4>${(stats.profit_factor || 0).toFixed(2)}</h4>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="text-center">
-                        <h6 class="text-muted">Total de Trades</h6>
-                        <h4>${stats.total_trades || 0}</h4>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // Settings
-    populateSettings(settings) {
-        document.getElementById('riskPerTrade').value = settings.risk_per_trade || 2;
-        document.getElementById('maxDrawdown').value = settings.max_drawdown || 20;
-        document.getElementById('maxDailyLoss').value = settings.max_daily_loss || 10;
-        document.getElementById('primaryTimeframe').value = settings.primary_timeframe || '1h';
-        
-        // Set min confidence slider value and update display
-        const minConfidenceValue = (settings.min_confidence || 5);
-        const slider = document.getElementById('minConfidence');
-        const display = document.getElementById('minConfidenceValue');
-        if (slider && display) {
-            slider.value = minConfidenceValue;
-            display.textContent = minConfidenceValue;
-        }
-        
-        document.getElementById('maxPositions').value = settings.max_positions || 5;
-    }
-
-    setupConfidenceSlider() {
-        const slider = document.getElementById('minConfidence');
-        const display = document.getElementById('minConfidenceValue');
-        
-        if (slider && display) {
-            slider.addEventListener('input', (e) => {
-                display.textContent = e.target.value;
-            });
-        }
-    }
-
-    async saveSettings() {
-        const settings = {
-            risk_per_trade: parseFloat(document.getElementById('riskPerTrade').value),
-            max_drawdown: parseFloat(document.getElementById('maxDrawdown').value),
-            max_daily_loss: parseFloat(document.getElementById('maxDailyLoss').value),
-            primary_timeframe: document.getElementById('primaryTimeframe').value,
-            min_confidence: parseFloat(document.getElementById('minConfidence').value),
-            max_positions: parseInt(document.getElementById('maxPositions').value)
-        };
-
-        try {
-            const response = await fetch('/api/settings', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(settings)
-            });
-
-            const data = await response.json();
-            
-            if (data.success) {
-                this.showNotification(`Configurações salvas! Confiança mínima: ${settings.min_confidence}%`, 'success');
-                
-                // Reload current section to apply new settings
-                if (this.currentSection === 'signals' || this.currentSection === 'dashboard') {
-                    setTimeout(() => {
-                        this.loadSectionData(this.currentSection);
-                    }, 1000);
-                }
-            } else {
-                this.showNotification('Erro ao salvar configurações', 'error');
-            }
-        } catch (error) {
-            this.showNotification('Erro de conexão ao salvar configurações', 'error');
-        }
-    }
-
-    // Socket Event Handlers
-    handleNewSignal(signal) {
-        console.log('Novo sinal recebido:', signal);
-        
-        // Show detailed notification
-        const confidence = typeof signal.confidence === 'number' ? 
-            (signal.confidence * 100).toFixed(1) : 
-            (parseFloat(signal.confidence) * 100).toFixed(1);
-            
-        const signalType = signal.signal_type.toUpperCase();
-        const symbol = signal.symbol;
-        
-        this.showNotification(
-            `🎯 NOVO SINAL: ${signalType} ${symbol} | Confiança: ${confidence}% | Preço: $${signal.entry_price}`, 
-            'success'
-        );
-        
-        // Auto-refresh current section
-        if (this.currentSection === 'dashboard') {
-            this.loadRecentSignals();
-            this.loadDashboardStats();
-        } else if (this.currentSection === 'signals') {
-            this.loadSignals();
-        }
-    }
-
-    handlePositionUpdate(position) {
-        if (this.currentSection === 'positions') {
-            this.loadPositions();
-        }
-        
-        this.loadDashboardStats();
-    }
-
-    updatePerformanceData(data) {
-        this.updateDashboardStats(data);
-        
-        if (this.currentSection === 'performance') {
-            this.updatePerformanceCharts(data);
-        }
-    }
-
-    // Utility Functions
-    formatCurrency(value) {
-        return new Intl.NumberFormat('pt-BR', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(value);
-    }
-
-    formatPercentage(value) {
-        return `${value.toFixed(2)}%`;
-    }
-
-    formatDate(dateString) {
-        const date = new Date(dateString);
-        return date.toLocaleString('pt-BR');
-    }
-
-    getSignalColor(signalType) {
-        const colors = {
-            'buy': 'success',
-            'sell': 'danger',
-            'hold': 'warning'
-        };
-        return colors[signalType] || 'secondary';
-    }
-
-    getStatusColor(status) {
-        const colors = {
-            'active': 'primary',
-            'executed': 'success',
-            'cancelled': 'secondary',
-            'open': 'info',
-            'closed': 'success'
-        };
-        return colors[status] || 'secondary';
-    }
-
-    showNotification(message, type = 'info') {
-        const container = document.getElementById('notificationContainer');
-        const id = 'notification-' + Date.now();
-        
-        const alertClass = {
-            'success': 'alert-success',
-            'error': 'alert-danger',
-            'warning': 'alert-warning',
-            'info': 'alert-info'
-        }[type] || 'alert-info';
-
-        const notification = document.createElement('div');
-        notification.id = id;
-        notification.className = `alert ${alertClass} alert-dismissible fade show notification`;
-        notification.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        `;
-
-        container.appendChild(notification);
-
-        // Auto remove after 5 seconds
-        setTimeout(() => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.remove();
-            }
-        }, 5000);
-    }
-
-    showLoading(show) {
-        const overlay = document.getElementById('loadingOverlay');
-        overlay.style.display = show ? 'block' : 'none';
-    }
-
-    // Periodic Updates
-    startPeriodicUpdates() {
-        this.updateInterval = setInterval(() => {
-            if (this.isConnected && !document.hidden) {
-                this.loadDashboardStats();
-                
-                if (this.currentSection === 'dashboard') {
-                    this.loadRecentSignals();
-                }
-            }
-        }, 30000); // Update every 30 seconds
-    }
-
-    pauseUpdates() {
-        if (this.updateInterval) {
-            clearInterval(this.updateInterval);
-        }
-    }
-
-    resumeUpdates() {
-        this.startPeriodicUpdates();
-    }
-
-    // Paper Trading Methods
-    initializePaperTrading() {
-        this.initializeTradingViewWidget();
-        this.loadPaperTradingData();
-        this.setupPaperTradingEventListeners();
-    }
-
-    setupPaperTradingEventListeners() {
-        // Generate Signal Button
-        const generateSignalBtn = document.getElementById('generateSignalBtn');
-        if (generateSignalBtn) {
-            generateSignalBtn.addEventListener('click', () => {
-                this.generateSignalForPaperTrading();
-            });
-        }
-
-        // Confirm Signal Button
-        const confirmSignalBtn = document.getElementById('confirmSignalBtn');
-        if (confirmSignalBtn) {
-            confirmSignalBtn.addEventListener('click', () => {
-                this.confirmPaperTradingSignal();
-            });
-        }
-
-        // Reject Signal Button
-        const rejectSignalBtn = document.getElementById('rejectSignalBtn');
-        if (rejectSignalBtn) {
-            rejectSignalBtn.addEventListener('click', () => {
-                this.rejectPaperTradingSignal();
-            });
-        }
-
-        // Refresh buttons
-        const refreshTradesBtn = document.getElementById('refreshTradesBtn');
-        if (refreshTradesBtn) {
-            refreshTradesBtn.addEventListener('click', () => {
-                this.loadActiveTrades();
-            });
-        }
-
-        const refreshHistoryBtn = document.getElementById('refreshHistoryBtn');
-        if (refreshHistoryBtn) {
-            refreshHistoryBtn.addEventListener('click', () => {
-                this.loadTradeHistory();
-            });
-        }
-
-        // Export History Button
-        const exportHistoryBtn = document.getElementById('exportHistoryBtn');
-        if (exportHistoryBtn) {
-            exportHistoryBtn.addEventListener('click', () => {
-                this.exportTradeHistory();
-            });
-        }
-    }
-
-    initializeTradingViewWidget() {
-        if (typeof TradingView !== 'undefined' && document.getElementById('tradingview_chart')) {
-            this.tradingViewWidget = new TradingView.widget({
-                "width": "100%",
-                "height": 500,
-                "symbol": "BINANCE:BTCUSDT",
-                "interval": "1H",
-                "timezone": "America/Sao_Paulo",
-                "theme": "light",
-                "style": "1",
-                "locale": "pt",
-                "toolbar_bg": "#f1f3f6",
-                "enable_publishing": false,
-                "allow_symbol_change": true,
-                "container_id": "tradingview_chart",
-                "studies": [
-                    "RSI@tv-basicstudies",
-                    "BB@tv-basicstudies",
-                    "MACD@tv-basicstudies"
-                ]
-            });
-        }
-    }
-
-    async generateSignalForPaperTrading() {
-        try {
-            this.showLoading(true);
-            const assetSelect = document.getElementById('assetSelect');
-            const symbol = assetSelect ? assetSelect.value : 'BTCUSDT';
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Gerando...';
+            btn.disabled = true;
 
             const response = await fetch('/api/generate_signal', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ symbol: symbol })
+                body: JSON.stringify({
+                    symbol: this.currentSymbol
+                })
             });
 
             const data = await response.json();
             
             if (data.success && data.signal) {
-                this.displaySignalForConfirmation(data.signal);
-                this.showNotification('Sinal gerado com sucesso', 'success');
+                console.log('✅ Sinal gerado:', data.signal);
+                this.currentSignal = data.signal;
+                this.displayCurrentSignal(data.signal);
+                this.showAlert(`Novo sinal detectado: ${data.signal.signal_type} ${data.signal.symbol}`, 'success');
             } else {
-                this.showNotification('Erro ao gerar sinal: ' + (data.message || 'Erro desconhecido'), 'error');
+                console.error('❌ Erro ao gerar sinal:', data.error);
+                this.showAlert('Erro ao gerar sinal: ' + (data.error || 'Erro desconhecido'), 'danger');
             }
         } catch (error) {
-            console.error('Error generating signal:', error);
-            this.showNotification('Erro ao gerar sinal', 'error');
+            console.error('❌ Erro de conexão ao gerar sinal:', error);
+            this.showAlert('Erro de conexão ao gerar sinal', 'danger');
         } finally {
-            this.showLoading(false);
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
     }
 
-    displaySignalForConfirmation(signal) {
-        const lastSignalDiv = document.getElementById('lastSignal');
-        const signalDetailsDiv = document.getElementById('signalDetails');
+    displayCurrentSignal(signal) {
+        console.log('📊 Exibindo sinal:', signal);
+        const card = document.getElementById('currentSignalCard');
+        const actionElement = document.getElementById('signalAction');
+        const priceElement = document.getElementById('signalPrice');
+        const symbolElement = document.getElementById('signalSymbol');
+
+        // Definir cor da ação
+        actionElement.className = `badge fs-6 ${signal.signal_type === 'buy' ? 'bg-success' : 'bg-danger'}`;
+        actionElement.textContent = signal.signal_type?.toUpperCase() || 'N/A';
         
-        if (lastSignalDiv && signalDetailsDiv) {
-            lastSignalDiv.style.display = 'none';
-            signalDetailsDiv.style.display = 'block';
+        priceElement.textContent = `$${parseFloat(signal.entry_price).toFixed(2)}`;
+        symbolElement.textContent = signal.symbol;
 
-            // Update signal details
-            document.getElementById('signalSymbol').textContent = signal.symbol || '-';
-            
-            const signalTypeSpan = document.getElementById('signalType');
-            signalTypeSpan.textContent = signal.signal || '-';
-            signalTypeSpan.className = `badge ${signal.signal === 'BUY' ? 'bg-success' : signal.signal === 'SELL' ? 'bg-danger' : 'bg-warning'}`;
-            
-            document.getElementById('signalConfidence').textContent = (signal.confidence || 0).toFixed(2);
-            document.getElementById('signalPrice').textContent = (signal.entry_price || 0).toFixed(2);
-            document.getElementById('signalStopLoss').textContent = (signal.stop_loss || 0).toFixed(2);
-            document.getElementById('signalTakeProfit').textContent = (signal.take_profit || 0).toFixed(2);
-
-            // Store signal for confirmation
-            this.currentSignal = signal;
-        }
+        // Aplicar classe CSS baseada na ação
+        card.className = `card signal-card signal-alert mb-4 ${signal.signal_type?.toLowerCase() || 'neutral'}`;
+        card.style.display = 'block';
     }
 
-    async confirmPaperTradingSignal() {
+    async confirmSignal() {
         if (!this.currentSignal) {
-            this.showNotification('Nenhum sinal disponível para confirmação', 'warning');
+            this.showAlert('Nenhum sinal para confirmar', 'warning');
             return;
         }
 
+        console.log('✅ Confirmando sinal:', this.currentSignal);
+
         try {
-            this.showLoading(true);
             const response = await fetch('/api/paper_trading/confirm_signal', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(this.currentSignal)
+                body: JSON.stringify({
+                    signal: this.currentSignal,
+                    amount: 1000 // Valor padrão fictício
+                })
             });
 
             const data = await response.json();
             
             if (data.success) {
-                this.showNotification('Trade criado com sucesso no paper trading', 'success');
-                this.rejectPaperTradingSignal(); // Clear the signal
-                this.loadPaperTradingData(); // Refresh data
+                console.log('✅ Trade confirmado com sucesso!');
+                this.showAlert('✅ Trade confirmado com sucesso!', 'success');
+                this.hideCurrentSignal();
+                this.loadPortfolio();
+                this.loadActiveTradesStatus();
+                this.loadTradesHistory();
             } else {
-                this.showNotification('Erro ao criar trade: ' + (data.message || 'Erro desconhecido'), 'error');
+                console.error('❌ Erro ao confirmar trade:', data.error);
+                this.showAlert('Erro ao confirmar trade: ' + (data.error || 'Erro desconhecido'), 'danger');
             }
         } catch (error) {
-            console.error('Error confirming signal:', error);
-            this.showNotification('Erro ao confirmar sinal', 'error');
-        } finally {
-            this.showLoading(false);
+            console.error('❌ Erro de conexão ao confirmar trade:', error);
+            this.showAlert('Erro de conexão ao confirmar trade', 'danger');
         }
     }
 
-    rejectPaperTradingSignal() {
-        const lastSignalDiv = document.getElementById('lastSignal');
-        const signalDetailsDiv = document.getElementById('signalDetails');
+    rejectSignal() {
+        console.log('❌ Sinal rejeitado pelo usuário');
+        this.showAlert('Sinal rejeitado', 'info');
+        this.hideCurrentSignal();
+    }
+
+    hideCurrentSignal() {
+        const card = document.getElementById('currentSignalCard');
+        card.style.display = 'none';
+        this.currentSignal = null;
+    }
+
+    async loadPortfolio() {
+        try {
+            const response = await fetch('/api/paper_trading/portfolio');
+            const data = await response.json();
+            
+            if (data.success) {
+                this.portfolio = data.portfolio;
+                this.updateStatsDisplay();
+                console.log('📊 Portfolio atualizado:', this.portfolio);
+            }
+        } catch (error) {
+            console.error('❌ Erro ao carregar portfolio:', error);
+        }
+    }
+
+    updateStatsDisplay() {
+        document.getElementById('totalTrades').textContent = this.portfolio.total_trades;
         
-        if (lastSignalDiv && signalDetailsDiv) {
-            lastSignalDiv.style.display = 'block';
-            signalDetailsDiv.style.display = 'none';
-            this.currentSignal = null;
+        const winRateElement = document.getElementById('winRate');
+        const winRate = this.portfolio.win_rate;
+        winRateElement.textContent = `${winRate.toFixed(1)}%`;
+        
+        // Aplicar cores baseadas na taxa de acerto
+        winRateElement.className = '';
+        if (winRate >= 60) {
+            winRateElement.classList.add('win-rate-good');
+        } else if (winRate >= 40) {
+            winRateElement.classList.add('win-rate-neutral');
+        } else {
+            winRateElement.classList.add('win-rate-bad');
         }
+        
+        const pnlElement = document.getElementById('totalPnL');
+        const pnl = this.portfolio.total_pnl;
+        pnlElement.textContent = `R$ ${pnl.toFixed(2)}`;
+        pnlElement.className = pnl >= 0 ? 'text-success fw-bold' : 'text-danger fw-bold';
+        
+        document.getElementById('activeTrades').textContent = this.portfolio.active_trades;
     }
 
-    async loadPaperTradingData() {
-        await Promise.all([
-            this.loadPortfolioStats(),
-            this.loadActiveTrades(),
-            this.loadTradeHistory()
-        ]);
-    }
-
-    async loadPortfolioStats() {
+    async loadActiveTradesStatus() {
         try {
             const response = await fetch('/api/paper_trading/portfolio');
             const data = await response.json();
             
-            if (data.success) {
-                const stats = data.stats;
-                
-                document.getElementById('portfolioBalance').textContent = `$${(stats.balance || 0).toFixed(2)}`;
-                
-                const pnlElement = document.getElementById('portfolioPnL');
-                const pnlValue = stats.unrealized_pnl || 0;
-                pnlElement.textContent = `$${pnlValue.toFixed(2)}`;
-                pnlElement.className = pnlValue >= 0 ? 'fw-bold text-success' : 'fw-bold text-danger';
-                
-                document.getElementById('activeTrades').textContent = stats.active_trades || 0;
-                document.getElementById('winRate').textContent = `${(stats.win_rate || 0).toFixed(1)}%`;
-                
-                // Update quick stats
-                document.getElementById('totalTrades').textContent = stats.total_trades || 0;
-                document.getElementById('winTrades').textContent = stats.profitable_trades || 0;
-                document.getElementById('lossTrades').textContent = stats.losing_trades || 0;
-                
-                const totalReturnElement = document.getElementById('totalReturn');
-                const totalReturn = stats.total_return || 0;
-                totalReturnElement.textContent = `${totalReturn.toFixed(2)}%`;
-                totalReturnElement.className = totalReturn >= 0 ? 'fw-bold text-success' : 'fw-bold text-danger';
+            if (data.success && data.active_trades) {
+                this.displayActiveTrades(data.active_trades);
             }
         } catch (error) {
-            console.error('Error loading portfolio stats:', error);
+            console.error('❌ Erro ao carregar trades ativos:', error);
         }
     }
 
-    async loadActiveTrades() {
-        try {
-            const response = await fetch('/api/paper_trading/portfolio');
-            const data = await response.json();
-            
-            if (data.success) {
-                const activeTrades = data.active_trades || [];
-                this.updateActiveTradesTable(activeTrades);
-            }
-        } catch (error) {
-            console.error('Error loading active trades:', error);
-        }
-    }
-
-    updateActiveTradesTable(trades) {
-        const tbody = document.getElementById('activeTradesTable');
-        if (!tbody) return;
-
-        if (trades.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="10" class="text-center text-muted">
-                        <i class="fas fa-chart-line fa-2x mb-2"></i>
-                        <p>Nenhum trade ativo</p>
-                    </td>
-                </tr>
-            `;
+    displayActiveTrades(activeTrades) {
+        const container = document.getElementById('activeTradesList');
+        
+        if (activeTrades.length === 0) {
+            container.innerHTML = '<p class="text-muted text-center">Nenhum trade ativo</p>';
             return;
         }
-
-        tbody.innerHTML = trades.map(trade => {
-            const pnlClass = trade.unrealized_pnl >= 0 ? 'text-success' : 'text-danger';
-            const pnlIcon = trade.unrealized_pnl >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
-            
-            return `
-                <tr>
-                    <td>${trade.id}</td>
-                    <td>${trade.symbol}</td>
-                    <td><span class="badge ${trade.side === 'BUY' ? 'bg-success' : 'bg-danger'}">${trade.side}</span></td>
-                    <td>$${trade.entry_price.toFixed(2)}</td>
-                    <td>$${trade.current_price.toFixed(2)}</td>
-                    <td class="${pnlClass}">
-                        <i class="fas ${pnlIcon} me-1"></i>
-                        $${trade.unrealized_pnl.toFixed(2)}
-                    </td>
-                    <td>$${trade.stop_loss.toFixed(2)}</td>
-                    <td>$${trade.take_profit.toFixed(2)}</td>
-                    <td>${new Date(trade.entry_time).toLocaleString('pt-BR')}</td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-danger" onclick="dashboard.closeTrade('${trade.id}')">
+        
+        container.innerHTML = activeTrades.map(trade => `
+            <div class="border rounded p-3 mb-2 bg-light">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${trade.symbol}</strong><br>
+                        <small class="text-muted">${trade.action} @ $${parseFloat(trade.entry_price).toFixed(2)}</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge ${trade.current_pnl >= 0 ? 'badge-profit' : 'badge-loss'} mb-1">
+                            ${trade.current_pnl >= 0 ? '+' : ''}$${trade.current_pnl.toFixed(2)}
+                        </span><br>
+                        <button class="btn btn-warning-custom btn-sm" onclick="dashboard.closeTrade('${trade.id}')" title="Fechar Trade">
                             <i class="fas fa-times"></i>
                         </button>
-                    </td>
-                </tr>
-            `;
-        }).join('');
+                    </div>
+                </div>
+            </div>
+        `).join('');
     }
 
     async closeTrade(tradeId) {
-        if (!confirm('Deseja realmente fechar este trade?')) {
-            return;
-        }
-
+        console.log('🔒 Fechando trade:', tradeId);
+        
         try {
-            this.showLoading(true);
             const response = await fetch('/api/paper_trading/close_trade', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ trade_id: tradeId })
+                body: JSON.stringify({
+                    trade_id: tradeId
+                })
             });
 
             const data = await response.json();
             
             if (data.success) {
-                this.showNotification('Trade fechado com sucesso', 'success');
-                this.loadPaperTradingData(); // Refresh data
+                console.log('✅ Trade fechado com sucesso!');
+                this.showAlert('Trade fechado com sucesso!', 'success');
+                this.loadPortfolio();
+                this.loadActiveTradesStatus();
+                this.loadTradesHistory();
             } else {
-                this.showNotification('Erro ao fechar trade: ' + (data.message || 'Erro desconhecido'), 'error');
+                console.error('❌ Erro ao fechar trade:', data.error);
+                this.showAlert('Erro ao fechar trade: ' + (data.error || 'Erro desconhecido'), 'danger');
             }
         } catch (error) {
-            console.error('Error closing trade:', error);
-            this.showNotification('Erro ao fechar trade', 'error');
-        } finally {
-            this.showLoading(false);
+            console.error('❌ Erro de conexão ao fechar trade:', error);
+            this.showAlert('Erro de conexão ao fechar trade', 'danger');
         }
     }
 
-    async loadTradeHistory() {
+    async loadTradesHistory() {
+        console.log('📜 Carregando histórico de trades...');
+        
         try {
             const response = await fetch('/api/paper_trading/history');
             const data = await response.json();
             
             if (data.success) {
-                const history = data.trades || [];
-                this.updateTradeHistoryTable(history);
+                this.displayTradesHistory(data.trades);
+                console.log(`📊 Histórico carregado: ${data.trades.length} trades`);
             }
         } catch (error) {
-            console.error('Error loading trade history:', error);
+            console.error('❌ Erro ao carregar histórico:', error);
         }
     }
 
-    updateTradeHistoryTable(trades) {
-        const tbody = document.getElementById('tradeHistoryTable');
-        if (!tbody) return;
-
+    displayTradesHistory(trades) {
+        const tbody = document.querySelector('#tradesHistoryTable tbody');
+        
         if (trades.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="10" class="text-center text-muted">
-                        <i class="fas fa-history fa-2x mb-2"></i>
-                        <p>Nenhum trade no histórico</p>
-                    </td>
-                </tr>
-            `;
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Nenhum trade realizado ainda</td></tr>';
             return;
         }
-
-        tbody.innerHTML = trades.map(trade => {
-            const pnlClass = trade.realized_pnl >= 0 ? 'text-success' : 'text-danger';
-            const pnlIcon = trade.realized_pnl >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
-            const pnlPercentClass = trade.pnl_percentage >= 0 ? 'text-success' : 'text-danger';
-            
-            let statusBadge = '';
-            switch (trade.status) {
-                case 'completed':
-                    statusBadge = '<span class="badge bg-success">Completo</span>';
-                    break;
-                case 'stopped_out':
-                    statusBadge = '<span class="badge bg-danger">Stop Loss</span>';
-                    break;
-                case 'took_profit':
-                    statusBadge = '<span class="badge bg-success">Take Profit</span>';
-                    break;
-                default:
-                    statusBadge = '<span class="badge bg-secondary">Fechado</span>';
-            }
-            
-            return `
-                <tr>
-                    <td>${trade.id}</td>
-                    <td>${trade.symbol}</td>
-                    <td><span class="badge ${trade.side === 'BUY' ? 'bg-success' : 'bg-danger'}">${trade.side}</span></td>
-                    <td>$${trade.entry_price.toFixed(2)}</td>
-                    <td>$${(trade.exit_price || 0).toFixed(2)}</td>
-                    <td class="${pnlClass}">
-                        <i class="fas ${pnlIcon} me-1"></i>
-                        $${trade.realized_pnl.toFixed(2)}
-                    </td>
-                    <td class="${pnlPercentClass}">${trade.pnl_percentage.toFixed(2)}%</td>
-                    <td>${statusBadge}</td>
-                    <td>${new Date(trade.entry_time).toLocaleString('pt-BR')}</td>
-                    <td>${trade.exit_time ? new Date(trade.exit_time).toLocaleString('pt-BR') : '-'}</td>
-                </tr>
-            `;
-        }).join('');
+        
+        tbody.innerHTML = trades.slice(0, 20).map(trade => `
+            <tr>
+                <td><strong>${trade.symbol}</strong></td>
+                <td><span class="badge ${trade.action === 'BUY' ? 'bg-success' : 'bg-danger'}">${trade.action}</span></td>
+                <td>$${parseFloat(trade.entry_price).toFixed(2)}</td>
+                <td>${trade.exit_price ? '$' + parseFloat(trade.exit_price).toFixed(2) : '-'}</td>
+                <td>
+                    <span class="fw-bold ${trade.pnl >= 0 ? 'text-success' : 'text-danger'}">
+                        ${trade.pnl >= 0 ? '+' : ''}$${trade.pnl.toFixed(2)}
+                    </span>
+                </td>
+                <td><small>${new Date(trade.timestamp).toLocaleString('pt-BR')}</small></td>
+                <td>
+                    <span class="badge ${trade.status === 'open' ? 'bg-warning' : trade.pnl >= 0 ? 'bg-success' : 'bg-danger'}">
+                        ${trade.status === 'open' ? 'Aberto' : (trade.pnl >= 0 ? 'Lucro' : 'Perda')}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
     }
 
-    async exportTradeHistory() {
+    handlePriceUpdate(data) {
+        // Atualizar preços em tempo real se necessário
+        console.log('💰 Atualização de preço:', data);
+        // Pode implementar atualizações visuais aqui se necessário
+    }
+
+    handleTradeUpdate(data) {
+        // Atualizar trades em tempo real
+        console.log('📈 Atualização de trade:', data);
+        this.loadPortfolio();
+        this.loadActiveTradesStatus();
+    }
+
+    showAlert(message, type = 'info') {
+        // Criar elemento de alerta com melhor styling
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show position-fixed shadow-lg`;
+        alert.style.cssText = 'top: 100px; right: 20px; z-index: 1050; min-width: 350px; border-radius: 10px;';
+        alert.innerHTML = `
+            <div class="d-flex align-items-center">
+                <i class="fas ${this.getAlertIcon(type)} me-2"></i>
+                <div>${message}</div>
+                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        document.body.appendChild(alert);
+        
+        // Remover automaticamente após 5 segundos
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.parentNode.removeChild(alert);
+            }
+        }, 5000);
+    }
+
+    getAlertIcon(type) {
+        const icons = {
+            'success': 'fa-check-circle',
+            'danger': 'fa-exclamation-triangle',
+            'warning': 'fa-exclamation-circle',
+            'info': 'fa-info-circle'
+        };
+        return icons[type] || 'fa-info-circle';
+    }
+
+    async updateCurrentPrice() {
         try {
-            const response = await fetch('/api/paper_trading/history');
+            const response = await fetch(`/api/price/${this.currentSymbol}`);
             const data = await response.json();
             
             if (data.success) {
-                const trades = data.trades || [];
-                const csv = this.convertTradesToCSV(trades);
-                this.downloadCSV(csv, 'paper_trading_history.csv');
-                this.showNotification('Histórico exportado com sucesso', 'success');
+                this.displayCurrentPrice(data.price);
+            } else {
+                console.warn(`⚠️ Não foi possível obter preço para ${this.currentSymbol}`);
             }
         } catch (error) {
-            console.error('Error exporting trade history:', error);
-            this.showNotification('Erro ao exportar histórico', 'error');
+            console.error('❌ Erro ao atualizar preço:', error);
         }
     }
 
-    convertTradesToCSV(trades) {
-        const headers = ['ID', 'Símbolo', 'Tipo', 'Preço Entrada', 'Preço Saída', 'P&L', 'P&L%', 'Status', 'Abertura', 'Fechamento'];
-        const csvContent = [
-            headers.join(','),
-            ...trades.map(trade => [
-                trade.id,
-                trade.symbol,
-                trade.side,
-                trade.entry_price.toFixed(2),
-                (trade.exit_price || 0).toFixed(2),
-                trade.realized_pnl.toFixed(2),
-                trade.pnl_percentage.toFixed(2),
-                trade.status,
-                new Date(trade.entry_time).toISOString(),
-                trade.exit_time ? new Date(trade.exit_time).toISOString() : ''
-            ].join(','))
-        ].join('\n');
+    displayCurrentPrice(price) {
+        // Atualizar o indicador de preço na navbar
+        const navPriceElement = document.getElementById('currentPrice');
+        if (navPriceElement) {
+            navPriceElement.textContent = `$${price.toFixed(6)}`;
+        }
         
-        return csvContent;
+        // Atualizar o preço no painel lateral
+        const sidebarPriceElement = document.getElementById('sidebarCurrentPrice');
+        if (sidebarPriceElement) {
+            sidebarPriceElement.textContent = `$${price.toFixed(2)}`;
+        }
+        
+        // Atualizar qualquer outro elemento de preço na interface
+        const symbolPriceElements = document.querySelectorAll('.current-price');
+        symbolPriceElements.forEach(element => {
+            element.textContent = `$${price.toFixed(6)}`;
+        });
+        
+        console.log(`💰 Preço atualizado: ${this.currentSymbol} = $${price.toFixed(2)}`);
     }
 
-    downloadCSV(content, filename) {
-        const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+    // Mapeamento de símbolos para TradingView
+    getSymbolMapping() {
+        return {
+            // Crypto Major
+            'BTCUSDT': 'BINANCE:BTCUSDT',
+            'ETHUSDT': 'BINANCE:ETHUSDT',
+            'ADAUSDT': 'BINANCE:ADAUSDT',
+            'BNBUSDT': 'BINANCE:BNBUSDT',
+            'SOLUSDT': 'BINANCE:SOLUSDT',
+            'XRPUSDT': 'BINANCE:XRPUSDT',
+            'DOTUSDT': 'BINANCE:DOTUSDT',
+            'LINKUSDT': 'BINANCE:LINKUSDT',
+            
+            // Crypto Alt
+            'MATICUSDT': 'BINANCE:MATICUSDT',
+            'AVAXUSDT': 'BINANCE:AVAXUSDT',
+            'LTCUSDT': 'BINANCE:LTCUSDT',
+            'UNIUSDT': 'BINANCE:UNIUSDT',
+            'ATOMUSDT': 'BINANCE:ATOMUSDT',
+            'ALGOUSDT': 'BINANCE:ALGOUSDT',
+            
+            // Forex
+            'EURUSD': 'FX:EURUSD',
+            'GBPUSD': 'FX:GBPUSD',
+            'USDJPY': 'FX:USDJPY',
+            'AUDUSD': 'FX:AUDUSD',
+            'USDCAD': 'FX:USDCAD',
+            
+            // Índices
+            'SPX': 'SP:SPX',
+            'NDX': 'NASDAQ:NDX',
+            'DJI': 'DJ:DJI'
+        };
+    }
+
+    changeAsset(newSymbol) {
+        console.log(`🔄 Mudando ativo para: ${newSymbol}`);
+        
+        this.currentSymbol = newSymbol;
+        
+        // Atualizar interface
+        document.getElementById('currentSymbol').textContent = newSymbol;
+        document.getElementById('navCurrentAsset').textContent = newSymbol;
+        
+        // Atualizar gráfico TradingView
+        this.updateTradingViewChart(newSymbol);
+        
+        // Limpar sinal atual se existir
+        this.clearCurrentSignal();
+        
+        // Atualizar preço atual imediatamente
+        this.updateCurrentPrice();
+        
+        // Recarregar dados do portfolio para o novo ativo
+        this.loadPortfolio();
+        this.loadActiveTradesStatus();
+        
+        this.showAlert(`Ativo alterado para ${newSymbol}`, 'info');
+    }
+
+    updateTradingViewChart(symbol) {
+        const symbolMapping = this.getSymbolMapping();
+        const tradingViewSymbol = symbolMapping[symbol] || `BINANCE:${symbol}`;
+        
+        // Remover widget existente
+        if (this.tradingViewWidget) {
+            const container = document.getElementById('tradingview_chart');
+            container.innerHTML = '';
+        }
+        
+        // Criar novo widget
+        this.tradingViewWidget = new TradingView.widget({
+            "width": "100%",
+            "height": "500",
+            "symbol": tradingViewSymbol,
+            "interval": "5",
+            "timezone": "America/Sao_Paulo",
+            "theme": "light",
+            "style": "1",
+            "locale": "pt_BR",
+            "toolbar_bg": "#f1f3f6",
+            "enable_publishing": false,
+            "allow_symbol_change": false,
+            "container_id": "tradingview_chart",
+            "studies": [
+                "RSI@tv-basicstudies",
+                "MACD@tv-basicstudies"
+            ]
+        });
+        
+        console.log(`📈 Gráfico atualizado para: ${tradingViewSymbol}`);
+    }
+
+    clearCurrentSignal() {
+        this.currentSignal = null;
+        document.getElementById('signalContent').style.display = 'none';
+        document.getElementById('signalActions').style.display = 'none';
+        document.getElementById('generateSignalBtn').style.display = 'block';
     }
 }
 
-// Initialize dashboard when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    window.dashboard = new TradingBotDashboard();
+// Função global para fechar trades (chamada pelo onclick nos botões)
+window.closeTrade = function(tradeId) {
+    if (window.dashboard) {
+        window.dashboard.closeTrade(tradeId);
+    }
+};
+
+// Inicializar dashboard quando a página carregar
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🎯 DOM carregado, inicializando dashboard...');
+    window.dashboard = new SimpleTradingDashboard();
 });
 
-// Handle page unload
-window.addEventListener('beforeunload', () => {
-    if (window.dashboard) {
-        window.dashboard.pauseUpdates();
-    }
-});
+// Exportar para uso global
+window.SimpleTradingDashboard = SimpleTradingDashboard;

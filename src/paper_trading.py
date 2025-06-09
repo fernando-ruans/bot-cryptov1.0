@@ -209,19 +209,59 @@ class PaperTradingManager:
     def _process_closed_trade(self, trade: PaperTrade):
         """Processa um trade que foi fechado"""
         self.trade_history.append(trade)
-        
-        # Atualizar estatísticas
+          # Atualizar estatísticas
         if trade.pnl > 0:
             self.winning_trades += 1
         else:
             self.losing_trades += 1
             
         self.total_pnl += trade.pnl
-        
         logger.info(f"🔚 Paper trade fechado: {trade.symbol} {trade.trade_type}")
         logger.info(f"   Motivo: {trade.exit_reason}")
         logger.info(f"   P&L: ${trade.pnl:.2f} ({trade.pnl_percent:.2f}%)")
         logger.info(f"   Entry: ${trade.entry_price:.2f} → Exit: ${trade.exit_price:.2f}")
+    
+    def confirm_signal(self, signal_data, amount=1000):
+        """
+        Confirma um sinal e cria um trade virtual
+        
+        Args:
+            signal_data (dict): Dados do sinal com keys: signal_type, symbol, entry_price, etc.
+            amount (float): Valor do trade (não usado no paper trading, apenas para referência)
+            
+        Returns:
+            PaperTrade: Objeto do trade criado ou None se erro
+        """
+        try:
+            # Criar objeto de sinal a partir dos dados
+            class SignalObj:
+                def __init__(self, data):
+                    self.id = data.get('id', f"{data['symbol']}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
+                    self.symbol = data['symbol']
+                    self.signal_type = data['signal_type']
+                    self.entry_price = data['entry_price']
+                    self.confidence = data.get('confidence', 0.5)
+                    
+                    # Calcular stop loss e take profit baseado no tipo de sinal
+                    price = self.entry_price
+                    if self.signal_type.lower() == 'buy':
+                        self.stop_loss = price * 0.98  # 2% stop loss
+                        self.take_profit = price * 1.04  # 4% take profit
+                    else:  # sell
+                        self.stop_loss = price * 1.02  # 2% stop loss (inverso para sell)
+                        self.take_profit = price * 0.96  # 4% take profit (inverso para sell)
+            
+            signal_obj = SignalObj(signal_data)
+            trade_id = self.create_trade_from_signal(signal_obj)
+            
+            if trade_id:
+                return self.active_trades[trade_id]
+            else:
+                return None
+                
+        except Exception as e:
+            logger.error(f"Erro ao confirmar sinal: {e}")
+            return None
     
     def close_trade_manually(self, trade_id: str) -> bool:
         """Fecha um trade manualmente"""
