@@ -182,6 +182,9 @@ class SimpleTradingDashboard {
         const actionElement = document.getElementById('signalAction');
         const priceElement = document.getElementById('signalPrice');
         const symbolElement = document.getElementById('signalSymbol');
+        const confidenceElement = document.getElementById('signalConfidence');
+        const stopLossElement = document.getElementById('signalStopLoss');
+        const takeProfitElement = document.getElementById('signalTakeProfit');
 
         // Definir cor da ação
         actionElement.className = `badge fs-6 ${signal.signal_type === 'buy' ? 'bg-success' : 'bg-danger'}`;
@@ -189,6 +192,14 @@ class SimpleTradingDashboard {
         
         priceElement.textContent = `$${parseFloat(signal.entry_price).toFixed(2)}`;
         symbolElement.textContent = signal.symbol;
+        
+        // Exibir confiança como porcentagem
+        const confidence = (signal.confidence * 100).toFixed(1);
+        confidenceElement.textContent = `${confidence}%`;
+        
+        // Exibir stop loss e take profit
+        stopLossElement.textContent = `$${parseFloat(signal.stop_loss).toFixed(2)}`;
+        takeProfitElement.textContent = `$${parseFloat(signal.take_profit).toFixed(2)}`;
 
         // Aplicar classe CSS baseada na ação
         card.className = `card signal-card signal-alert mb-4 ${signal.signal_type?.toLowerCase() || 'neutral'}`;

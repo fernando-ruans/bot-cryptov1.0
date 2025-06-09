@@ -191,17 +191,18 @@ def api_portfolio():
         # Converter trades ativos para dicionários
         active_trades_data = []
         for trade in active_trades:
-            current_price = market_data.get_current_price(trade.symbol)
-            current_pnl = trade.calculate_pnl(current_price) if current_price else 0
+            current_price = market_data.get_current_price(trade['symbol'])
             
             active_trades_data.append({
-                'id': trade.id,
-                'symbol': trade.symbol,
-                'action': trade.action,
-                'entry_price': trade.entry_price,
-                'amount': trade.amount,
-                'current_pnl': current_pnl,
-                'timestamp': trade.timestamp.isoformat()
+                'id': trade['id'],
+                'symbol': trade['symbol'],
+                'trade_type': trade['trade_type'],
+                'entry_price': trade['entry_price'],
+                'current_price': current_price or trade['current_price'],
+                'pnl': trade['pnl'],
+                'pnl_percent': trade['pnl_percent'],
+                'timestamp': trade['timestamp'],
+                'status': trade['status']
             })
         
         logger.info(f"📊 Portfolio: {portfolio['total_trades']} trades, {portfolio['win_rate']:.1f}% win rate")
