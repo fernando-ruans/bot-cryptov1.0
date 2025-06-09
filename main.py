@@ -7,6 +7,8 @@ Sistema focado apenas no fluxo: Gerar Sinal → Aprovar → Contabilizar → Win
 import os
 import sys
 import logging
+import threading
+import time
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 from flask_cors import CORS
@@ -18,7 +20,7 @@ from src.market_data import MarketDataManager
 from src.signal_generator import SignalGenerator
 from src.database import DatabaseManager
 from src.config import Config
-from src.paper_trading import PaperTradingManager
+from src.paper_trading import PaperTradingManager, AutoTradeMonitor
 
 # Configurar logging
 logging.basicConfig(
@@ -43,8 +45,13 @@ config = Config()
 db_manager = DatabaseManager()
 market_data = MarketDataManager(config)
 ai_engine = AITradingEngine(config)
+
+# Inicializar sistema de notificações em tempo real
+from src.realtime_updates import RealTimeUpdates
+realtime_updates = RealTimeUpdates(socketio)
+
 signal_generator = SignalGenerator(ai_engine, market_data)
-paper_trading = PaperTradingManager(market_data)
+paper_trading = PaperTradingManager(market_data, realtime_updates)
 
 # Configure socketio para notificações
 from src.signal_generator import set_socketio_instance
@@ -129,8 +136,7 @@ def api_generate_signal():
         logger.info(f"📊 DEBUG: Dados da requisição: {data}")
         logger.info(f"📊 DEBUG: Signal generator instance: {signal_generator}")
         logger.info(f"📊 DEBUG: Signal generator config: {signal_generator.config.SIGNAL_CONFIG}")
-        
-        # Gerar sinal
+          # Gerar sinal
         logger.info(f"📊 DEBUG: Chamando signal_generator.generate_signal('{symbol}', '{timeframe}')")
         signal = signal_generator.generate_signal(symbol, timeframe)
         logger.info(f"📊 DEBUG: Resultado do generate_signal: {signal}")
@@ -145,6 +151,11 @@ def api_generate_signal():
             })
         
         logger.info(f"✅ Sinal gerado: {signal.signal_type} para {symbol} @ ${signal.entry_price}")
+        
+        # Notificar em tempo real sobre novo sinal
+        if realtime_updates:
+            realtime_updates.notify_new_signal(signal.to_dict())
+        
         return jsonify({
             'success': True,
             'message': f'Sinal {signal.signal_type} gerado',
@@ -219,6 +230,54 @@ def api_generate_signal():
             'success': False, 
             'error': f'Erro interno do sistema. Tente novamente em alguns instantes.',
             'error_type': 'system_error'
+        }), 500
+
+@app.route('/api/generate_signals_all_pairs', methods=['POST'])
+def api_generate_signals_all_pairs():
+    """API para gerar sinais para todos os pares configurados"""
+    try:
+        data = request.get_json() or {}
+        timeframe = data.get('timeframe', '1h')
+        
+        logger.info(f"🔄 Gerando sinais para todos os pares (timeframe: {timeframe})")
+        
+        # Gerar sinais para todos os pares
+        signals = signal_generator.generate_signals_for_all_pairs()
+        
+        # Converter sinais para formato de resposta
+        signals_data = []
+        for signal in signals:            signals_data.append({
+                'symbol': signal.symbol,
+                'signal_type': signal.signal_type,
+                'entry_price': signal.entry_price,
+                'stop_loss': signal.stop_loss,
+                'take_profit': signal.take_profit,
+                'confidence': signal.confidence,
+                'timeframe': signal.timeframe,
+                'timestamp': signal.timestamp.isoformat() if signal.timestamp else None,
+                'asset_type': config.get_asset_type(signal.symbol)
+            })
+        
+        logger.info(f"✅ Gerados {len(signals_data)} sinais para múltiplos ativos")
+        
+        # Notificar em tempo real sobre novos sinais
+        if realtime_updates and signals_data:
+            for signal_data in signals_data:
+                realtime_updates.notify_new_signal(signal_data)
+        
+        return jsonify({
+            'success': True,
+            'message': f'{len(signals_data)} sinais gerados para múltiplos ativos',
+            'signals': signals_data,
+            'total_pairs_analyzed': len(config.get_all_pairs()),
+            'signals_generated': len(signals_data)
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao gerar sinais para todos os pares: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
         }), 500
 
 # ==================== APIS PAPER TRADING ====================
@@ -516,6 +575,163 @@ def initialize_system():
         logger.error(f"❌ Erro na inicialização: {e}")
         raise
 
+# Sistema de monitoramento automático
+import threading
+import time
+
+# Inicializar monitor automático
+auto_monitor = AutoTradeMonitor(paper_trading, realtime_updates, interval=30)
+
+@app.route('/api/monitor/start', methods=['POST'])
+def api_start_monitor():
+    """API para iniciar monitor automático"""
+    try:
+        auto_monitor.start()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Monitor automático iniciado',
+            'interval': auto_monitor.interval
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao iniciar monitor: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/monitor/stop', methods=['POST'])
+def api_stop_monitor():
+    """API para parar monitor automático"""
+    try:
+        auto_monitor.stop()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Monitor automático parado'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao parar monitor: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/monitor/status')
+def api_monitor_status():
+    """API para verificar status do monitor"""
+    try:
+        status = {
+            'running': auto_monitor.running,
+            'interval': auto_monitor.interval,
+            'active_trades': len(paper_trading.active_trades)
+        }
+        
+        return jsonify({
+            'success': True,
+            'status': status
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao obter status do monitor: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/realtime/start', methods=['POST'])
+def api_start_realtime():
+    """API para iniciar atualizações em tempo real"""
+    try:
+        data = request.get_json() or {}
+        symbols = data.get('symbols', ['BTCUSDT'])
+        realtime_updates.start_price_updates(symbols)
+        
+        logger.info(f"🔄 Atualizações em tempo real iniciadas para: {symbols}")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Atualizações em tempo real iniciadas para {len(symbols)} símbolos',
+            'symbols': symbols
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao iniciar atualizações em tempo real: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/realtime/stop', methods=['POST'])
+def api_stop_realtime():
+    """API para parar atualizações em tempo real"""
+    try:
+        realtime_updates.stop_price_updates()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Atualizações em tempo real paradas'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao parar atualizações em tempo real: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/realtime/status')
+def api_realtime_status():
+    """API para verificar status das atualizações em tempo real"""
+    try:
+        status = {
+            'active': realtime_updates.is_active,
+            'connected_clients': len(realtime_updates.connected_clients),
+            'active_subscriptions': len(realtime_updates.subscribed_symbols) if realtime_updates.subscribed_symbols else 0,
+            'symbols': list(realtime_updates.subscribed_symbols.keys()) if realtime_updates.subscribed_symbols else []
+        }
+        
+        return jsonify({
+            'success': True,
+            'status': status
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao obter status em tempo real: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/update_trades', methods=['POST'])
+def api_update_trades():
+    """API para atualizar trades ativos manualmente"""
+    try:
+        paper_trading.update_prices()
+        
+        # Notificar portfolio atualizado
+        if realtime_updates:
+            portfolio_stats = paper_trading.get_portfolio_stats()
+            active_trades = paper_trading.get_active_trades()
+            realtime_updates.notify_portfolio_update(portfolio_stats)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Trades atualizados com sucesso',
+            'active_trades': len(paper_trading.active_trades)
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao atualizar trades: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# ==================== MAIN ====================
+
 if __name__ == '__main__':
     try:
         # Inicializar sistema
@@ -524,8 +740,17 @@ if __name__ == '__main__':
         # Iniciar bot automaticamente
         trading_bot.start()
         
+        # Inicializar monitor automático
+        auto_monitor.start()
+        
+        # Inicializar sistema de notificações em tempo real para símbolos principais
+        principal_symbols = ['BTCUSDT', 'ETHUSDT', 'ADAUSDT']
+        realtime_updates.start_price_updates(principal_symbols)
+        
         logger.info("🚀 Iniciando servidor Flask...")
         logger.info("📊 Dashboard disponível em: http://localhost:5000")
+        logger.info("🔄 Monitor automático ativo")
+        logger.info("📡 Notificações em tempo real ativas")
         
         # Iniciar servidor
         socketio.run(
@@ -538,7 +763,11 @@ if __name__ == '__main__':
         
     except KeyboardInterrupt:
         logger.info("⏹️ Interrompido pelo usuário")
+        auto_monitor.stop()
+        realtime_updates.stop_price_updates()
         trading_bot.stop()
     except Exception as e:
         logger.error(f"❌ Erro fatal: {e}")
+        auto_monitor.stop()
+        realtime_updates.stop_price_updates()
         sys.exit(1)

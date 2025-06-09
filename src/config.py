@@ -19,15 +19,28 @@ class Config:
     TIMEFRAMES: List[str] = field(default_factory=lambda: ['1m', '5m', '15m', '30m', '1h', '4h', '1d'])
     DEFAULT_TIMEFRAME: str = '1h'
     
-    # Pares de trading
+    # Pares de trading - EXPANDIDOS para múltiplos ativos
     CRYPTO_PAIRS: List[str] = field(default_factory=lambda: [
+        # Crypto Major (alta liquidez)
         'BTCUSDT', 'ETHUSDT', 'ADAUSDT', 'DOTUSDT', 'LINKUSDT',
-        'BNBUSDT', 'XRPUSDT', 'LTCUSDT', 'BCHUSDT', 'EOSUSDT'
+        'BNBUSDT', 'XRPUSDT', 'LTCUSDT', 'BCHUSDT', 'EOSUSDT',
+        # Crypto Alt (média liquidez)  
+        'SOLUSDT', 'MATICUSDT', 'AVAXUSDT', 'UNIUSDT', 'ATOMUSDT',
+        'ALGOUSDT', 'FILUSDT', 'AAVEUSDT', 'SUSHIUSDT', 'COMPUSDT'
     ])
     
     FOREX_PAIRS: List[str] = field(default_factory=lambda: [
+        # Forex Major (alta liquidez)
         'EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF', 'AUDUSD',
-        'USDCAD', 'NZDUSD', 'EURJPY', 'GBPJPY', 'EURGBP'
+        'USDCAD', 'NZDUSD', 'EURJPY', 'GBPJPY', 'EURGBP',
+        # Forex Minor (média liquidez)
+        'EURCHF', 'GBPCHF', 'AUDCAD', 'AUDJPY', 'NZDJPY'
+    ])
+    
+    # NOVOS: Índices de ações
+    INDEX_PAIRS: List[str] = field(default_factory=lambda: [
+        'SPX500', 'NAS100', 'DJI30', 'UK100', 'GER30',
+        'FRA40', 'JPN225', 'AUS200', 'HK50', 'CHINA50'
     ])
     
     # Configurações de IA
@@ -187,7 +200,7 @@ class Config:
         
     def get_all_pairs(self) -> List[str]:
         """Retorna todos os pares de trading"""
-        return self.CRYPTO_PAIRS + self.FOREX_PAIRS
+        return self.CRYPTO_PAIRS + self.FOREX_PAIRS + self.INDEX_PAIRS
     
     def is_crypto_pair(self, symbol: str) -> bool:
         """Verifica se é um par de criptomoeda"""
@@ -196,6 +209,21 @@ class Config:
     def is_forex_pair(self, symbol: str) -> bool:
         """Verifica se é um par de forex"""
         return symbol in self.FOREX_PAIRS
+        
+    def is_index_pair(self, symbol: str) -> bool:
+        """Verifica se é um índice"""
+        return symbol in self.INDEX_PAIRS
+    
+    def get_asset_type(self, symbol: str) -> str:
+        """Retorna o tipo de ativo (crypto, forex, index)"""
+        if self.is_crypto_pair(symbol):
+            return 'crypto'
+        elif self.is_forex_pair(symbol):
+            return 'forex'
+        elif self.is_index_pair(symbol):
+            return 'index'
+        else:
+            return 'unknown'
     
     def get_model_path(self, model_name: str) -> str:
         """Retorna o caminho completo do modelo"""

@@ -1,340 +1,395 @@
-#!/usr/bin/env python3
 """
-Paper Trading Manager
-Gerencia trades virtuais para simulação e tracking de performance
+Paper Trading Manager - Sistema de Trading Virtual
+Gerencia trades virtuais com P&L automático, stop loss e take profit
 """
 
-import pandas as pd
-import numpy as np
-from datetime import datetime, timedelta
-from typing import Dict, List, Optional, Tuple
-import logging
-import json
 import uuid
+import logging
+from datetime import datetime, timedelta
+from typing import List, Dict, Optional, Any
+from dataclasses import dataclass, asdict
+import threading
+import time
 
 logger = logging.getLogger(__name__)
 
+@dataclass
 class PaperTrade:
-    """Classe para representar um trade virtual"""
+    """Representa um trade de paper trading"""
+    id: str
+    symbol: str
+    trade_type: str  # 'buy' ou 'sell'
+    entry_price: float
+    quantity: float
+    stop_loss: Optional[float] = None
+    take_profit: Optional[float] = None
+    current_price: Optional[float] = None
+    status: str = 'open'  # 'open', 'closed'
+    timestamp: datetime = None
+    exit_timestamp: Optional[datetime] = None
+    exit_price: Optional[float] = None
+    exit_reason: Optional[str] = None  # 'manual', 'stop_loss', 'take_profit'
+    signal_confidence: Optional[float] = None
+    timeframe: Optional[str] = None
+    unrealized_pnl: float = 0.0
+    realized_pnl: float = 0.0
+    pnl_percent: float = 0.0
     
-    def __init__(self, signal_id: str, symbol: str, trade_type: str, 
-                 entry_price: float, stop_loss: float, take_profit: float,
-                 timestamp: datetime, signal_confidence: float):
-        self.id = str(uuid.uuid4())
-        self.signal_id = signal_id
-        self.symbol = symbol
-        self.trade_type = trade_type  # 'buy' or 'sell'
-        self.entry_price = entry_price
-        self.stop_loss = stop_loss
-        self.take_profit = take_profit
-        self.timestamp = timestamp
-        self.signal_confidence = signal_confidence
-        
-        # Status do trade
-        self.status = 'active'  # 'active', 'closed', 'stopped'
-        self.exit_price = None
-        self.exit_timestamp = None
-        self.exit_reason = None  # 'profit', 'loss', 'manual'
-        self.pnl = 0.0
-        self.pnl_percent = 0.0
-        
-        # Tracking de preços
-        self.current_price = entry_price
-        self.max_price = entry_price
-        self.min_price = entry_price
-        
-    def update_price(self, current_price: float) -> bool:
+    def __post_init__(self):
+        if self.timestamp is None:
+            self.timestamp = datetime.now()
+        if self.current_price is None:
+            self.current_price = self.entry_price
+    
+    def update_current_price(self, new_price: float) -> bool:
         """
-        Atualiza preço atual e verifica se deve fechar o trade
-        Retorna True se o trade foi fechado
+        Atualiza o preço atual e calcula P&L
+        Retorna True se SL/TP foi atingido
         """
-        self.current_price = current_price
-        self.max_price = max(self.max_price, current_price)
-        self.min_price = min(self.min_price, current_price)
+        self.current_price = new_price
         
-        if self.status != 'active':
+        if self.status != 'open':
             return False
-            
-        # Verificar stop loss e take profit
-        if self.trade_type == 'buy':
-            # Trade de compra
-            if current_price <= self.stop_loss:
-                self._close_trade(current_price, 'loss')
-                return True
-            elif current_price >= self.take_profit:
-                self._close_trade(current_price, 'profit')
-                return True
-        else:
-            # Trade de venda
-            if current_price >= self.stop_loss:
-                self._close_trade(current_price, 'loss')
-                return True
-            elif current_price <= self.take_profit:
-                self._close_trade(current_price, 'profit')
-                return True
-                
+        
+        # Calcular P&L não realizado
+        if self.trade_type.lower() == 'buy':
+            self.unrealized_pnl = (new_price - self.entry_price) * self.quantity
+            price_change_pct = (new_price - self.entry_price) / self.entry_price
+        else:  # sell
+            self.unrealized_pnl = (self.entry_price - new_price) * self.quantity
+            price_change_pct = (self.entry_price - new_price) / self.entry_price
+        
+        self.pnl_percent = price_change_pct * 100
+        
+        # Verificar Stop Loss
+        if self.stop_loss and self._check_stop_loss(new_price):
+            self._close_trade(new_price, 'stop_loss')
+            return True
+        
+        # Verificar Take Profit
+        if self.take_profit and self._check_take_profit(new_price):
+            self._close_trade(new_price, 'take_profit')
+            return True
+        
         return False
     
+    def _check_stop_loss(self, current_price: float) -> bool:
+        """Verifica se stop loss foi atingido"""
+        if self.trade_type.lower() == 'buy':
+            return current_price <= self.stop_loss
+        else:  # sell
+            return current_price >= self.stop_loss
+    
+    def _check_take_profit(self, current_price: float) -> bool:
+        """Verifica se take profit foi atingido"""
+        if self.trade_type.lower() == 'buy':
+            return current_price >= self.take_profit
+        else:  # sell
+            return current_price <= self.take_profit
+    
     def _close_trade(self, exit_price: float, reason: str):
-        """Fecha o trade com preço e motivo especificados"""
+        """Fecha o trade com motivo específico"""
+        self.status = 'closed'
         self.exit_price = exit_price
         self.exit_timestamp = datetime.now()
         self.exit_reason = reason
-        self.status = 'closed'
+        self.realized_pnl = self.unrealized_pnl
         
-        # Calcular P&L
-        if self.trade_type == 'buy':
-            self.pnl = exit_price - self.entry_price
-            self.pnl_percent = (exit_price / self.entry_price - 1) * 100
-        else:
-            self.pnl = self.entry_price - exit_price
-            self.pnl_percent = (self.entry_price / exit_price - 1) * 100
+        logger.info(f"🔒 Trade {self.id[:8]} fechado: {reason} @ {exit_price:.2f} (P&L: ${self.realized_pnl:.2f})")
     
-    def close_manually(self, exit_price: float):
+    def close_manually(self, exit_price: float = None):
         """Fecha o trade manualmente"""
-        if self.status == 'active':
-            self._close_trade(exit_price, 'manual')
-    
-    def get_current_pnl(self) -> Tuple[float, float]:
-        """Retorna P&L atual (absoluto, percentual)"""
-        if self.status != 'active':
-            return self.pnl, self.pnl_percent
-            
-        if self.trade_type == 'buy':
-            pnl = self.current_price - self.entry_price
-            pnl_percent = (self.current_price / self.entry_price - 1) * 100
-        else:
-            pnl = self.entry_price - self.current_price
-            pnl_percent = (self.entry_price / self.current_price - 1) * 100
-            
-        return pnl, pnl_percent
+        exit_price = exit_price or self.current_price
+        self._close_trade(exit_price, 'manual')
     
     def to_dict(self) -> Dict:
-        """Converter trade para dicionário"""
-        current_pnl, current_pnl_percent = self.get_current_pnl()
+        """Converte para dicionário com métricas detalhadas"""
+        duration = None
+        if self.exit_timestamp and self.timestamp:
+            duration = str(self.exit_timestamp - self.timestamp)
+        
+        # Calcular distâncias de SL e TP
+        sl_distance_pct = None
+        tp_distance_pct = None
+        risk_reward_ratio = None
+        
+        if self.stop_loss:
+            sl_distance_pct = abs(self.stop_loss - self.entry_price) / self.entry_price * 100
+        
+        if self.take_profit:
+            tp_distance_pct = abs(self.take_profit - self.entry_price) / self.entry_price * 100
+        
+        if sl_distance_pct and tp_distance_pct:
+            risk_reward_ratio = tp_distance_pct / sl_distance_pct
+        
+        # Calcular excursões máximas (simulado)
+        max_favorable_excursion = self.realized_pnl if self.realized_pnl > 0 else 0
+        max_adverse_excursion = abs(self.realized_pnl) if self.realized_pnl < 0 else 0
         
         return {
             'id': self.id,
-            'signal_id': self.signal_id,
             'symbol': self.symbol,
             'trade_type': self.trade_type,
+            'side': self.trade_type.upper(),  # Compatibilidade
             'entry_price': self.entry_price,
+            'current_price': self.current_price,
+            'exit_price': self.exit_price,
+            'quantity': self.quantity,
             'stop_loss': self.stop_loss,
             'take_profit': self.take_profit,
-            'timestamp': self.timestamp.isoformat(),
-            'signal_confidence': self.signal_confidence,
             'status': self.status,
-            'exit_price': self.exit_price,
+            'timestamp': self.timestamp.isoformat() if self.timestamp else None,
+            'entry_time': self.timestamp.isoformat() if self.timestamp else None,
+            'entry_timestamp': self.timestamp.isoformat() if self.timestamp else None,
             'exit_timestamp': self.exit_timestamp.isoformat() if self.exit_timestamp else None,
+            'exit_time': self.exit_timestamp.isoformat() if self.exit_timestamp else None,
             'exit_reason': self.exit_reason,
-            'pnl': self.pnl if self.status == 'closed' else current_pnl,
-            'pnl_percent': self.pnl_percent if self.status == 'closed' else current_pnl_percent,
-            'current_price': self.current_price,
-            'max_price': self.max_price,
-            'min_price': self.min_price
+            'signal_confidence': self.signal_confidence,
+            'timeframe': self.timeframe,
+            'unrealized_pnl': self.unrealized_pnl,
+            'realized_pnl': self.realized_pnl,
+            'pnl': self.realized_pnl if self.status == 'closed' else self.unrealized_pnl,
+            'pnl_percent': self.pnl_percent,
+            'pnl_percentage': self.pnl_percent,  # Compatibilidade
+            'duration': duration,
+            'sl_distance_pct': sl_distance_pct,
+            'tp_distance_pct': tp_distance_pct,
+            'risk_reward_ratio': risk_reward_ratio,
+            'max_favorable_excursion': max_favorable_excursion,
+            'max_adverse_excursion': max_adverse_excursion
         }
 
+
 class PaperTradingManager:
-    """Gerenciador de trades virtuais (paper trading)"""
+    """Gerenciador de Paper Trading"""
     
-    def __init__(self, market_data_manager):
+    def __init__(self, market_data_manager, realtime_updates=None, initial_balance: float = 10000.0):
         self.market_data = market_data_manager
-        self.active_trades = {}  # {trade_id: PaperTrade}
-        self.trade_history = []  # Lista de trades fechados
-        self.portfolio_balance = 10000.0  # Saldo inicial virtual
-        self.initial_balance = 10000.0
+        self.realtime_updates = realtime_updates
+        self.initial_balance = initial_balance
+        self.current_balance = initial_balance
         
-        # Estatísticas
-        self.total_trades = 0
-        self.winning_trades = 0
-        self.losing_trades = 0
-        self.total_pnl = 0.0
+        # Armazenamento de trades
+        self.active_trades: Dict[str, PaperTrade] = {}
+        self.trade_history: List[PaperTrade] = []
         
-    def create_trade_from_signal(self, signal) -> str:
-        """
-        Cria um trade virtual a partir de um sinal
-        Retorna o ID do trade criado
-        """
+        # Thread de monitoramento
+        self._monitor_thread = None
+        self._monitor_running = False
+        
+        logger.info(f"📊 Paper Trading Manager inicializado com ${initial_balance:.2f}")
+    
+    def confirm_signal(self, signal_data: Dict, amount: float = 1000.0) -> Optional[PaperTrade]:
+        """Confirma um sinal e cria um trade"""
         try:
+            # Extrair dados do sinal
+            symbol = signal_data.get('symbol', 'BTCUSDT')
+            signal_type = signal_data.get('signal_type', 'buy')
+            entry_price = float(signal_data.get('entry_price', 0))
+            stop_loss = signal_data.get('stop_loss')
+            take_profit = signal_data.get('take_profit')
+            confidence = signal_data.get('confidence')
+            timeframe = signal_data.get('timeframe', '1h')
+            
+            if entry_price <= 0:
+                logger.error("❌ Preço de entrada inválido")
+                return None
+            
+            # Calcular quantidade baseada no valor
+            quantity = amount / entry_price
+            
+            # Criar trade
             trade = PaperTrade(
-                signal_id=signal.id,
-                symbol=signal.symbol,
-                trade_type=signal.signal_type,
-                entry_price=signal.entry_price,
-                stop_loss=signal.stop_loss,
-                take_profit=signal.take_profit,
-                timestamp=datetime.now(),
-                signal_confidence=signal.confidence
+                id=str(uuid.uuid4()),
+                symbol=symbol,
+                trade_type=signal_type.lower(),
+                entry_price=entry_price,
+                quantity=quantity,
+                stop_loss=float(stop_loss) if stop_loss else None,
+                take_profit=float(take_profit) if take_profit else None,
+                signal_confidence=float(confidence) if confidence else None,
+                timeframe=timeframe
             )
             
+            # Adicionar aos trades ativos
             self.active_trades[trade.id] = trade
-            self.total_trades += 1
             
-            logger.info(f"✅ Paper trade criado: {trade.trade_type} {trade.symbol} @ ${trade.entry_price:.2f}")
-            logger.info(f"   SL: ${trade.stop_loss:.2f}, TP: ${trade.take_profit:.2f}")
-            logger.info(f"   Confiança do sinal: {trade.signal_confidence:.1%}")
+            # Log detalhado
+            logger.info(f"✅ Trade criado: {trade.id[:8]}")
+            logger.info(f"   📊 {symbol} {signal_type.upper()} @ ${entry_price:.2f}")
+            logger.info(f"   💰 Quantidade: {quantity:.6f}")
+            logger.info(f"   🛑 Stop Loss: ${stop_loss:.2f}" if stop_loss else "   🛑 Stop Loss: N/A")
+            logger.info(f"   🎯 Take Profit: ${take_profit:.2f}" if take_profit else "   🎯 Take Profit: N/A")
+            logger.info(f"   📈 Confiança: {confidence:.2%}" if confidence else "   📈 Confiança: N/A")
             
-            return trade.id
+            # Notificação em tempo real
+            if self.realtime_updates:
+                self.realtime_updates.notify_trade_opened(trade.to_dict())
+            
+            return trade
             
         except Exception as e:
-            logger.error(f"Erro ao criar paper trade: {e}")
+            logger.error(f"❌ Erro ao confirmar sinal: {e}")
             return None
     
     def update_prices(self):
         """Atualiza preços de todos os trades ativos"""
-        closed_trades = []
+        if not self.active_trades:
+            return
+        
+        trades_to_close = []
         
         for trade_id, trade in self.active_trades.items():
             try:
                 # Obter preço atual
                 current_price = self.market_data.get_current_price(trade.symbol)
-                if current_price is None:
-                    continue
-                
-                # Atualizar preço do trade
-                was_closed = trade.update_price(current_price)
-                
-                if was_closed:
-                    closed_trades.append(trade_id)
-                    self._process_closed_trade(trade)
-                    
+                if current_price:
+                    # Atualizar preço e verificar SL/TP
+                    should_close = trade.update_current_price(current_price)
+                    if should_close:
+                        trades_to_close.append(trade_id)
+                        
             except Exception as e:
-                logger.error(f"Erro ao atualizar preço do trade {trade_id}: {e}")
+                logger.error(f"❌ Erro ao atualizar preço do trade {trade_id[:8]}: {e}")
         
-        # Remover trades fechados da lista ativa
-        for trade_id in closed_trades:
-            if trade_id in self.active_trades:
-                del self.active_trades[trade_id]
+        # Processar trades fechados
+        for trade_id in trades_to_close:
+            self._process_closed_trade(self.active_trades[trade_id])
+            del self.active_trades[trade_id]
     
     def _process_closed_trade(self, trade: PaperTrade):
-        """Processa um trade que foi fechado"""
-        self.trade_history.append(trade)
-          # Atualizar estatísticas
-        if trade.pnl > 0:
-            self.winning_trades += 1
-        else:
-            self.losing_trades += 1
-            
-        self.total_pnl += trade.pnl
-        logger.info(f"🔚 Paper trade fechado: {trade.symbol} {trade.trade_type}")
-        logger.info(f"   Motivo: {trade.exit_reason}")
-        logger.info(f"   P&L: ${trade.pnl:.2f} ({trade.pnl_percent:.2f}%)")
-        logger.info(f"   Entry: ${trade.entry_price:.2f} → Exit: ${trade.exit_price:.2f}")
-    
-    def confirm_signal(self, signal_data, amount=1000):
-        """
-        Confirma um sinal e cria um trade virtual
+        """Processa um trade fechado"""
+        # Atualizar balanço
+        self.current_balance += trade.realized_pnl
         
-        Args:
-            signal_data (dict): Dados do sinal com keys: signal_type, symbol, entry_price, etc.
-            amount (float): Valor do trade (não usado no paper trading, apenas para referência)
-              Returns:
-            PaperTrade: Objeto do trade criado ou None se erro
-        """
-        try:
-            # Criar objeto de sinal a partir dos dados
-            class SignalObj:
-                def __init__(self, data):
-                    self.id = data.get('id', f"{data['symbol']}_{datetime.now().strftime('%Y%m%d_%H%M%S')}")
-                    self.symbol = data['symbol']
-                    self.signal_type = data['signal_type']
-                    self.entry_price = data['entry_price']
-                    self.confidence = data.get('confidence', 0.5)
-                      # Usar os valores de SL e TP que já vêm calculados do signal_generator
-                    # Isso preserva os ajustes feitos para timeframes curtos
-                    self.stop_loss = data.get('stop_loss')
-                    self.take_profit = data.get('take_profit')
-                      # Se não tiver os valores, algo está errado - não usar fallbacks fixos
-                    if self.stop_loss is None or self.take_profit is None:
-                        logger.error(f"❌ ERRO: Stop Loss ou Take Profit não fornecidos no sinal!")
-                        logger.error(f"   Dados recebidos: {list(data.keys())}")
-                        raise ValueError("Stop Loss e Take Profit devem ser fornecidos no sinal")
-                        
-                    logger.info(f"🔧 Paper trade usando valores do sinal:")
-                    logger.info(f"   Entry: ${self.entry_price:.2f}")
-                    logger.info(f"   Stop Loss: ${self.stop_loss:.2f}")
-                    logger.info(f"   Take Profit: ${self.take_profit:.2f}")
-            
-            logger.info(f"🚀 Criando SignalObj com dados:")
-            logger.info(f"   SL recebido: {signal_data.get('stop_loss')}")
-            logger.info(f"   TP recebido: {signal_data.get('take_profit')}")
-            
-            signal_obj = SignalObj(signal_data)
-            
-            logger.info(f"📋 SignalObj criado:")
-            logger.info(f"   signal_obj.stop_loss: {signal_obj.stop_loss}")
-            logger.info(f"   signal_obj.take_profit: {signal_obj.take_profit}")
-            
-            trade_id = self.create_trade_from_signal(signal_obj)
-            
-            if trade_id:
-                return self.active_trades[trade_id]
-            else:
-                return None
-                
-        except Exception as e:
-            logger.error(f"Erro ao confirmar sinal: {e}")
-            return None
+        # Mover para histórico
+        self.trade_history.append(trade)
+        
+        # Log detalhado
+        result_emoji = "🎯" if trade.exit_reason == 'take_profit' else "🛑" if trade.exit_reason == 'stop_loss' else "🔒"
+        pnl_emoji = "📈" if trade.realized_pnl >= 0 else "📉"
+        
+        logger.info(f"{result_emoji} Trade fechado: {trade.id[:8]}")
+        logger.info(f"   📊 {trade.symbol} {trade.trade_type.upper()}")
+        logger.info(f"   💵 ${trade.entry_price:.2f} → ${trade.exit_price:.2f}")
+        logger.info(f"   {pnl_emoji} P&L: ${trade.realized_pnl:.2f} ({trade.pnl_percent:.2f}%)")
+        logger.info(f"   ⚡ Motivo: {trade.exit_reason}")
+        logger.info(f"   🕐 Duração: {trade.exit_timestamp - trade.timestamp}")
+        logger.info(f"   💰 Novo balanço: ${self.current_balance:.2f}")
+        
+        # Notificação em tempo real
+        if self.realtime_updates:
+            self.realtime_updates.notify_trade_closed(trade.to_dict())
     
     def close_trade_manually(self, trade_id: str) -> bool:
         """Fecha um trade manualmente"""
         if trade_id not in self.active_trades:
+            logger.warning(f"⚠️ Trade {trade_id[:8]} não encontrado")
             return False
-            
+        
         trade = self.active_trades[trade_id]
         
         # Obter preço atual para fechamento
         current_price = self.market_data.get_current_price(trade.symbol)
-        if current_price is None:
-            return False
-            
-        trade.close_manually(current_price)
-        self._process_closed_trade(trade)
+        if current_price:
+            trade.update_current_price(current_price)
         
+        # Fechar manualmente
+        trade.close_manually()
+        
+        # Processar fechamento
+        self._process_closed_trade(trade)
         del self.active_trades[trade_id]
+        
+        logger.info(f"🔒 Trade {trade_id[:8]} fechado manualmente")
         return True
     
     def get_portfolio_stats(self) -> Dict:
-        """Retorna estatísticas do portfólio"""
-        # Calcular P&L total incluindo trades ativos
-        total_pnl = self.total_pnl
-        for trade in self.active_trades.values():
-            current_pnl, _ = trade.get_current_pnl()
-            total_pnl += current_pnl
+        """Obtém estatísticas do portfolio"""
+        total_trades = len(self.trade_history)
+        profitable_trades = len([t for t in self.trade_history if t.realized_pnl > 0])
+        losing_trades = total_trades - profitable_trades
         
-        current_balance = self.initial_balance + total_pnl
-        total_return = (current_balance / self.initial_balance - 1) * 100
+        win_rate = (profitable_trades / total_trades * 100) if total_trades > 0 else 0
+        total_pnl = sum(t.realized_pnl for t in self.trade_history)
+        total_return = (total_pnl / self.initial_balance * 100) if self.initial_balance > 0 else 0
         
-        win_rate = (self.winning_trades / max(self.total_trades - len(self.active_trades), 1)) * 100
+        # P&L não realizado dos trades ativos
+        unrealized_pnl = sum(t.unrealized_pnl for t in self.active_trades.values())
         
         return {
+            'current_balance': self.current_balance,
             'initial_balance': self.initial_balance,
-            'current_balance': current_balance,
             'total_pnl': total_pnl,
-            'total_return_percent': total_return,
-            'total_trades': self.total_trades,
+            'unrealized_pnl': unrealized_pnl,
+            'total_trades': total_trades,
             'active_trades': len(self.active_trades),
-            'closed_trades': len(self.trade_history),
-            'winning_trades': self.winning_trades,
-            'losing_trades': self.losing_trades,
-            'win_rate': win_rate
+            'profitable_trades': profitable_trades,
+            'losing_trades': losing_trades,
+            'win_rate': win_rate,
+            'total_return': total_return
         }
     
     def get_active_trades(self) -> List[Dict]:
-        """Retorna lista de trades ativos"""
+        """Obtém lista de trades ativos"""
         return [trade.to_dict() for trade in self.active_trades.values()]
     
-    def get_trade_history(self, limit: int = 50) -> List[Dict]:
-        """Retorna histórico de trades"""
-        return [trade.to_dict() for trade in self.trade_history[-limit:]]
+    def get_trade_history(self, limit: int = 50) -> List[PaperTrade]:
+        """Obtém histórico de trades"""
+        return sorted(self.trade_history, key=lambda t: t.timestamp, reverse=True)[:limit]
+
+
+class AutoTradeMonitor:
+    """Sistema de monitoramento automático de trades"""
     
-    def get_trade_by_id(self, trade_id: str) -> Optional[Dict]:
-        """Retorna trade específico por ID"""
-        if trade_id in self.active_trades:
-            return self.active_trades[trade_id].to_dict()
+    def __init__(self, paper_trading_manager, realtime_updates_manager, interval=30):
+        self.paper_trading = paper_trading_manager
+        self.realtime_updates = realtime_updates_manager
+        self.interval = interval  # segundos
+        self.running = False
+        self.thread = None
         
-        for trade in self.trade_history:
-            if trade.id == trade_id:
-                return trade.to_dict()
+    def start(self):
+        """Iniciar monitoramento automático"""
+        if not self.running:
+            self.running = True
+            self.thread = threading.Thread(target=self._monitor_loop, daemon=True)
+            self.thread.start()
+            logger.info(f"🔄 Monitor automático de trades iniciado (intervalo: {self.interval}s)")
+    
+    def stop(self):
+        """Parar monitoramento automático"""
+        self.running = False
+        if self.thread:
+            self.thread.join(timeout=5)
+        logger.info("⏹️ Monitor automático de trades parado")
+    
+    def get_status(self) -> Dict:
+        """Status do monitor"""
+        return {
+            'running': self.running,
+            'interval': self.interval,
+            'active_trades_count': len(self.paper_trading.active_trades)
+        }
+    
+    def _monitor_loop(self):
+        """Loop principal de monitoramento"""
+        while self.running:
+            try:
+                # Atualizar preços de todos os trades ativos
+                if self.paper_trading.active_trades:
+                    old_count = len(self.paper_trading.active_trades)
+                    self.paper_trading.update_prices()
+                    new_count = len(self.paper_trading.active_trades)
+                    
+                    # Se algum trade foi fechado, notificar
+                    if new_count < old_count:
+                        portfolio_stats = self.paper_trading.get_portfolio_stats()
+                        if self.realtime_updates:
+                            self.realtime_updates.notify_portfolio_update(portfolio_stats)
                 
-        return None
+                time.sleep(self.interval)
+                
+            except Exception as e:
+                logger.error(f"❌ Erro no monitor automático: {e}")
+                time.sleep(self.interval)

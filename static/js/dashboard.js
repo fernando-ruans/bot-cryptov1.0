@@ -14,11 +14,19 @@ class SimpleTradingDashboard {
         this.isConnected = false;
         this.lastPrices = {};
         this.priceUpdateInterval = null;
+        this.notifications = [];
         this.portfolio = {
             total_trades: 0,
             win_rate: 0,
             total_pnl: 0,
             active_trades: 0
+        };
+        
+        // Assets suportados
+        this.supportedAssets = {
+            'crypto': ['BTCUSDT', 'ETHUSDT', 'ADAUSDT', 'DOTUSDT', 'LINKUSDT', 'BNBUSDT', 'XRPUSDT', 'SOLUSDT', 'AVAXUSDT', 'MATICUSDT'],
+            'forex': ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD'],
+            'indices': ['SPX500', 'US30', 'NAS100', 'UK100']
         };
         
         this.init();
@@ -138,6 +146,15 @@ class SimpleTradingDashboard {
             console.log(`🔄 Timeframe selecionado: ${e.target.value}`);
             this.changeTimeframe(e.target.value);
         });
+
+        // Seletor visual de ativos
+        document.querySelectorAll('.asset-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const symbol = e.target.closest('.asset-btn').dataset.symbol;
+                const category = e.target.closest('.asset-btn').dataset.category;
+                this.selectAssetFromCategory(symbol, category, e.target.closest('.asset-btn'));
+            });
+        });
         
         // Iniciar atualização automática de preços
         this.startPriceUpdates();
@@ -195,12 +212,16 @@ class SimpleTradingDashboard {
         
         this.socket.on('connect', () => {
             console.log('✅ WebSocket conectado');
+            this.isConnected = true;
             this.updateBotStatus(true);
+            this.showNotification('Conectado ao servidor em tempo real', 'success');
         });
 
         this.socket.on('disconnect', () => {
             console.log('❌ WebSocket desconectado');
+            this.isConnected = false;
             this.updateBotStatus(false);
+            this.showNotification('Conexão perdida - tentando reconectar...', 'warning');
         });
 
         this.socket.on('price_update', (data) => {
@@ -209,6 +230,23 @@ class SimpleTradingDashboard {
 
         this.socket.on('trade_update', (data) => {
             this.handleTradeUpdate(data);
+        });
+
+        // Novos eventos para notificações em tempo real
+        this.socket.on('new_signal', (data) => {
+            this.handleNewSignal(data);
+        });
+
+        this.socket.on('trade_opened', (data) => {
+            this.handleTradeOpened(data);
+        });
+
+        this.socket.on('trade_closed', (data) => {
+            this.handleTradeClosed(data);
+        });
+
+        this.socket.on('portfolio_update', (data) => {
+            this.handlePortfolioUpdate(data);
         });
     }
 
@@ -421,7 +459,7 @@ class SimpleTradingDashboard {
             const isProfit = currentPrice >= entryPrice;
             
             return `
-                <div class="card mb-3 shadow-sm border-0">
+                <div class="card mb-3 shadow-sm border-0 trade-card">
                     <div class="card-body p-3">
                         <!-- Header com símbolo e tipo -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -585,9 +623,17 @@ class SimpleTradingDashboard {
     }
 
     handlePriceUpdate(data) {
-        // Atualizar preços em tempo real se necessário
+        // Atualizar preços em tempo real
         console.log('💰 Atualização de preço:', data);
-        // Pode implementar atualizações visuais aqui se necessário
+        
+        // Atualizar apenas se for o ativo atual
+        if (data.symbol === this.currentSymbol) {
+            this.displayCurrentPrice(data.price);
+            this.lastPrices[data.symbol] = data.price;
+            
+            // Atualizar trades ativos se necessário
+            this.updateActiveTradesPrices(data.price);
+        }
     }
 
     handleTradeUpdate(data) {
@@ -595,6 +641,147 @@ class SimpleTradingDashboard {
         console.log('📈 Atualização de trade:', data);
         this.loadPortfolio();
         this.loadActiveTradesStatus();
+        
+        // Mostrar notificação de atualização
+        if (data.type === 'stop_loss_hit') {
+            this.showNotification(`🛑 Stop Loss atingido para ${data.symbol}`, 'warning');
+        } else if (data.type === 'take_profit_hit') {
+            this.showNotification(`🎯 Take Profit atingido para ${data.symbol}`, 'success');
+        }
+    }
+
+    // Novas funções para notificações em tempo real
+    handleNewSignal(data) {
+        console.log('🎯 Novo sinal recebido:', data);
+        
+        const confidence = (data.confidence * 100).toFixed(1);
+        const signalType = data.signal_type.toUpperCase();
+        
+        this.showNotification(
+            `🎯 NOVO SINAL: ${signalType} ${data.symbol} | Confiança: ${confidence}% | Preço: $${data.entry_price}`,
+            'info',
+            true // Duração extendida
+        );
+        
+        // Auto-refresh se for o ativo atual
+        if (data.symbol === this.currentSymbol) {
+            setTimeout(() => {
+                this.loadPortfolio();
+            }, 1000);
+        }
+    }
+
+    handleTradeOpened(data) {
+        console.log('📊 Trade aberto:', data);
+        
+        this.showNotification(
+            `📊 Trade ${data.trade_type} aberto para ${data.symbol} por $${data.entry_price}`,
+            'success'
+        );
+        
+        this.loadPortfolio();
+        this.loadActiveTradesStatus();
+    }
+
+    handleTradeClosed(data) {
+        console.log('🔒 Trade fechado:', data);
+        
+        const pnlText = data.pnl >= 0 ? `+$${data.pnl.toFixed(2)}` : `-$${Math.abs(data.pnl).toFixed(2)}`;
+        const icon = data.pnl >= 0 ? '💰' : '📉';
+        const type = data.pnl >= 0 ? 'success' : 'danger';
+        
+        this.showNotification(
+            `${icon} Trade ${data.symbol} fechado: ${pnlText} (${data.exit_reason || 'Manual'})`,
+            type
+        );
+        
+        this.loadPortfolio();
+        this.loadActiveTradesStatus();
+        this.loadTradesHistory();
+    }
+
+    handlePortfolioUpdate(data) {
+        console.log('💼 Portfolio atualizado:', data);
+        
+        // Atualizar dados do portfolio sem fazer nova requisição
+        this.portfolio = data.portfolio;
+        this.updateStatsDisplay();
+        
+        // Mostrar notificação se houve mudança significativa
+        if (data.significant_change) {
+            const pnlChange = data.pnl_change || 0;
+            if (Math.abs(pnlChange) > 10) { // Apenas para mudanças > $10
+                const icon = pnlChange >= 0 ? '📈' : '📉';
+                const type = pnlChange >= 0 ? 'success' : 'danger';
+                this.showNotification(
+                    `${icon} P&L atualizado: ${pnlChange >= 0 ? '+' : ''}$${pnlChange.toFixed(2)}`,
+                    type
+                );
+            }
+        }
+    }
+
+    updateActiveTradesPrices(newPrice) {
+        // Atualizar preços dos trades ativos na interface
+        const activeTradesContainer = document.getElementById('activeTradesList');
+        if (activeTradesContainer) {
+            // Esta função será chamada para atualizar preços em tempo real
+            // sem recarregar toda a lista
+            this.loadActiveTradesStatus();
+        }
+    }
+
+    updateActiveTradesPricesVisual(newPrice) {
+        // Atualizar preços em cards de trades ativos com animações visuais
+        const activeTradesContainer = document.getElementById('activeTradesList');
+        if (!activeTradesContainer) return;
+        
+        const tradeCards = activeTradesContainer.querySelectorAll('.trade-card');
+        
+        tradeCards.forEach(card => {
+            // Encontrar elementos de preço atual no card
+            const currentPriceElements = card.querySelectorAll('.text-success, .text-danger');
+            const pnlElements = card.querySelectorAll('[class*="text-success"], [class*="text-danger"]');
+            
+            // Verificar se o card pertence ao ativo atual
+            const symbolElement = card.querySelector('.text-primary');
+            if (symbolElement && symbolElement.textContent.trim() === this.currentSymbol) {
+                // Animar indicações de P&L baseadas na mudança de preço
+                const lastPrice = this.lastPrices[this.currentSymbol] || newPrice;
+                const isUpward = newPrice > lastPrice;
+                
+                // Adicionar efeito visual baseado na direção do preço
+                if (isUpward) {
+                    card.classList.add('profit-indicator');
+                    card.classList.remove('loss-indicator');
+                    
+                    // Efeito de brilho verde
+                    card.style.animation = 'profitGlow 1s ease-in-out';
+                } else if (newPrice < lastPrice) {
+                    card.classList.add('loss-indicator');
+                    card.classList.remove('profit-indicator');
+                    
+                    // Efeito de brilho vermelho
+                    card.style.animation = 'lossGlow 1s ease-in-out';
+                }
+                
+                // Remover animação após completar
+                setTimeout(() => {
+                    card.style.animation = '';
+                }, 1000);
+                
+                // Animar elementos de preço específicos
+                pnlElements.forEach(element => {
+                    if (element.textContent.includes('$') || element.textContent.includes('%')) {
+                        element.style.animation = isUpward ? 'priceFlash 0.5s ease-in-out' : 'priceFlashRed 0.5s ease-in-out';
+                        
+                        setTimeout(() => {
+                            element.style.animation = '';
+                        }, 500);
+                    }
+                });
+            }
+        });
     }
 
     showAlert(message, type = 'info') {
@@ -691,30 +878,61 @@ class SimpleTradingDashboard {
     }
 
     displayCurrentPrice(price) {
-        // Atualizar o indicador de preço na navbar
+        const lastPrice = this.lastPrices[this.currentSymbol] || price;
+        const priceChanged = lastPrice !== price;
+        const isUpward = price > lastPrice;
+        const formattedPrice = `$${price.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 6
+        })}`;
+        
+        // Atualizar o indicador de preço na navbar com animações
         const navPriceElement = document.getElementById('currentPrice');
         if (navPriceElement) {
-            navPriceElement.textContent = `$${price.toFixed(6)}`;
+            navPriceElement.textContent = formattedPrice;
+            
+            if (priceChanged) {
+                // Remover classes anteriores
+                navPriceElement.classList.remove('price-up', 'price-down', 'priceFlash', 'priceFlashRed');
+                
+                // Adicionar animação baseada na direção
+                if (isUpward) {
+                    navPriceElement.classList.add('price-up', 'priceFlash');
+                } else {
+                    navPriceElement.classList.add('price-down', 'priceFlashRed');
+                }
+                
+                // Remover classes após animação
+                setTimeout(() => {
+                    navPriceElement.classList.remove('price-up', 'price-down', 'priceFlash', 'priceFlashRed');
+                }, 600);
+            }
         }
         
         // Atualizar o preço no painel lateral (card gerador de sinais)
         const sidebarPriceElement = document.getElementById('sidebarCurrentPrice');
         if (sidebarPriceElement) {
-            const lastPrice = this.lastPrices[this.currentSymbol] || price;
-            const priceChanged = lastPrice !== price;
-            
             sidebarPriceElement.textContent = `$${price.toFixed(2)}`;
             
             // Animação visual quando o preço muda
             if (priceChanged) {
-                sidebarPriceElement.style.transition = 'all 0.3s ease';
-                sidebarPriceElement.style.transform = 'scale(1.05)';
-                sidebarPriceElement.style.color = price > lastPrice ? '#27ae60' : '#e74c3c';
+                // Remover classes anteriores
+                sidebarPriceElement.classList.remove('price-up', 'price-down');
+                
+                // Adicionar nova classe de animação
+                if (isUpward) {
+                    sidebarPriceElement.classList.add('price-up');
+                } else {
+                    sidebarPriceElement.classList.add('price-down');
+                }
+                
+                // Animação CSS personalizada
+                sidebarPriceElement.style.animation = isUpward ? 'priceFlash 0.6s ease-in-out' : 'priceFlashRed 0.6s ease-in-out';
                 
                 setTimeout(() => {
-                    sidebarPriceElement.style.transform = 'scale(1)';
-                    sidebarPriceElement.style.color = '';
-                }, 300);
+                    sidebarPriceElement.classList.remove('price-up', 'price-down');
+                    sidebarPriceElement.style.animation = '';
+                }, 600);
             }
             
             // Calcular variação de preço
@@ -732,18 +950,38 @@ class SimpleTradingDashboard {
                     priceChangeElement.style.animation = '';
                 }, 500);
             }
-            
-            // Armazenar preço anterior
-            this.lastPrices[this.currentSymbol] = price;
         }
         
-        // Atualizar qualquer outro elemento de preço na interface
+        // Atualizar outros elementos de preço na interface com animações
         const symbolPriceElements = document.querySelectorAll('.current-price');
         symbolPriceElements.forEach(element => {
-            element.textContent = `$${price.toFixed(6)}`;
+            element.textContent = formattedPrice;
+            
+            if (priceChanged) {
+                element.classList.remove('price-up', 'price-down');
+                
+                if (isUpward) {
+                    element.classList.add('price-up');
+                } else {
+                    element.classList.add('price-down');
+                }
+                
+                setTimeout(() => {
+                    element.classList.remove('price-up', 'price-down');
+                }, 600);
+            }
         });
         
-        console.log(`💰 Preço atualizado: ${this.currentSymbol} = $${price.toFixed(2)}`);
+        // Atualizar preços em trades ativos com indicações visuais
+        this.updateActiveTradesPricesVisual(price);
+        
+        // Chamar método de melhoramento de exibição de preços
+        this.enhancePriceDisplay();
+        
+        // Armazenar preço anterior
+        this.lastPrices[this.currentSymbol] = price;
+        
+        console.log(`💰 Preço atualizado: ${this.currentSymbol} = ${formattedPrice} ${priceChanged ? (isUpward ? '📈' : '📉') : ''}`);
     }
 
     // Mapeamento de símbolos para TradingView
@@ -1024,6 +1262,82 @@ class SimpleTradingDashboard {
         document.getElementById('signalContent').style.display = 'none';
         document.getElementById('signalActions').style.display = 'none';
         document.getElementById('generateSignalBtn').style.display = 'block';
+    }
+
+    selectAssetFromCategory(symbol, category, buttonElement) {
+        console.log(`🎯 Ativo selecionado: ${symbol} (${category})`);
+        
+        // Remover classe active de todos os botões
+        document.querySelectorAll('.asset-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Adicionar classe active ao botão clicado
+        buttonElement.classList.add('active');
+        
+        // Atualizar o seletor dropdown também
+        const assetSelector = document.getElementById('assetSelector');
+        if (assetSelector) {
+            assetSelector.value = symbol;
+        }
+        
+        // Mudar o ativo atual
+        this.changeAsset(symbol);
+        
+        // Mostrar notificação visual
+        this.showNotification(
+            `📊 Ativo alterado para ${symbol} (${category.toUpperCase()})`,
+            'info',
+            false,
+            true
+        );
+        
+        // Animar o botão selecionado
+        buttonElement.style.animation = 'pulse 0.5s ease-in-out';
+        setTimeout(() => {
+            buttonElement.style.animation = '';
+        }, 500);
+    }
+
+    enhancePriceDisplay() {
+        // Melhorar exibição de preços com animações
+        const priceElements = document.querySelectorAll('[id*="price"], [id*="Price"]');
+        
+        priceElements.forEach(element => {
+            if (element.dataset.lastPrice) {
+                const currentPrice = parseFloat(element.textContent.replace(/[^0-9.-]/g, ''));
+                const lastPrice = parseFloat(element.dataset.lastPrice);
+                
+                if (currentPrice > lastPrice) {
+                    element.classList.add('price-up');
+                    setTimeout(() => element.classList.remove('price-up'), 600);
+                } else if (currentPrice < lastPrice) {
+                    element.classList.add('price-down');
+                    setTimeout(() => element.classList.remove('price-down'), 600);
+                }
+            }
+            
+            element.dataset.lastPrice = element.textContent.replace(/[^0-9.-]/g, '');
+        });
+    }
+
+    addTradeCardAnimations() {
+        // Adicionar animações aos cards de trades
+        const tradeCards = document.querySelectorAll('.trade-card');
+        
+        tradeCards.forEach(card => {
+            const pnlElement = card.querySelector('[class*="pnl"], [class*="profit"], [class*="loss"]');
+            
+            if (pnlElement) {
+                const pnlValue = parseFloat(pnlElement.textContent.replace(/[^0-9.-]/g, ''));
+                
+                if (pnlValue > 0) {
+                    card.classList.add('profit-indicator');
+                } else if (pnlValue < 0) {
+                    card.classList.add('loss-indicator');
+                }
+            }
+        });
     }
 }
 
