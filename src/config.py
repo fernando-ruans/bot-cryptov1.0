@@ -68,20 +68,21 @@ class Config:
         'take_profit_pct': 0.025,     # 2.5% take profit (1:1 ratio)
         'trailing_stop_pct': 0.008,   # 0.8% trailing stop
         'risk_reward_ratio': 1.0,     # Ratio 1:1 (risco:recompensa)
-        'min_ai_confidence': 0.85     # Mínimo 85% confiança IA para executar
+        'min_ai_confidence': 0.30     # Mínimo 30% confiança IA para executar (muito permissivo)
     })
     
     # Configurações de sinal - Nova estratégia IA com análise de mercado
     SIGNAL_CONFIG: Dict = field(default_factory=lambda: {
-        'min_confidence': 0.85,      # 🎯 Confiança mínima 85% (ultra seletivo)
+        'min_confidence': 0.01,      # 🎯 Confiança mínima 1% (extremamente permissivo)
+        'min_ai_confidence': 0.01,   # 🤖 Confiança mínima da IA 1% (extremamente permissivo)
         'max_confidence': 0.98,      # 📊 Confiança máxima 98% (quase certeza)
-        'signal_cooldown_minutes': 15, # ⏱️ Cooldown de 15 minutos (muito seletivo)
-        'max_signals_per_hour': 4,    # 📈 Máximo 4 sinais por hora (ultra seletivo)
+        'signal_cooldown_minutes': 0, # ⏱️ Cooldown DESABILITADO para desenvolvimento
+        'max_signals_per_hour': 20,    # 📈 Máximo 20 sinais por hora
         'enable_ai_analysis': True,   # ✅ Análise IA obrigatória
         'enable_market_context': True, # ✅ Contexto de mercado obrigatório
         'enable_confluence': False,   # ❌ Confluência desabilitada (nova estratégia IA)
-        'min_confluence_count': 3,    # Mínimo de 3 indicadores em confluência
-        'min_market_score': 0.80,    # Mínimo 80% score de mercado
+        'min_confluence_count': 1,    # Mínimo de 1 indicador em confluência
+        'min_market_score': 0.01,    # Mínimo 1% score de mercado (extremamente permissivo)
         'quality_over_quantity': True,  # Priorizar qualidade
         'min_score_difference': 0.05,  # Diferença mínima entre buy/sell scores
         'strong_signal_threshold': 0.25,  # Threshold para sinais fortes

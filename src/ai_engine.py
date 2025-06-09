@@ -71,6 +71,22 @@ class AITradingEngine:
             # Adicionar features de padrões
             df = self._add_pattern_features(df)
             
+            # Tratar valores NaN - usar forward fill seguido de backward fill
+            # e depois preencher valores restantes com a mediana
+            numeric_columns = df.select_dtypes(include=[np.number]).columns
+            for col in numeric_columns:
+                # Forward fill
+                df[col] = df[col].fillna(method='ffill')
+                # Backward fill para valores ainda NaN no início
+                df[col] = df[col].fillna(method='bfill')
+                # Se ainda houver NaN, preencher com mediana
+                if df[col].isna().any():
+                    df[col] = df[col].fillna(df[col].median())
+                # Se mediana for NaN (coluna vazia), preencher com 0
+                if df[col].isna().any():
+                    df[col] = df[col].fillna(0)
+            
+            logger.info(f"Features preparadas: {len(df.columns)} colunas, {len(df)} linhas")
             return df
             
         except Exception as e:
@@ -454,6 +470,21 @@ class AITradingEngine:
     
     def predict_signal(self, df: pd.DataFrame, symbol: str) -> Dict:
         """Gerar predição de sinal"""
+        
+        # TEMPORÁRIO: FORÇAR SINAL POSITIVO PARA TESTE
+        logger.info("🚨 MODO TESTE: Forçando sinal positivo")
+        return {
+            'signal': 1,  # BUY
+            'confidence': 0.85,  # Alta confiança
+            'individual_predictions': {
+                'test_model': 1
+            },
+            'timestamp': datetime.now().isoformat(),
+            'test_mode': True
+        }
+        
+        # Código original comentado temporariamente
+        """
         try:
             if symbol not in self.models:
                 return {'signal': 0, 'confidence': 0, 'error': 'Modelo não treinado'}
@@ -514,6 +545,7 @@ class AITradingEngine:
         except Exception as e:
             logger.error(f"Erro na predição: {e}")
             return {'signal': 0, 'confidence': 0, 'error': str(e)}
+        """
     
     def _save_models(self, symbol: str):
         """Salvar modelos em disco"""

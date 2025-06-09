@@ -877,11 +877,11 @@ class MarketAnalyzer:
                 confidence = 0.5
             
             # Verificar confiança mínima da IA
-            min_ai_confidence = self.config.RISK_MANAGEMENT.get('min_ai_confidence', 0.0)
+            min_ai_confidence = self.config.SIGNAL_CONFIG.get('min_ai_confidence', 0.0)
             if confidence < min_ai_confidence and recommendation != "hold":
                 logger.info(f"Confiança da IA {confidence:.2f} abaixo do mínimo {min_ai_confidence:.2f} para {symbol} {timeframe}")
                 recommendation = "hold"
-                confidence = max(hold_score, 0.5)
+                confidence = max(confidence, 0.5)
             
             # Calcular preço atual
             current_price = df['close'].iloc[-1]

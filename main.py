@@ -126,12 +126,18 @@ def api_generate_signal():
         timeframe = data.get('timeframe', '1h')
         
         logger.info(f"🎰 Gerando sinal para {symbol} {timeframe}")
+        logger.info(f"📊 DEBUG: Dados da requisição: {data}")
+        logger.info(f"📊 DEBUG: Signal generator instance: {signal_generator}")
+        logger.info(f"📊 DEBUG: Signal generator config: {signal_generator.config.SIGNAL_CONFIG}")
         
         # Gerar sinal
+        logger.info(f"📊 DEBUG: Chamando signal_generator.generate_signal('{symbol}', '{timeframe}')")
         signal = signal_generator.generate_signal(symbol, timeframe)
+        logger.info(f"📊 DEBUG: Resultado do generate_signal: {signal}")
         
         if signal is None:
             logger.warning(f"⚠️ Nenhum sinal gerado para {symbol}")
+            logger.warning(f"📊 DEBUG: Signal é None - verificar causa")
             return jsonify({
                 'success': False,
                 'message': f'Nenhum sinal gerado para {symbol}',
@@ -216,6 +222,44 @@ def api_generate_signal():
         }), 500
 
 # ==================== APIS PAPER TRADING ====================
+
+@app.route('/api/signals/active')
+def api_active_signals():
+    """Buscar sinais ativos"""
+    try:
+        active_signals = signal_generator.get_active_signals()
+        
+        # Verificar se já são dicionários ou precisam ser convertidos
+        signals_data = []
+        for signal in active_signals:
+            if hasattr(signal, 'to_dict'):
+                signals_data.append(signal.to_dict())
+            elif isinstance(signal, dict):
+                signals_data.append(signal)
+            else:
+                # Fallback para conversão manual
+                signals_data.append({
+                    'id': getattr(signal, 'id', 'unknown'),
+                    'symbol': getattr(signal, 'symbol', 'unknown'),
+                    'signal_type': getattr(signal, 'signal_type', 'unknown'),
+                    'confidence': getattr(signal, 'confidence', 0),
+                    'entry_price': getattr(signal, 'entry_price', 0),
+                    'stop_loss': getattr(signal, 'stop_loss', 0),
+                    'take_profit': getattr(signal, 'take_profit', 0),
+                    'timestamp': getattr(signal, 'timestamp', '').isoformat() if hasattr(getattr(signal, 'timestamp', ''), 'isoformat') else str(getattr(signal, 'timestamp', '')),
+                    'status': getattr(signal, 'status', 'unknown')
+                })
+        
+        logger.info(f"📊 Retornando {len(signals_data)} sinais ativos")
+        return jsonify({
+            'success': True,
+            'signals': signals_data,
+            'count': len(signals_data)
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao buscar sinais ativos: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/paper_trading/confirm_signal', methods=['POST'])
 def api_confirm_signal():
@@ -367,11 +411,59 @@ def get_current_price_endpoint(symbol):
             'success': True,
             'symbol': symbol,
             'price': current_price,
-            'timestamp': datetime.now().isoformat()
-        })
+            'timestamp': datetime.now().isoformat()        })
         
     except Exception as e:
         logger.error(f"❌ Erro ao obter preço: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# ==================== ROTAS DEBUG ====================
+
+@app.route('/api/debug/force_signal', methods=['POST'])
+def api_debug_force_signal():
+    """Forçar geração de sinal para debug - bypassa todas as validações"""
+    try:
+        data = request.get_json() if request.is_json else {}
+        symbol = data.get('symbol', 'BTCUSDT')
+        signal_type = data.get('signal_type', 'buy')
+        
+        logger.info(f"🔧 DEBUG: Forçando sinal {signal_type} para {symbol}")
+        
+        # Obter preço atual
+        current_price = market_data.get_current_price(symbol)
+        if current_price is None:
+            current_price = 105000  # Fallback para BTCUSDT
+        
+        # Importar classe Signal
+        from src.signal_generator import Signal
+        from datetime import datetime
+        
+        # Criar sinal forçado
+        forced_signal = Signal(
+            symbol=symbol,
+            signal_type=signal_type,
+            confidence=0.75,  # 75% de confiança forçada
+            entry_price=current_price,
+            stop_loss=current_price * (0.98 if signal_type == 'buy' else 1.02),
+            take_profit=current_price * (1.04 if signal_type == 'buy' else 0.96),
+            timeframe='1h',
+            timestamp=datetime.now(),
+            reasons=['Sinal forçado via debug', 'Bypass de validações', 'Teste de funcionamento']
+        )
+        
+        # Registrar o sinal
+        signal_generator._register_signal(forced_signal)
+        
+        logger.info(f"✅ DEBUG: Sinal forçado criado: {forced_signal.id}")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Sinal {signal_type} forçado para debug',
+            'signal': forced_signal.to_dict()
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao forçar sinal debug: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # ==================== WEBSOCKET EVENTS ====================

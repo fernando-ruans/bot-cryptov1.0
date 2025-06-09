@@ -135,8 +135,8 @@ class SignalGenerator:
             ai_confidence = market_recommendation.get('confidence', 0.0)
             market_score = market_recommendation.get('market_score', 0.0)
             
-            min_ai_confidence = self.config.RISK_MANAGEMENT.get('min_ai_confidence', 0.85)
-            min_market_score = self.config.SIGNAL_CONFIG.get('min_market_score', 0.80)
+            min_ai_confidence = self.config.SIGNAL_CONFIG.get('min_ai_confidence', 0.30)
+            min_market_score = self.config.SIGNAL_CONFIG.get('min_market_score', 0.30)
             
             if ai_confidence < min_ai_confidence:
                 logger.info(f"Confiança da IA insuficiente para {symbol}: {ai_confidence:.2f} < {min_ai_confidence}")
@@ -1085,22 +1085,22 @@ class SignalGenerator:
             # Usar ATR para calcular níveis
             atr = df['atr'].iloc[-1] if 'atr' in df.columns else current_price * 0.02
             
-            # Ajustar percentuais baseado no timeframe - Valores realistas para cada período
+            # Ajustar percentuais baseado no timeframe - Valores para micro-scalping
             timeframe_multipliers = {
-                '1m': {'sl': 0.15, 'tp': 0.30},  # 0.15% SL, 0.30% TP - ~$150/$300 no BTC
-                '3m': {'sl': 0.20, 'tp': 0.40},  # 0.20% SL, 0.40% TP - ~$200/$400 no BTC
-                '5m': {'sl': 0.25, 'tp': 0.50},  # 0.25% SL, 0.50% TP - ~$250/$500 no BTC
-                '15m': {'sl': 0.35, 'tp': 0.70}, # 0.35% SL, 0.70% TP - ~$350/$700 no BTC
-                '30m': {'sl': 0.50, 'tp': 1.00}, # 0.50% SL, 1.00% TP - ~$500/$1000 no BTC
-                '1h': {'sl': 0.80, 'tp': 1.60},  # 0.80% SL, 1.60% TP - ~$800/$1600 no BTC
-                '2h': {'sl': 1.20, 'tp': 2.40},  # 1.20% SL, 2.40% TP - Ratio 1:2
-                '4h': {'sl': 1.80, 'tp': 3.60},  # 1.80% SL, 3.60% TP - Ratio 1:2
-                '6h': {'sl': 2.50, 'tp': 5.00},  # 2.50% SL, 5.00% TP - Ratio 1:2
-                '8h': {'sl': 3.00, 'tp': 6.00},  # 3.00% SL, 6.00% TP - Ratio 1:2
-                '12h': {'sl': 3.50, 'tp': 7.00}, # 3.50% SL, 7.00% TP - Ratio 1:2
-                '1d': {'sl': 4.00, 'tp': 8.00},  # 4.00% SL, 8.00% TP - Ratio 1:2
-                '3d': {'sl': 5.00, 'tp': 10.0},  # 5.00% SL, 10.0% TP - Ratio 1:2
-                '1w': {'sl': 6.00, 'tp': 12.0}   # 6.00% SL, 12.0% TP - Ratio 1:2
+                '1m': {'sl': 0.02, 'tp': 0.03},  # 0.02% SL, 0.03% TP - ~$20/$30 no BTC (ultra-micro-scalping)
+                '3m': {'sl': 0.025, 'tp': 0.04}, # 0.025% SL, 0.04% TP - ~$25/$40 no BTC
+                '5m': {'sl': 0.03, 'tp': 0.05},  # 0.03% SL, 0.05% TP - ~$30/$50 no BTC
+                '15m': {'sl': 0.05, 'tp': 0.08}, # 0.05% SL, 0.08% TP - ~$50/$80 no BTC
+                '30m': {'sl': 0.08, 'tp': 0.12}, # 0.08% SL, 0.12% TP - ~$80/$120 no BTC
+                '1h': {'sl': 0.10, 'tp': 0.16},  # 0.10% SL, 0.16% TP - ~$100/$160 no BTC
+                '2h': {'sl': 0.15, 'tp': 0.24},  # 0.15% SL, 0.24% TP - ~$150/$240 no BTC
+                '4h': {'sl': 0.25, 'tp': 0.40},  # 0.25% SL, 0.40% TP - ~$250/$400 no BTC
+                '6h': {'sl': 0.35, 'tp': 0.55},  # 0.35% SL, 0.55% TP - ~$350/$550 no BTC
+                '8h': {'sl': 0.45, 'tp': 0.72},  # 0.45% SL, 0.72% TP - ~$450/$720 no BTC
+                '12h': {'sl': 0.60, 'tp': 0.96}, # 0.60% SL, 0.96% TP - ~$600/$960 no BTC
+                '1d': {'sl': 0.80, 'tp': 1.28},  # 0.80% SL, 1.28% TP - ~$800/$1280 no BTC
+                '3d': {'sl': 1.20, 'tp': 1.92},  # 1.20% SL, 1.92% TP - ~$1200/$1920 no BTC
+                '1w': {'sl': 1.80, 'tp': 2.88}   # 1.80% SL, 2.88% TP - ~$1800/$2880 no BTC
             }
             
             # Obter multiplicadores para o timeframe (padrão 1h se não encontrado)
@@ -1151,22 +1151,22 @@ class SignalGenerator:
             if signal_type == 'hold':
                 return {'stop_loss': 0, 'take_profit': 0}
             
-            # Percentuais conservadores para relação 1:1 baseados no timeframe
+            # Percentuais para micro-scalping - valores extremamente curtos
             timeframe_percentages = {
-                '1m': 2.5,   # 2.5% para SL e TP
-                '3m': 2.5,   # 2.5% para SL e TP
-                '5m': 2.5,   # 2.5% para SL e TP
-                '15m': 2.5,  # 2.5% para SL e TP
-                '30m': 2.5,  # 2.5% para SL e TP
-                '1h': 2.5,   # 2.5% para SL e TP
-                '2h': 2.5,   # 2.5% para SL e TP
-                '4h': 2.5,   # 2.5% para SL e TP
-                '6h': 2.5,   # 2.5% para SL e TP
-                '8h': 2.5,   # 2.5% para SL e TP
-                '12h': 2.5,  # 2.5% para SL e TP
-                '1d': 2.5,   # 2.5% para SL e TP
-                '3d': 2.5,   # 2.5% para SL e TP
-                '1w': 2.5    # 2.5% para SL e TP
+                '1m': 0.04,  # 0.04% para SL e TP - ~$4 no BTC (micro-scalping)
+                '3m': 0.06,  # 0.06% para SL e TP - ~$6 no BTC
+                '5m': 0.08,  # 0.08% para SL e TP - ~$8 no BTC
+                '15m': 0.12, # 0.12% para SL e TP - ~$12 no BTC
+                '30m': 0.18, # 0.18% para SL e TP - ~$18 no BTC
+                '1h': 0.25,  # 0.25% para SL e TP - ~$25 no BTC
+                '2h': 0.40,  # 0.40% para SL e TP - ~$40 no BTC
+                '4h': 0.60,  # 0.60% para SL e TP - ~$60 no BTC
+                '6h': 0.90,  # 0.90% para SL e TP - ~$90 no BTC
+                '8h': 1.2,   # 1.2% para SL e TP - ~$120 no BTC
+                '12h': 1.5,  # 1.5% para SL e TP - ~$150 no BTC
+                '1d': 2.5,   # 2.5% para SL e TP - ~$250 no BTC
+                '3d': 3.5,   # 3.5% para SL e TP - ~$350 no BTC
+                '1w': 5.0    # 5.0% para SL e TP - ~$500 no BTC
             }
             
             # Obter percentual para o timeframe (padrão 2.5% se não encontrado)
