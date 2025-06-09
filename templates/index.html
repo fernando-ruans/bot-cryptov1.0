@@ -365,6 +365,18 @@
                         <div id="tradingview_chart" class="chart-container"></div>
                     </div>
                 </div>
+                
+                <!-- Trades Ativos - Movido para baixo do gráfico -->
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5><i class="fas fa-chart-area me-2"></i>Trades Ativos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="activeTradesList">
+                            <p class="text-muted text-center">Nenhum trade ativo</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Painel de Controle -->
@@ -437,18 +449,6 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Trades Ativos -->
-                <div class="card">
-                    <div class="card-header bg-info text-white">
-                        <h5><i class="fas fa-chart-area me-2"></i>Trades Ativos</h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="activeTradesList">
-                            <p class="text-muted text-center">Nenhum trade ativo</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -470,15 +470,19 @@
                                         <th>Símbolo</th>
                                         <th>Ação</th>
                                         <th>Preço Entrada</th>
+                                        <th>Stop Loss</th>
+                                        <th>Take Profit</th>
                                         <th>Preço Saída</th>
                                         <th>P&L</th>
+                                        <th>Confiança</th>
+                                        <th>Motivo Saída</th>
                                         <th>Data/Hora</th>
                                         <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td colspan="7" class="text-center text-muted">Nenhum trade realizado ainda</td>
+                                        <td colspan="11" class="text-center text-muted">Nenhum trade realizado ainda</td>
                                     </tr>
                                 </tbody>
                             </table>

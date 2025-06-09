@@ -79,18 +79,32 @@ class SimpleTradingDashboard {
     initEventListeners() {
         console.log('🎯 Configurando event listeners...');
         
+        // Remover event listeners existentes para evitar duplicação
+        const generateBtn = document.getElementById('generateSignalBtn');
+        const confirmBtn = document.getElementById('confirmSignalBtn');
+        const rejectBtn = document.getElementById('rejectSignalBtn');
+        
+        // Clonar elementos para remover todos os event listeners
+        const newGenerateBtn = generateBtn.cloneNode(true);
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        const newRejectBtn = rejectBtn.cloneNode(true);
+        
+        generateBtn.parentNode.replaceChild(newGenerateBtn, generateBtn);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        rejectBtn.parentNode.replaceChild(newRejectBtn, rejectBtn);
+        
         // Gerar sinal
-        document.getElementById('generateSignalBtn').addEventListener('click', () => {
+        newGenerateBtn.addEventListener('click', () => {
             this.generateSignal();
         });
 
         // Confirmar sinal
-        document.getElementById('confirmSignalBtn').addEventListener('click', () => {
+        newConfirmBtn.addEventListener('click', () => {
             this.confirmSignal();
         });
 
         // Rejeitar sinal
-        document.getElementById('rejectSignalBtn').addEventListener('click', () => {
+        newRejectBtn.addEventListener('click', () => {
             this.rejectSignal();
         });
 
@@ -258,8 +272,8 @@ class SimpleTradingDashboard {
         confidenceElement.textContent = `${confidence}%`;
         
         // Exibir stop loss e take profit
-        stopLossElement.textContent = `$${parseFloat(signal.stop_loss).toFixed(2)}`;
-        takeProfitElement.textContent = `$${parseFloat(signal.take_profit).toFixed(2)}`;
+        stopLossElement.textContent = signal.stop_loss ? `$${parseFloat(signal.stop_loss).toFixed(2)}` : 'N/A';
+        takeProfitElement.textContent = signal.take_profit ? `$${parseFloat(signal.take_profit).toFixed(2)}` : 'N/A';
 
         // Aplicar classe CSS baseada na ação
         card.className = `card signal-card signal-alert mb-4 ${signal.signal_type?.toLowerCase() || 'neutral'}`;
@@ -374,28 +388,96 @@ class SimpleTradingDashboard {
         const container = document.getElementById('activeTradesList');
         
         if (activeTrades.length === 0) {
-            container.innerHTML = '<p class="text-muted text-center">Nenhum trade ativo</p>';
+            container.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <p class="text-muted mb-0">Nenhum trade ativo no momento</p>
+                    <small class="text-muted">Gere um sinal para começar a negociar</small>
+                </div>
+            `;
             return;
         }
         
-        container.innerHTML = activeTrades.map(trade => `
-            <div class="border rounded p-3 mb-2 bg-light">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <strong>${trade.symbol}</strong><br>
-                        <small class="text-muted">${trade.trade_type} @ $${parseFloat(trade.entry_price).toFixed(2)}</small>
-                    </div>
-                    <div class="text-end">
-                        <span class="badge ${trade.pnl >= 0 ? 'badge-profit' : 'badge-loss'} mb-1">
-                            ${trade.pnl >= 0 ? 'GANHO' : 'PERDA'} (${trade.pnl_percent ? trade.pnl_percent.toFixed(2) + '%' : '0%'})
-                        </span><br>
-                        <button class="btn btn-warning-custom btn-sm" onclick="dashboard.closeTrade('${trade.id}')" title="Fechar Trade">
-                            <i class="fas fa-times"></i>
-                        </button>
+        container.innerHTML = activeTrades.map(trade => {
+            const currentPrice = parseFloat(trade.current_price || trade.entry_price);
+            const entryPrice = parseFloat(trade.entry_price);
+            const pnlPercent = ((currentPrice - entryPrice) / entryPrice * 100).toFixed(2);
+            const pnlValue = (currentPrice - entryPrice).toFixed(2);
+            const isProfit = currentPrice >= entryPrice;
+            
+            return `
+                <div class="card mb-3 shadow-sm border-0">
+                    <div class="card-body p-3">
+                        <!-- Header com símbolo e tipo -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center">
+                                <h6 class="mb-0 fw-bold text-primary">${trade.symbol}</h6>
+                                <span class="badge ${trade.trade_type === 'BUY' ? 'bg-success' : 'bg-danger'} ms-2">
+                                    <i class="fas ${trade.trade_type === 'BUY' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i> ${trade.trade_type}
+                                </span>
+                            </div>
+                            <button class="btn btn-outline-danger btn-sm" onclick="dashboard.closeTrade('${trade.id}')" title="Fechar Trade">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Preços principais -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="bg-light rounded p-2 text-center">
+                                    <small class="text-muted d-block mb-1">Preço de Entrada</small>
+                                    <strong class="text-dark">$${entryPrice.toFixed(2)}</strong>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="bg-light rounded p-2 text-center">
+                                    <small class="text-muted d-block mb-1">Preço Atual</small>
+                                    <strong class="${isProfit ? 'text-success' : 'text-danger'}">$${currentPrice.toFixed(2)}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- P&L -->
+                        <div class="text-center mb-3">
+                            <div class="${isProfit ? 'bg-success' : 'bg-danger'} bg-opacity-10 rounded p-2">
+                                <small class="text-muted d-block mb-1">Resultado Atual</small>
+                                <div class="${isProfit ? 'text-success' : 'text-danger'} fw-bold">
+                                    ${isProfit ? '+' : ''}$${pnlValue} (${isProfit ? '+' : ''}${pnlPercent}%)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Stop Loss e Take Profit -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <div class="border border-danger border-opacity-25 rounded p-2 text-center">
+                                    <small class="text-muted d-block mb-1">Stop Loss</small>
+                                    <span class="text-danger fw-bold">
+                                        ${trade.stop_loss ? '$' + parseFloat(trade.stop_loss).toFixed(2) : 'N/A'}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="border border-success border-opacity-25 rounded p-2 text-center">
+                                    <small class="text-muted d-block mb-1">Take Profit</small>
+                                    <span class="text-success fw-bold">
+                                        ${trade.take_profit ? '$' + parseFloat(trade.take_profit).toFixed(2) : 'N/A'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Confiança -->
+                        <div class="text-center">
+                            <small class="text-muted d-block mb-1">Confiança do Sinal</small>
+                            <span class="badge bg-info fs-6">
+                                ${trade.signal_confidence ? (trade.signal_confidence * 100).toFixed(1) + '%' : 'N/A'}
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     async closeTrade(tradeId) {
@@ -450,7 +532,7 @@ class SimpleTradingDashboard {
         const tbody = document.querySelector('#tradesHistoryTable tbody');
         
         if (trades.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Nenhum trade realizado ainda</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-4">Nenhum trade realizado ainda</td></tr>';
             return;
         }
         
@@ -459,10 +541,22 @@ class SimpleTradingDashboard {
                 <td><strong>${trade.symbol}</strong></td>
                 <td><span class="badge ${trade.trade_type === 'BUY' ? 'bg-success' : 'bg-danger'}">${trade.trade_type}</span></td>
                 <td>$${parseFloat(trade.entry_price).toFixed(2)}</td>
+                <td><span class="text-danger">${trade.stop_loss ? ((Math.abs(trade.stop_loss - trade.entry_price) / trade.entry_price) * 100).toFixed(1) + '%' : 'N/A'}</span></td>
+                <td><span class="text-success">${trade.take_profit ? ((Math.abs(trade.take_profit - trade.entry_price) / trade.entry_price) * 100).toFixed(1) + '%' : 'N/A'}</span></td>
                 <td>${trade.exit_price ? '$' + parseFloat(trade.exit_price).toFixed(2) : '-'}</td>
                 <td>
                     <span class="fw-bold ${trade.pnl >= 0 ? 'text-success' : 'text-danger'}">
                         ${trade.pnl >= 0 ? 'GANHO' : 'PERDA'} (${trade.pnl_percent ? trade.pnl_percent.toFixed(2) + '%' : '0%'})
+                    </span>
+                </td>
+                <td>
+                    <span class="badge bg-info">
+                        ${trade.signal_confidence ? (trade.signal_confidence * 100).toFixed(1) + '%' : 'N/A'}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge ${trade.exit_reason === 'profit' ? 'bg-success' : trade.exit_reason === 'loss' ? 'bg-danger' : 'bg-secondary'}">
+                        ${trade.exit_reason ? (trade.exit_reason === 'profit' ? 'Take Profit' : trade.exit_reason === 'loss' ? 'Stop Loss' : trade.exit_reason === 'manual' ? 'Manual' : trade.exit_reason) : '-'}
                     </span>
                 </td>
                 <td><small>${new Date(trade.timestamp).toLocaleString('pt-BR')}</small></td>
