@@ -33,7 +33,7 @@ class Config:
     # Configurações de IA
     AI_MODEL_PATH: str = 'models/'
     RETRAIN_INTERVAL_HOURS: int = 24
-    MIN_TRAINING_SAMPLES: int = 1000
+    MIN_TRAINING_SAMPLES: int = 100  # Reduzido para permitir treinamento com menos dados
     
     # Indicadores técnicos
     TECHNICAL_INDICATORS: Dict = field(default_factory=lambda: {
@@ -59,24 +59,34 @@ class Config:
         'vwap_enabled': True
     })
     
-    # Configurações de risco
+    # Configurações de risco - Nova estratégia IA 1:1 com alta assertividade
     RISK_MANAGEMENT: Dict = field(default_factory=lambda: {
-        'max_risk_per_trade': 0.02,  # 2% por trade
-        'max_daily_loss': 0.05,      # 5% perda diária máxima
-        'max_open_positions': 5,
-        'stop_loss_pct': 0.02,       # 2% stop loss
-        'take_profit_pct': 0.04,     # 4% take profit
-        'trailing_stop_pct': 0.01    # 1% trailing stop
+        'max_risk_per_trade': 0.03,   # 3% por trade (maior exposição para 1:1)
+        'max_daily_loss': 0.08,       # 8% perda diária máxima
+        'max_open_positions': 2,      # Máximo 2 posições (foco em qualidade)
+        'stop_loss_pct': 0.025,       # 2.5% stop loss (1:1 ratio)
+        'take_profit_pct': 0.025,     # 2.5% take profit (1:1 ratio)
+        'trailing_stop_pct': 0.008,   # 0.8% trailing stop
+        'risk_reward_ratio': 1.0,     # Ratio 1:1 (risco:recompensa)
+        'min_ai_confidence': 0.85     # Mínimo 85% confiança IA para executar
     })
     
-    # Configurações de sinal
+    # Configurações de sinal - Nova estratégia IA com análise de mercado
     SIGNAL_CONFIG: Dict = field(default_factory=lambda: {
-        'min_confidence': 0.05,      # 🎯 Confiança mínima 5% (padrão inicial)
-        'max_confidence': 0.90,      # 📊 Confiança máxima 90% para controle do slider
-        'signal_cooldown_minutes': 1,  # ⏱️ Cooldown de 1 minuto entre sinais
-        'max_signals_per_hour': 50,   # 📈 Máximo 50 sinais por hora
-        'enable_confluence': True,   # ✅ Confluência habilitada para melhor qualidade
-        'min_confluence_count': 2     # Mínimo 2 confirmações para sinal
+        'min_confidence': 0.85,      # 🎯 Confiança mínima 85% (ultra seletivo)
+        'max_confidence': 0.98,      # 📊 Confiança máxima 98% (quase certeza)
+        'signal_cooldown_minutes': 15, # ⏱️ Cooldown de 15 minutos (muito seletivo)
+        'max_signals_per_hour': 4,    # 📈 Máximo 4 sinais por hora (ultra seletivo)
+        'enable_ai_analysis': True,   # ✅ Análise IA obrigatória
+        'enable_market_context': True, # ✅ Contexto de mercado obrigatório
+        'enable_confluence': False,   # ❌ Confluência desabilitada (nova estratégia IA)
+        'min_confluence_count': 3,    # Mínimo de 3 indicadores em confluência
+        'min_market_score': 0.80,    # Mínimo 80% score de mercado
+        'quality_over_quantity': True,  # Priorizar qualidade
+        'min_score_difference': 0.05,  # Diferença mínima entre buy/sell scores
+        'strong_signal_threshold': 0.25,  # Threshold para sinais fortes
+        'medium_signal_threshold': 0.15,  # Threshold para sinais médios
+        'weak_signal_threshold': 0.08     # Threshold para sinais fracos
     })
     
     # Configurações de contexto de mercado
@@ -114,6 +124,47 @@ class Config:
         'log_trades': True,
         'log_signals': True,
         'log_market_data': False
+    })
+    
+    # Configurações de análise de mercado com IA
+    AI_MARKET_ANALYSIS: Dict = field(default_factory=lambda: {
+        'sentiment_analysis': True,     # Análise de sentimento
+        'volume_analysis': True,        # Análise de volume
+        'volatility_analysis': True,    # Análise de volatilidade
+        'correlation_analysis': True,   # Análise de correlação
+        'momentum_analysis': True,      # Análise de momentum
+        'pattern_recognition': True,    # Reconhecimento de padrões
+        'market_regime_detection': True, # Detecção de regime de mercado
+        'liquidity_analysis': True,     # Análise de liquidez
+        'orderbook_analysis': False,    # Análise de order book (premium)
+        'news_sentiment': False,        # Sentimento de notícias (premium)
+        'social_sentiment': False,      # Sentimento social (premium)
+        'macro_indicators': True,       # Indicadores macroeconômicos
+        'fear_greed_index': True,       # Índice de medo e ganância
+        'funding_rates': True,          # Taxas de funding
+        'open_interest': True,          # Open interest
+        'whale_movements': False,       # Movimentos de baleias (premium)
+        'market_cap_analysis': True,    # Análise de market cap
+        'dominance_analysis': True,     # Análise de dominância
+        'cross_asset_correlation': True # Correlação entre ativos
+    })
+    
+    # Configurações de modelos de IA
+    AI_MODELS_CONFIG: Dict = field(default_factory=lambda: {
+        'ensemble_models': True,        # Usar ensemble de modelos
+        'deep_learning': True,          # Usar deep learning
+        'reinforcement_learning': False, # RL (experimental)
+        'transformer_models': False,    # Transformers (premium)
+        'lstm_enabled': True,           # LSTM para séries temporais
+        'cnn_enabled': True,            # CNN para padrões
+        'attention_mechanism': False,   # Mecanismo de atenção (premium)
+        'feature_importance': True,     # Importância de features
+        'model_explainability': True,   # Explicabilidade do modelo
+        'auto_hyperparameter': True,    # Auto-tuning de hiperparâmetros
+        'online_learning': False,       # Aprendizado online (experimental)
+        'federated_learning': False,    # Aprendizado federado (premium)
+        'quantum_ml': False,            # ML quântico (experimental)
+        'neuromorphic_computing': False # Computação neuromórfica (experimental)
     })
     
     # Configurações de notificação

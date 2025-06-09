@@ -26,6 +26,21 @@ class SimpleTradingDashboard {
 
     init() {
         console.log('🚀 Inicializando Trading Bot AI - Versão Simplificada');
+        
+        // Sincronizar timeframe com o valor selecionado no HTML
+        const timeframeSelector = document.getElementById('timeframeSelector');
+        if (timeframeSelector && timeframeSelector.value) {
+            this.currentTimeframe = timeframeSelector.value;
+            console.log(`📊 Timeframe sincronizado: ${this.currentTimeframe}`);
+        }
+        
+        // Sincronizar ativo com o valor selecionado no HTML
+        const assetSelector = document.getElementById('assetSelector');
+        if (assetSelector && assetSelector.value) {
+            this.currentSymbol = assetSelector.value;
+            console.log(`💰 Ativo sincronizado: ${this.currentSymbol}`);
+        }
+        
         this.initTradingView();
         this.initEventListeners();
         this.initWebSocket();

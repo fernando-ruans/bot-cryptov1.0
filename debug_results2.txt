@@ -1,0 +1,56 @@
+WARNING:root:TensorFlow não disponível. Modelos de deep learning desabilitados.
+WARNING:root:TextBlob não disponível. Análise de sentimento limitada.
+C:\Users\ferna\AppData\Roaming\Python\Python313\site-packages\ta\trend.py:1030: FutureWarning: Series.__setitem__ treating keys as positions is deprecated. In a future version, integer keys will always be treated as labels (consistent with DataFrame behavior). To set a value by position, use `ser.iloc[pos] = value`
+  self._psar[i] = high2
+ERROR:src.signal_generator:Erro ao gerar sinal IA para BTCUSDT: MarketAnalyzer.get_trade_recommendation() got an unexpected keyword argument 'df'
+ERROR:src.signal_generator:Detalhes do erro: Traceback (most recent call last):
+  File "C:\Users\ferna\bot-cryptov1.0\src\signal_generator.py", line 125, in generate_signal
+    market_recommendation = self.market_analyzer.get_trade_recommendation(
+        symbol=symbol,
+        timeframe=timeframe,
+        df=df
+    )
+TypeError: MarketAnalyzer.get_trade_recommendation() got an unexpected keyword argument 'df'
+
+Traceback (most recent call last):
+  File "C:\Users\ferna\bot-cryptov1.0\debug_signal_generation.py", line 118, in debug_signal_generation
+    rsi = tech_indicators.calculate_rsi(df, 14)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'TechnicalIndicators' object has no attribute 'calculate_rsi'
+INICIANDO DEBUG DA GERACAO DE SINAIS
+==================================================
+1. Inicializando componentes...
+
+2. Verificando configurações:
+   Min Confidence: 85.0%
+   Cooldown: 15 min
+   Confluence: False
+   Min Confluence Count: 3
+
+3. Testando dados de mercado:
+   Preço atual BTCUSDT: $105686.88
+
+4. Obtendo dados históricos:
+   Dados obtidos: 100 candles
+   Último preço nos dados: $105686.88
+
+5. Debug detalhado da geração de sinal:
+   Cooldown ativo: False
+
+6. Testando análise técnica:
+   Resultado técnico: {'signal': 'hold', 'confidence': 0.0, 'reasons': [], 'buy_strength': 0, 'sell_strength': 0}
+   Analise tecnica resultou em 'hold'
+
+7. Aplicando configurações ultra-agressivas:
+   Configuracoes ultra-agressivas aplicadas
+
+8. Tentativa com configurações agressivas:
+   AINDA NAO GEROU SINAL
+
+9. Debug profundo dos indicadores:
+   ERRO na analise tecnica: 'TechnicalIndicators' object has no attribute 'calculate_rsi'
+
+11. Verificando sinais ativos:
+   Sinais ativos: 0
+
+DEBUG CONCLUIDO!

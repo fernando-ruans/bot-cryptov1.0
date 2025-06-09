@@ -13,26 +13,29 @@ import json
 from .technical_indicators import TechnicalIndicators
 from .market_data import MarketDataManager
 from .ai_engine import AITradingEngine
+from .market_analyzer import MarketAnalyzer
+from .config import Config
 
 logger = logging.getLogger(__name__)
 
 # Global variable to store socketio instance for notifications
 _socketio_instance = None
 
+def emit_signal_notification(signal_data: Dict):
+    """Emitir notificação de sinal via WebSocket"""
+    try:
+        if _socketio_instance:
+            _socketio_instance.emit('new_signal', signal_data)
+        logger.info(f"Signal notification emitted: {signal_data.get('id', 'unknown')}")
+    except Exception as e:
+        logger.error(f"Erro ao emitir notificação: {e}")
+
 def set_socketio_instance(socketio):
-    """Set the global socketio instance for notifications"""
+    """Definir instância do SocketIO"""
     global _socketio_instance
     _socketio_instance = socketio
 
-def emit_signal_notification(signal_data):
-    """Emit signal notification via WebSocket"""
-    global _socketio_instance
-    if _socketio_instance:
-        try:
-            _socketio_instance.emit('new_signal', signal_data)
-            logger.info(f"📡 Notificação de sinal enviada via WebSocket: {signal_data.get('symbol')} {signal_data.get('signal_type')}")
-        except Exception as e:
-            logger.error(f"Erro ao enviar notificação de sinal: {e}")
+
 
 class Signal:
     """Classe para representar um sinal de trading"""
@@ -76,14 +79,15 @@ class SignalGenerator:
         self.market_data = market_data
         self.config = ai_engine.config
         self.technical_indicators = TechnicalIndicators(self.config)
+        self.market_analyzer = MarketAnalyzer(self.config, market_data, ai_engine)
         self.active_signals = {}
         self.signal_history = []
         self.last_signal_time = {}
         
     def generate_signal(self, symbol: str, timeframe: str = '1h') -> Optional[Signal]:
-        """Gerar sinal de trading para um símbolo"""
+        """Gerar sinal de trading baseado em análise de mercado com IA"""
         try:
-            logger.info(f"=== Iniciando geração de sinal para {symbol} {timeframe} ===")
+            logger.info(f"=== Iniciando análise de mercado com IA para {symbol} {timeframe} ===")
             
             # Verificar cooldown
             if self._is_in_cooldown(symbol):
@@ -96,163 +100,102 @@ class SignalGenerator:
             logger.info(f"Dados obtidos para {symbol}: {len(df)} registros")
             
             # Validação robusta dos dados
-            if df is None:
-                logger.error(f"DataFrame é None para {symbol}")
-                raise ValueError(f"NO_DATA:{symbol}")
+            if df is None or df.empty or len(df) < 100:
+                logger.error(f"Dados insuficientes para {symbol}")
+                raise ValueError(f"INSUFFICIENT_DATA:{symbol}")
             
-            if df.empty:
-                logger.warning(f"DataFrame vazio para {symbol}")
-                raise ValueError(f"EMPTY_DATA:{symbol}")
-                
-            if len(df) < 100:
-                logger.warning(f"Dados insuficientes para {symbol}: {len(df)} registros")
-                raise ValueError(f"INSUFFICIENT_DATA:{symbol}:{len(df)}")
-            
-            # Verificar se as colunas essenciais existem
+            # Verificar colunas essenciais
             required_columns = ['open', 'high', 'low', 'close', 'volume']
-            missing_columns = [col for col in required_columns if col not in df.columns]
-            if missing_columns:
-                logger.error(f"Colunas faltantes no DataFrame para {symbol}: {missing_columns}")
-                raise ValueError(f"MISSING_COLUMNS:{symbol}:{','.join(missing_columns)}")
+            if not all(col in df.columns for col in required_columns):
+                logger.error(f"Colunas faltantes no DataFrame para {symbol}")
+                raise ValueError(f"MISSING_COLUMNS:{symbol}")
             
-            # Verificar se há dados válidos (não NaN)
-            if df[required_columns].isnull().all().any():
-                logger.error(f"Dados contêm apenas valores NaN para {symbol}")
-                raise ValueError(f"INVALID_DATA:{symbol}")
-                
             logger.info(f"✓ Dados válidos para {symbol}: {len(df)} registros")
             
             # Calcular indicadores técnicos
             logger.info(f"Calculando indicadores técnicos para {symbol}")
-            try:
-                df = self.technical_indicators.calculate_all_indicators(df)
-                if df is None or df.empty:
-                    logger.error(f"Falha ao calcular indicadores técnicos para {symbol}")
-                    raise ValueError(f"INDICATORS_FAILED:{symbol}")
-                logger.info(f"✓ Indicadores técnicos calculados para {symbol}")
-            except Exception as e:
-                logger.error(f"Erro ao calcular indicadores técnicos para {symbol}: {e}")
-                return None
+            df = self.technical_indicators.calculate_all_indicators(df)
+            if df is None or df.empty:
+                logger.error(f"Falha ao calcular indicadores técnicos para {symbol}")
+                raise ValueError(f"INDICATORS_FAILED:{symbol}")
+            logger.info(f"✓ Indicadores técnicos calculados para {symbol}")
             
-            # Análise de contexto de mercado
-            logger.info(f"Analisando contexto de mercado para {symbol}")
-            try:
-                market_context = self._analyze_market_context(symbol, timeframe)
-                logger.info(f"✓ Contexto de mercado analisado para {symbol}")
-            except Exception as e:
-                logger.error(f"Erro na análise de contexto para {symbol}: {e}")
-                market_context = {}
-            
-            # Análise técnica
-            logger.info(f"Executando análise técnica para {symbol}")
-            try:
-                technical_analysis = self._analyze_technical_indicators(df)
-                if not technical_analysis or 'signal' not in technical_analysis:
-                    logger.error(f"Análise técnica retornou resultado inválido para {symbol}")
-                    return None
-                logger.info(f"✓ Análise técnica: {technical_analysis['signal']} (confiança: {technical_analysis['confidence']:.2f})")
-            except Exception as e:
-                logger.error(f"Erro na análise técnica para {symbol}: {e}")
-                return None
-            
-            # Predição de IA
-            logger.info(f"Executando predição de IA para {symbol}")
-            try:
-                ai_prediction = self.ai_engine.predict_signal(df, symbol)
-                logger.info(f"✓ Predição de IA concluída para {symbol}")
-            except Exception as e:
-                logger.error(f"Erro na predição de IA para {symbol}: {e}")
-                ai_prediction = {'signal': 'hold', 'confidence': 0.0, 'reasons': []}
-            
-            # Análise de volume
-            logger.info(f"Analisando volume para {symbol}")
-            volume_analysis = self._analyze_volume(df)
-            logger.info(f"✓ Análise de volume: {volume_analysis['signal']} (confiança: {volume_analysis['confidence']:.2f})")
-            
-            # Análise de volatilidade
-            logger.info(f"Analisando volatilidade para {symbol}")
-            volatility_analysis = self._analyze_volatility(df)
-            logger.info(f"✓ Análise de volatilidade: {volatility_analysis['signal']} (confiança: {volatility_analysis['confidence']:.2f})")
-            
-            # Combinar análises
-            logger.info(f"Combinando todas as análises para {symbol}")
-            combined_signal = self._combine_analyses(
-                technical_analysis,
-                ai_prediction,
-                volume_analysis,
-                volatility_analysis,
-                market_context
+            # Análise completa de mercado com IA
+            logger.info(f"Executando análise completa de mercado com IA para {symbol}")
+            market_recommendation = self.market_analyzer.get_trade_recommendation(
+                symbol=symbol,
+                timeframe=timeframe
             )
-            logger.info(f"✓ Sinal combinado: {combined_signal['signal']} (confiança: {combined_signal['confidence']:.2f})")
             
-            # Verificar confluência
-            if self.config.SIGNAL_CONFIG['enable_confluence']:
-                logger.info(f"Verificando confluência para {symbol}")
-                if not self._check_confluence(combined_signal):
-                    logger.info(f"Confluência insuficiente para {symbol}")
-                    raise ValueError(f"LOW_CONFLUENCE:{symbol}")
-                logger.info(f"✓ Confluência verificada para {symbol}")
-            else:
-                logger.info(f"✓ Confluência desabilitada")
+            if not market_recommendation:
+                logger.warning(f"Análise de mercado não retornou recomendação para {symbol}")
+                return None
             
-            # REMOVIDA: Verificação de confiança mínima
-            # Agora sempre gera o sinal com a confiança calculada
-            # O usuário decide se aceita ou não o sinal na interface
-            logger.info(f"✓ Sinal será gerado com confiança: {combined_signal['confidence']:.2f}")
+            # Verificar se a confiança da IA atende aos critérios mínimos
+            ai_confidence = market_recommendation.get('confidence', 0.0)
+            market_score = market_recommendation.get('market_score', 0.0)
             
-            # Calcular níveis de entrada, stop loss e take profit
-            logger.info(f"Obtendo preço atual para {symbol}")
+            min_ai_confidence = self.config.RISK_MANAGEMENT.get('min_ai_confidence', 0.85)
+            min_market_score = self.config.SIGNAL_CONFIG.get('min_market_score', 0.80)
+            
+            if ai_confidence < min_ai_confidence:
+                logger.info(f"Confiança da IA insuficiente para {symbol}: {ai_confidence:.2f} < {min_ai_confidence}")
+                return None
+                
+            if market_score < min_market_score:
+                logger.info(f"Score de mercado insuficiente para {symbol}: {market_score:.2f} < {min_market_score}")
+                return None
+            
+            signal_type = market_recommendation.get('recommendation', 'hold')
+            if signal_type == 'hold':
+                logger.info(f"Recomendação de mercado é HOLD para {symbol}")
+                return None
+            
+            # Calcular confiança final (combinando IA e análise de mercado)
+            final_confidence = (ai_confidence * 0.6) + (market_score * 0.4)
+            
+            logger.info(f"✓ Análise de mercado concluída para {symbol}:")
+            logger.info(f"  - Sinal: {signal_type}")
+            logger.info(f"  - Confiança IA: {ai_confidence:.2f}")
+            logger.info(f"  - Score Mercado: {market_score:.2f}")
+            logger.info(f"  - Confiança Final: {final_confidence:.2f}")
+            
+            # Obter preço atual
             current_price = self.market_data.get_current_price(symbol)
             if current_price is None:
                 logger.error(f"Não foi possível obter preço atual para {symbol}")
                 raise ValueError(f"PRICE_ERROR:{symbol}")
-            logger.info(f"✓ Preço atual obtido para {symbol}: ${current_price:.2f}")
             
-            logger.info(f"Calculando níveis de trade para {symbol}")
-            levels = self._calculate_trade_levels(df, combined_signal['signal'], current_price)
-            logger.info(f"✓ Níveis calculados - SL: ${levels['stop_loss']:.2f}, TP: ${levels['take_profit']:.2f}")
+            # Calcular níveis de trade com relação 1:1
+            levels = self._calculate_trade_levels_1to1(current_price, signal_type, timeframe)
+            logger.info(f"✓ Níveis 1:1 calculados - SL: ${levels['stop_loss']:.2f}, TP: ${levels['take_profit']:.2f}")
             
             # Criar sinal
-            logger.info(f"Criando objeto de sinal para {symbol}")
             signal = Signal(
                 symbol=symbol,
-                signal_type=combined_signal['signal'],
-                confidence=combined_signal['confidence'],
+                signal_type=signal_type,
+                confidence=final_confidence,
                 entry_price=current_price,
                 stop_loss=levels['stop_loss'],
                 take_profit=levels['take_profit'],
                 timeframe=timeframe,
                 timestamp=datetime.now(),
-                reasons=combined_signal['reasons']
+                reasons=market_recommendation.get('reasons', [])
             )
-            logger.info(f"✓ Objeto de sinal criado para {symbol}")
             
             # Registrar sinal
-            logger.info(f"Registrando sinal para {symbol}")
             self._register_signal(signal)
-            logger.info(f"✓ Sinal registrado para {symbol}")
             
-            logger.info(f"🎯 SINAL GERADO COM SUCESSO: {signal.signal_type} {symbol} - Confiança: {signal.confidence:.2f}")
-            logger.info(f"=== Fim da geração de sinal para {symbol} ===")
+            logger.info(f"🎯 SINAL IA GERADO: {signal.signal_type} {symbol} - Confiança: {signal.confidence:.2f}")
+            logger.info(f"=== Fim da análise de mercado para {symbol} ===")
             
             return signal
             
         except Exception as e:
             import traceback
             error_details = traceback.format_exc()
-            logger.error(f"Erro ao gerar sinal para {symbol}: {e}")
+            logger.error(f"Erro ao gerar sinal IA para {symbol}: {e}")
             logger.error(f"Detalhes do erro: {error_details}")
-            
-            # Tentar identificar o tipo específico do erro
-            if "KeyError" in str(e):
-                logger.error(f"Erro de chave faltante: {e}")
-            elif "AttributeError" in str(e):
-                logger.error(f"Erro de atributo: {e}")
-            elif "NoneType" in str(e):
-                logger.error(f"Erro de valor None: {e}")
-            elif "DataFrame" in str(e):
-                logger.error(f"Erro relacionado ao DataFrame: {e}")
-            
             return None
     
     def _is_in_cooldown(self, symbol: str) -> bool:
@@ -266,21 +209,39 @@ class SignalGenerator:
         return time_diff.total_seconds() < (cooldown_minutes * 60)
     
     def _analyze_market_context(self, symbol: str, timeframe: str) -> Dict:
-        """Analisar contexto de mercado"""
+        """Analisar contexto de mercado incluindo cenário macroeconômico"""
         try:
-            # Estrutura de mercado
-            market_structure = self.market_data.detect_market_structure(symbol, timeframe)
+            # Estrutura de mercado (com fallback)
+            try:
+                market_structure = self.market_data.detect_market_structure(symbol, timeframe)
+            except:
+                market_structure = {'trend': 'sideways', 'support_levels': [], 'resistance_levels': []}
             
-            # Perfil de volume
-            volume_profile = self.market_data.get_volume_profile(symbol, timeframe)
+            # Perfil de volume (com fallback)
+            try:
+                volume_profile = self.market_data.get_volume_profile(symbol, timeframe)
+            except:
+                volume_profile = {'volume_ratio': 1.0}
             
-            # Volatilidade
-            volatility = self.market_data.calculate_volatility(symbol, timeframe)
+            # Volatilidade (com fallback)
+            try:
+                volatility = self.market_data.calculate_volatility(symbol, timeframe)
+            except:
+                volatility = 0.02  # Volatilidade padrão
             
             # Correlações (exemplo com BTC para altcoins)
             correlation = 0
-            if symbol != 'BTCUSDT' and self.config.is_crypto_pair(symbol):
-                correlation = self.market_data.get_market_correlation(symbol, 'BTCUSDT', timeframe)
+            try:
+                if symbol != 'BTCUSDT' and self.config.is_crypto_pair(symbol):
+                    correlation = self.market_data.get_market_correlation(symbol, 'BTCUSDT', timeframe)
+            except:
+                correlation = 0
+            
+            # Análise de timeframe específico
+            timeframe_analysis = self._analyze_timeframe_context(timeframe)
+            
+            # Cenário macroeconômico
+            macro_context = self._analyze_macro_context(symbol)
             
             return {
                 'trend': market_structure.get('trend', 'sideways'),
@@ -288,7 +249,9 @@ class SignalGenerator:
                 'resistance_levels': market_structure.get('resistance_levels', []),
                 'volume_ratio': volume_profile.get('volume_ratio', 1.0),
                 'volatility': volatility,
-                'btc_correlation': correlation
+                'btc_correlation': correlation,
+                'timeframe_context': timeframe_analysis,
+                'macro_context': macro_context
             }
             
         except Exception as e:
@@ -534,38 +497,255 @@ class SignalGenerator:
             logger.error(f"Erro na análise técnica debug: {e}")
             return {'signal': 'hold', 'confidence': 0, 'reasons': []}
     
-    def _analyze_volume(self, df: pd.DataFrame) -> Dict:
-        """Analisar volume"""
+    def _analyze_timeframe_context(self, timeframe: str) -> Dict:
+        """Analisar contexto específico do timeframe"""
+        try:
+            timeframe_configs = {
+                '1m': {'volume_importance': 0.1, 'trend_weight': 0.3, 'noise_level': 'high'},
+                '5m': {'volume_importance': 0.15, 'trend_weight': 0.4, 'noise_level': 'medium-high'},
+                '15m': {'volume_importance': 0.2, 'trend_weight': 0.5, 'noise_level': 'medium'},
+                '1h': {'volume_importance': 0.25, 'trend_weight': 0.6, 'noise_level': 'medium-low'},
+                '4h': {'volume_importance': 0.3, 'trend_weight': 0.7, 'noise_level': 'low'},
+                '1d': {'volume_importance': 0.35, 'trend_weight': 0.8, 'noise_level': 'very-low'}
+            }
+            
+            return timeframe_configs.get(timeframe, {
+                'volume_importance': 0.25,
+                'trend_weight': 0.5,
+                'noise_level': 'medium'
+            })
+            
+        except Exception as e:
+            logger.error(f"Erro na análise de timeframe: {e}")
+            return {'volume_importance': 0.25, 'trend_weight': 0.5, 'noise_level': 'medium'}
+    
+    def _analyze_macro_context(self, symbol: str) -> Dict:
+        """Analisar cenário macroeconômico"""
+        try:
+            # Análise básica baseada no tipo de ativo
+            if self.config.is_crypto_pair(symbol):
+                return {
+                    'asset_class': 'crypto',
+                    'risk_level': 'high',
+                    'market_hours': '24/7',
+                    'correlation_with_traditional': 'low'
+                }
+            elif 'USD' in symbol:
+                return {
+                    'asset_class': 'forex',
+                    'risk_level': 'medium',
+                    'market_hours': '24/5',
+                    'correlation_with_traditional': 'high'
+                }
+            else:
+                return {
+                    'asset_class': 'unknown',
+                    'risk_level': 'medium',
+                    'market_hours': 'varies',
+                    'correlation_with_traditional': 'medium'
+                }
+                
+        except Exception as e:
+            logger.error(f"Erro na análise macro: {e}")
+            return {'asset_class': 'unknown', 'risk_level': 'medium'}
+    
+    def _analyze_volume(self, df: pd.DataFrame, timeframe_context: Dict = None) -> Dict:
+        """Analisar volume de negociação com contexto de timeframe"""
         try:
             if df.empty or 'volume' not in df.columns:
                 return {'signal': 'hold', 'confidence': 0, 'reasons': []}
             
             latest = df.iloc[-1]
-            reasons = []
+            volume_ma = df['volume'].rolling(window=20).mean().iloc[-1]
             
             # Volume ratio
-            if 'volume_ratio' in latest:
-                volume_ratio = latest['volume_ratio']
-                if volume_ratio > self.config.VOLUME_INDICATORS['volume_threshold_multiplier']:
-                    confidence = min(volume_ratio / 3.0, 0.8)
-                    reasons.append(f"High volume confirmation (ratio: {volume_ratio:.1f})")
-                    return {'signal': 'confirm', 'confidence': confidence, 'reasons': reasons}
+            volume_ratio = latest['volume'] / volume_ma if volume_ma > 0 else 1
             
-            # OBV trend
-            if 'obv' in df.columns and len(df) >= 10:
-                obv_trend = df['obv'].iloc[-5:].diff().mean()
-                if obv_trend > 0:
-                    reasons.append("OBV showing accumulation")
-                    return {'signal': 'buy', 'confidence': 0.4, 'reasons': reasons}
-                elif obv_trend < 0:
-                    reasons.append("OBV showing distribution")
-                    return {'signal': 'sell', 'confidence': 0.4, 'reasons': reasons}
+            # OBV analysis
+            obv = self._calculate_obv(df)
+            obv_trend = 'neutral'
             
-            return {'signal': 'hold', 'confidence': 0, 'reasons': reasons}
+            if len(obv) >= 5:
+                recent_obv = obv[-5:]
+                if recent_obv[-1] > recent_obv[0]:
+                    obv_trend = 'bullish'
+                elif recent_obv[-1] < recent_obv[0]:
+                    obv_trend = 'bearish'
+            
+            # Volume Profile Analysis
+            volume_profile = self._analyze_volume_profile(df)
+            
+            # VWAP Analysis
+            vwap_analysis = self._analyze_vwap(df)
+            
+            reasons = []
+            confidence = 0
+            signal = 'hold'
+            
+            # Ajustar thresholds baseado no timeframe
+            if timeframe_context:
+                volume_importance = timeframe_context.get('volume_importance', 0.25)
+                high_volume_threshold = 1.5 + (volume_importance * 2)  # Mais importante = threshold maior
+                low_volume_threshold = 0.7 - (volume_importance * 0.3)
+            else:
+                high_volume_threshold = 1.5
+                low_volume_threshold = 0.7
+            
+            # Volume analysis
+            if volume_ratio > high_volume_threshold:
+                confidence += 0.3 * (volume_importance if timeframe_context else 1.0)
+                reasons.append(f"High volume: {volume_ratio:.2f}x average")
+                
+                if obv_trend == 'bullish':
+                    signal = 'buy'
+                    confidence += 0.4
+                    reasons.append("OBV trending up with high volume")
+                elif obv_trend == 'bearish':
+                    signal = 'sell'
+                    confidence += 0.4
+                    reasons.append("OBV trending down with high volume")
+                else:
+                    signal = 'confirm'
+                    reasons.append("High volume confirms price movement")
+            
+            elif volume_ratio < low_volume_threshold:
+                confidence = 0.2
+                signal = 'caution'
+                reasons.append(f"Low volume: {volume_ratio:.2f}x average")
+            
+            else:
+                confidence = 0.1
+                reasons.append(f"Normal volume: {volume_ratio:.2f}x average")
+            
+            # Adicionar análises de volume profile e VWAP
+            if volume_profile['signal'] != 'neutral':
+                if volume_profile['signal'] == signal or signal == 'hold':
+                    confidence += volume_profile['confidence'] * 0.3
+                    reasons.extend(volume_profile['reasons'])
+                    if signal == 'hold':
+                        signal = volume_profile['signal']
+            
+            if vwap_analysis['signal'] != 'neutral':
+                if vwap_analysis['signal'] == signal or signal == 'hold':
+                    confidence += vwap_analysis['confidence'] * 0.2
+                    reasons.extend(vwap_analysis['reasons'])
+                    if signal == 'hold':
+                        signal = vwap_analysis['signal']
+            
+            return {
+                'signal': signal,
+                'confidence': min(confidence, 1.0),
+                'reasons': reasons,
+                'volume_ratio': volume_ratio,
+                'obv_trend': obv_trend,
+                'volume_profile': volume_profile,
+                'vwap_analysis': vwap_analysis
+            }
             
         except Exception as e:
             logger.error(f"Erro na análise de volume: {e}")
             return {'signal': 'hold', 'confidence': 0, 'reasons': []}
+    
+    def _calculate_obv(self, df: pd.DataFrame) -> np.ndarray:
+        """Calcular On-Balance Volume"""
+        try:
+            obv = np.zeros(len(df))
+            obv[0] = df['volume'].iloc[0]
+            
+            for i in range(1, len(df)):
+                if df['close'].iloc[i] > df['close'].iloc[i-1]:
+                    obv[i] = obv[i-1] + df['volume'].iloc[i]
+                elif df['close'].iloc[i] < df['close'].iloc[i-1]:
+                    obv[i] = obv[i-1] - df['volume'].iloc[i]
+                else:
+                    obv[i] = obv[i-1]
+            
+            return obv
+            
+        except Exception as e:
+            logger.error(f"Erro ao calcular OBV: {e}")
+            return np.zeros(len(df))
+    
+    def _analyze_volume_profile(self, df: pd.DataFrame) -> Dict:
+        """Analisar perfil de volume"""
+        try:
+            if len(df) < 20:
+                return {'signal': 'neutral', 'confidence': 0, 'reasons': []}
+            
+            # Calcular VPOC (Volume Point of Control)
+            price_levels = pd.cut(df['close'], bins=20)
+            volume_by_price = df.groupby(price_levels)['volume'].sum()
+            vpoc_level = volume_by_price.idxmax()
+            
+            current_price = df['close'].iloc[-1]
+            vpoc_mid = (vpoc_level.left + vpoc_level.right) / 2
+            
+            # Analisar posição em relação ao VPOC
+            price_distance = (current_price - vpoc_mid) / vpoc_mid
+            
+            if abs(price_distance) < 0.01:  # Próximo ao VPOC
+                return {
+                    'signal': 'neutral',
+                    'confidence': 0.3,
+                    'reasons': ['Price near Volume POC (consolidation zone)']
+                }
+            elif price_distance > 0.02:  # Acima do VPOC
+                return {
+                    'signal': 'sell',
+                    'confidence': 0.4,
+                    'reasons': ['Price above Volume POC (potential resistance)']
+                }
+            elif price_distance < -0.02:  # Abaixo do VPOC
+                return {
+                    'signal': 'buy',
+                    'confidence': 0.4,
+                    'reasons': ['Price below Volume POC (potential support)']
+                }
+            
+            return {'signal': 'neutral', 'confidence': 0, 'reasons': []}
+            
+        except Exception as e:
+            logger.error(f"Erro na análise de volume profile: {e}")
+            return {'signal': 'neutral', 'confidence': 0, 'reasons': []}
+    
+    def _analyze_vwap(self, df: pd.DataFrame) -> Dict:
+        """Analisar VWAP (Volume Weighted Average Price)"""
+        try:
+            if len(df) < 10:
+                return {'signal': 'neutral', 'confidence': 0, 'reasons': []}
+            
+            # Calcular VWAP
+            typical_price = (df['high'] + df['low'] + df['close']) / 3
+            vwap = (typical_price * df['volume']).cumsum() / df['volume'].cumsum()
+            
+            current_price = df['close'].iloc[-1]
+            current_vwap = vwap.iloc[-1]
+            
+            # Analisar posição em relação ao VWAP
+            price_vs_vwap = (current_price - current_vwap) / current_vwap
+            
+            if price_vs_vwap > 0.005:  # 0.5% acima do VWAP
+                return {
+                    'signal': 'buy',
+                    'confidence': 0.3,
+                    'reasons': [f'Price {price_vs_vwap*100:.2f}% above VWAP (bullish)']
+                }
+            elif price_vs_vwap < -0.005:  # 0.5% abaixo do VWAP
+                return {
+                    'signal': 'sell',
+                    'confidence': 0.3,
+                    'reasons': [f'Price {abs(price_vs_vwap)*100:.2f}% below VWAP (bearish)']
+                }
+            
+            return {
+                'signal': 'neutral',
+                'confidence': 0.1,
+                'reasons': ['Price near VWAP (neutral)']
+            }
+            
+        except Exception as e:
+            logger.error(f"Erro na análise VWAP: {e}")
+            return {'signal': 'neutral', 'confidence': 0, 'reasons': []}
     
     def _analyze_volatility(self, df: pd.DataFrame) -> Dict:
         """Analisar volatilidade"""
@@ -597,12 +777,47 @@ class SignalGenerator:
                          volume: Dict, volatility: Dict, market_context: Dict) -> Dict:
         """Combinar todas as análises"""
         try:
-            # Pesos das análises
+            # Pesos dinâmicos baseados no timeframe
+            timeframe_context = market_context.get('timeframe_context', {})
+            
+            # Ajustar pesos baseado no timeframe
+            volume_importance = timeframe_context.get('volume_importance', 0.25)
+            trend_weight = timeframe_context.get('trend_weight', 0.5)
+            
+            # Pesos mais conservadores - priorizando análise técnica
+            technical_weight = 0.45  # Aumentado para dar mais peso à análise técnica
+            ai_weight = 0.20         # Reduzido para diminuir dependência da IA
+            volume_weight = 0.25     # Mantido - volume é importante
+            market_context_weight = 0.10  # Reduzido - contexto como suporte
+            
+            # Ajustar baseado no timeframe
+            if timeframe_context.get('timeframe') in ['1m', '5m']:
+                # Para timeframes curtos, dar mais peso ao volume e menos à IA
+                technical_weight = 0.40
+                ai_weight = 0.15
+                volume_weight = 0.35
+                market_context_weight = 0.10
+            elif timeframe_context.get('timeframe') in ['4h', '1d']:
+                # Para timeframes longos, dar mais peso à análise técnica
+                technical_weight = 0.50
+                ai_weight = 0.25
+                volume_weight = 0.15
+                market_context_weight = 0.10
+            
+            # Garantir que somem 1.0
+            total_weight = technical_weight + ai_weight + volume_weight + market_context_weight
+            if abs(total_weight - 1.0) > 0.01:  # Se não somar 1.0, normalizar
+                factor = 1.0 / total_weight
+                technical_weight *= factor
+                ai_weight *= factor
+                volume_weight *= factor
+                market_context_weight *= factor
+            
             weights = {
-                'technical': 0.4,
-                'ai': 0.3,
-                'volume': 0.2,
-                'market_context': 0.1
+                'technical': technical_weight,
+                'ai': ai_weight,
+                'volume': volume_weight,
+                'market_context': market_context_weight
             }
             
             # Converter sinais de IA
@@ -637,6 +852,29 @@ class SignalGenerator:
                 sell_score += volume['confidence'] * weights['volume']
             reasons.extend(volume['reasons'])
             
+            # Timeframe context adjustments
+            timeframe_context = market_context.get('timeframe_context', {})
+            noise_level = timeframe_context.get('noise_level', 'medium')
+            
+            # Ajustar confiança baseado no nível de ruído
+            noise_multipliers = {
+                'very-low': 1.3,
+                'low': 1.2,
+                'medium-low': 1.1,
+                'medium': 1.0,
+                'medium-high': 0.9,
+                'high': 0.8
+            }
+            
+            noise_multiplier = noise_multipliers.get(noise_level, 1.0)
+            buy_score *= noise_multiplier
+            sell_score *= noise_multiplier
+            
+            if noise_level in ['high', 'medium-high']:
+                reasons.append(f"Timeframe noise level: {noise_level} (reduced confidence)")
+            elif noise_level in ['low', 'very-low']:
+                reasons.append(f"Timeframe noise level: {noise_level} (increased confidence)")
+            
             # Market context adjustments
             trend = market_context.get('trend', 'sideways')
             if trend == 'bullish':
@@ -646,22 +884,101 @@ class SignalGenerator:
                 sell_score *= 1.2
                 reasons.append("Market trend: Bearish")
             
+            # Macro context adjustments
+            macro_context = market_context.get('macro_context', {})
+            asset_class = macro_context.get('asset_class', 'unknown')
+            risk_level = macro_context.get('risk_level', 'medium')
+            
+            # Ajustar baseado na classe de ativo
+            if asset_class == 'crypto':
+                # Crypto tem maior volatilidade
+                buy_score *= 1.1
+                sell_score *= 1.1
+                reasons.append("Asset class: Crypto (higher volatility expected)")
+            elif asset_class == 'forex':
+                # Forex é mais estável
+                reasons.append("Asset class: Forex (stable market conditions)")
+            
+            # Ajustar baseado no nível de risco
+            risk_multipliers = {
+                'low': 1.1,
+                'medium': 1.0,
+                'high': 0.9
+            }
+            
+            risk_multiplier = risk_multipliers.get(risk_level, 1.0)
+            buy_score *= risk_multiplier
+            sell_score *= risk_multiplier
+            
             # Volatility adjustments
             if volatility['signal'] == 'caution':
                 buy_score *= 0.8
                 sell_score *= 0.8
                 reasons.append("Reduced confidence due to high volatility")
             
-            # Determinar sinal final
-            if buy_score > sell_score and buy_score > 0.3:
+            # Log dos scores para debug
+            logger.info(f"Scores calculados - Buy: {buy_score:.3f}, Sell: {sell_score:.3f}")
+            logger.info(f"Pesos utilizados: {weights}")
+            logger.info(f"Análises individuais - Technical: {technical['signal']} ({technical['confidence']:.3f}), AI: {ai_signal} ({ai_confidence:.3f}), Volume: {volume['signal']} ({volume['confidence']:.3f})")
+            
+            # Estratégia mais conservadora com thresholds ajustados
+            strong_threshold = 0.25   # Threshold para sinais fortes
+            medium_threshold = 0.15   # Threshold para sinais médios
+            weak_threshold = 0.08     # Threshold para sinais fracos
+            
+            # Calcular diferença entre scores para validar direção
+            score_difference = abs(buy_score - sell_score)
+            min_difference = 0.05  # Diferença mínima para evitar sinais ambíguos
+            
+            if score_difference < min_difference:
+                # Sinais muito próximos - preferir HOLD
+                final_signal = 'hold'
+                final_confidence = 0.0
+                logger.info(f"Sinal HOLD - scores muito próximos (diff: {score_difference:.3f})")
+            elif buy_score > sell_score and buy_score > strong_threshold:
+                # Sinal BUY forte
                 final_signal = 'buy'
-                final_confidence = min(buy_score, 1.0)
-            elif sell_score > buy_score and sell_score > 0.3:
+                final_confidence = min(buy_score * 0.85, 0.75)  # Cap em 75%
+                logger.info(f"Sinal BUY FORTE gerado com confiança {final_confidence:.3f}")
+            elif sell_score > buy_score and sell_score > strong_threshold:
+                # Sinal SELL forte
                 final_signal = 'sell'
-                final_confidence = min(sell_score, 1.0)
+                final_confidence = min(sell_score * 0.85, 0.75)  # Cap em 75%
+                logger.info(f"Sinal SELL FORTE gerado com confiança {final_confidence:.3f}")
+            elif buy_score > sell_score and buy_score > medium_threshold:
+                # Sinal BUY médio
+                final_signal = 'buy'
+                final_confidence = min(buy_score * 0.7, 0.55)  # Cap em 55%
+                logger.info(f"Sinal BUY MÉDIO gerado com confiança {final_confidence:.3f}")
+            elif sell_score > buy_score and sell_score > medium_threshold:
+                # Sinal SELL médio
+                final_signal = 'sell'
+                final_confidence = min(sell_score * 0.7, 0.55)  # Cap em 55%
+                logger.info(f"Sinal SELL MÉDIO gerado com confiança {final_confidence:.3f}")
+            elif buy_score > sell_score and buy_score > weak_threshold:
+                # Sinal BUY fraco - apenas se houver confluência
+                if self._has_strong_confluence(technical, ai_prediction, volume):
+                    final_signal = 'buy'
+                    final_confidence = min(buy_score * 0.6, 0.35)  # Cap em 35%
+                    logger.info(f"Sinal BUY FRACO com confluência - confiança {final_confidence:.3f}")
+                else:
+                    final_signal = 'hold'
+                    final_confidence = 0.0
+                    logger.info(f"Sinal BUY fraco rejeitado - sem confluência suficiente")
+            elif sell_score > buy_score and sell_score > weak_threshold:
+                # Sinal SELL fraco - apenas se houver confluência
+                if self._has_strong_confluence(technical, ai_prediction, volume):
+                    final_signal = 'sell'
+                    final_confidence = min(sell_score * 0.6, 0.35)  # Cap em 35%
+                    logger.info(f"Sinal SELL FRACO com confluência - confiança {final_confidence:.3f}")
+                else:
+                    final_signal = 'hold'
+                    final_confidence = 0.0
+                    logger.info(f"Sinal SELL fraco rejeitado - sem confluência suficiente")
             else:
                 final_signal = 'hold'
                 final_confidence = 0.0
+                logger.info(f"Sinal HOLD - scores insuficientes (buy: {buy_score:.3f}, sell: {sell_score:.3f})")
             
             return {
                 'signal': final_signal,
@@ -679,6 +996,45 @@ class SignalGenerator:
         except Exception as e:
             logger.error(f"Erro ao combinar análises: {e}")
             return {'signal': 'hold', 'confidence': 0, 'reasons': []}
+    
+    def _has_strong_confluence(self, technical: Dict, ai_prediction: Dict, volume: Dict) -> bool:
+        """Verificar confluência forte entre análises para sinais fracos"""
+        try:
+            confirmations = 0
+            min_required = 2  # Mínimo 2 confirmações para sinais fracos
+            
+            # Análise técnica com confiança > 0.3
+            if technical.get('confidence', 0) > 0.3:
+                confirmations += 1
+            
+            # IA com confiança > 0.4
+            ai_confidence = ai_prediction.get('confidence', 0)
+            if ai_confidence > 0.4:
+                confirmations += 1
+            
+            # Volume confirmando (confiança > 0.3)
+            if volume.get('confidence', 0) > 0.3 and volume.get('signal') in ['buy', 'sell', 'confirm']:
+                confirmations += 1
+            
+            # Bonus: se todas as 3 análises concordam na direção
+            signals = [technical.get('signal'), volume.get('signal')]
+            ai_signal_map = {1: 'buy', -1: 'sell', 0: 'hold'}
+            ai_signal = ai_signal_map.get(ai_prediction.get('signal', 0), 'hold')
+            signals.append(ai_signal)
+            
+            # Contar sinais na mesma direção
+            buy_signals = signals.count('buy')
+            sell_signals = signals.count('sell')
+            
+            if buy_signals >= 2 or sell_signals >= 2:
+                confirmations += 1
+            
+            logger.info(f"Confluência forte: {confirmations} confirmações (mín: {min_required})")
+            return confirmations >= min_required
+            
+        except Exception as e:
+            logger.error(f"Erro ao verificar confluência forte: {e}")
+            return False
     
     def _check_confluence(self, signal_data: Dict) -> bool:
         """Verificar confluência de sinais"""
@@ -716,26 +1072,54 @@ class SignalGenerator:
             logger.error(f"Erro ao verificar confluência: {e}")
             return False
     
-    def _calculate_trade_levels(self, df: pd.DataFrame, signal_type: str, current_price: float) -> Dict:
-        """Calcular níveis de stop loss e take profit"""
+    def _calculate_trade_levels(self, df: pd.DataFrame, signal_type: str, current_price: float, timeframe: str = '1h') -> Dict:
+        """Calcular níveis de stop loss e take profit baseado no timeframe"""
         try:
             if df.empty:
-                return {'stop_loss': current_price, 'take_profit': current_price}
+                return {'stop_loss': 0, 'take_profit': 0}
+            
+            # Para sinais HOLD, não calcular níveis
+            if signal_type == 'hold':
+                return {'stop_loss': 0, 'take_profit': 0}
             
             # Usar ATR para calcular níveis
             atr = df['atr'].iloc[-1] if 'atr' in df.columns else current_price * 0.02
             
-            # Configurações de risco
-            stop_loss_pct = self.config.RISK_MANAGEMENT['stop_loss_pct']
-            take_profit_pct = self.config.RISK_MANAGEMENT['take_profit_pct']
+            # Ajustar percentuais baseado no timeframe - Valores realistas para cada período
+            timeframe_multipliers = {
+                '1m': {'sl': 0.15, 'tp': 0.30},  # 0.15% SL, 0.30% TP - ~$150/$300 no BTC
+                '3m': {'sl': 0.20, 'tp': 0.40},  # 0.20% SL, 0.40% TP - ~$200/$400 no BTC
+                '5m': {'sl': 0.25, 'tp': 0.50},  # 0.25% SL, 0.50% TP - ~$250/$500 no BTC
+                '15m': {'sl': 0.35, 'tp': 0.70}, # 0.35% SL, 0.70% TP - ~$350/$700 no BTC
+                '30m': {'sl': 0.50, 'tp': 1.00}, # 0.50% SL, 1.00% TP - ~$500/$1000 no BTC
+                '1h': {'sl': 0.80, 'tp': 1.60},  # 0.80% SL, 1.60% TP - ~$800/$1600 no BTC
+                '2h': {'sl': 1.20, 'tp': 2.40},  # 1.20% SL, 2.40% TP - Ratio 1:2
+                '4h': {'sl': 1.80, 'tp': 3.60},  # 1.80% SL, 3.60% TP - Ratio 1:2
+                '6h': {'sl': 2.50, 'tp': 5.00},  # 2.50% SL, 5.00% TP - Ratio 1:2
+                '8h': {'sl': 3.00, 'tp': 6.00},  # 3.00% SL, 6.00% TP - Ratio 1:2
+                '12h': {'sl': 3.50, 'tp': 7.00}, # 3.50% SL, 7.00% TP - Ratio 1:2
+                '1d': {'sl': 4.00, 'tp': 8.00},  # 4.00% SL, 8.00% TP - Ratio 1:2
+                '3d': {'sl': 5.00, 'tp': 10.0},  # 5.00% SL, 10.0% TP - Ratio 1:2
+                '1w': {'sl': 6.00, 'tp': 12.0}   # 6.00% SL, 12.0% TP - Ratio 1:2
+            }
+            
+            # Obter multiplicadores para o timeframe (padrão 1h se não encontrado)
+            multipliers = timeframe_multipliers.get(timeframe, timeframe_multipliers['1h'])
+            
+            # Converter para decimais
+            stop_loss_pct = multipliers['sl'] / 100.0
+            take_profit_pct = multipliers['tp'] / 100.0
+            
+            logger.info(f"Timeframe {timeframe}: SL {multipliers['sl']}%, TP {multipliers['tp']}%")
             
             if signal_type == 'buy':
                 # Para compra
                 stop_loss = current_price * (1 - stop_loss_pct)
                 take_profit = current_price * (1 + take_profit_pct)
                 
-                # Ajustar com base no ATR
-                atr_stop = current_price - (atr * 2)
+                # Ajustar com base no ATR (mais conservador para timeframes menores)
+                atr_multiplier = 1.5 if timeframe in ['1m', '3m', '5m'] else 2.0
+                atr_stop = current_price - (atr * atr_multiplier)
                 stop_loss = max(stop_loss, atr_stop)
                 
             elif signal_type == 'sell':
@@ -744,12 +1128,13 @@ class SignalGenerator:
                 take_profit = current_price * (1 - take_profit_pct)
                 
                 # Ajustar com base no ATR
-                atr_stop = current_price + (atr * 2)
+                atr_multiplier = 1.5 if timeframe in ['1m', '3m', '5m'] else 2.0
+                atr_stop = current_price + (atr * atr_multiplier)
                 stop_loss = min(stop_loss, atr_stop)
                 
             else:
-                stop_loss = current_price
-                take_profit = current_price
+                # Fallback para outros tipos
+                return {'stop_loss': 0, 'take_profit': 0}
             
             return {
                 'stop_loss': round(stop_loss, 8),
@@ -758,7 +1143,59 @@ class SignalGenerator:
             
         except Exception as e:
             logger.error(f"Erro ao calcular níveis: {e}")
-            return {'stop_loss': current_price, 'take_profit': current_price}
+            return {'stop_loss': 0, 'take_profit': 0}
+    
+    def _calculate_trade_levels_1to1(self, current_price: float, signal_type: str, timeframe: str) -> Dict[str, float]:
+        """Calcular níveis de trade com relação risco/recompensa 1:1 para estratégia de IA"""
+        try:
+            if signal_type == 'hold':
+                return {'stop_loss': 0, 'take_profit': 0}
+            
+            # Percentuais conservadores para relação 1:1 baseados no timeframe
+            timeframe_percentages = {
+                '1m': 2.5,   # 2.5% para SL e TP
+                '3m': 2.5,   # 2.5% para SL e TP
+                '5m': 2.5,   # 2.5% para SL e TP
+                '15m': 2.5,  # 2.5% para SL e TP
+                '30m': 2.5,  # 2.5% para SL e TP
+                '1h': 2.5,   # 2.5% para SL e TP
+                '2h': 2.5,   # 2.5% para SL e TP
+                '4h': 2.5,   # 2.5% para SL e TP
+                '6h': 2.5,   # 2.5% para SL e TP
+                '8h': 2.5,   # 2.5% para SL e TP
+                '12h': 2.5,  # 2.5% para SL e TP
+                '1d': 2.5,   # 2.5% para SL e TP
+                '3d': 2.5,   # 2.5% para SL e TP
+                '1w': 2.5    # 2.5% para SL e TP
+            }
+            
+            # Obter percentual para o timeframe (padrão 2.5% se não encontrado)
+            percentage = timeframe_percentages.get(timeframe, 2.5)
+            percentage_decimal = percentage / 100.0
+            
+            logger.info(f"Calculando níveis 1:1 para {timeframe}: {percentage}% SL/TP")
+            
+            if signal_type == 'buy':
+                # Para compra: SL abaixo, TP acima
+                stop_loss = current_price * (1 - percentage_decimal)
+                take_profit = current_price * (1 + percentage_decimal)
+                
+            elif signal_type == 'sell':
+                # Para venda: SL acima, TP abaixo
+                stop_loss = current_price * (1 + percentage_decimal)
+                take_profit = current_price * (1 - percentage_decimal)
+                
+            else:
+                return {'stop_loss': 0, 'take_profit': 0}
+            
+            return {
+                'stop_loss': round(stop_loss, 8),
+                'take_profit': round(take_profit, 8)
+            }
+            
+        except Exception as e:
+            logger.error(f"Erro ao calcular níveis 1:1: {e}")
+            return {'stop_loss': 0, 'take_profit': 0}
     
     def _register_signal(self, signal: Signal):
         """Registrar sinal gerado"""

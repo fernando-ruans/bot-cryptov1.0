@@ -7,10 +7,11 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
+import pandas as pd
 from src.config import Config
 from src.market_data import MarketDataManager
-from src.signal_generator import SignalGenerator
 from src.ai_engine import AITradingEngine
+from src.signal_generator import SignalGenerator
 import logging
 
 # Configurar logging detalhado
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def debug_signal_generation():
     """Debug completo da geração de sinais"""
-    print("🔍 INICIANDO DEBUG DA GERAÇÃO DE SINAIS")
+    print("INICIANDO DEBUG DA GERACAO DE SINAIS")
     print("=" * 50)
     
     try:
@@ -51,12 +52,12 @@ def debug_signal_generation():
         
         # Obter dados históricos
         print("\n4. Obtendo dados históricos:")
-        df = market_data.get_market_data(symbol, timeframe, 100)
+        df = market_data.get_historical_data(symbol, timeframe, 100)
         if df is None or df.empty:
             print("   ❌ ERRO: Dados históricos não obtidos!")
             return
         
-        print(f"   ✅ Dados obtidos: {len(df)} candles")
+        print(f"   Dados obtidos: {len(df)} candles")
         print(f"   Último preço nos dados: ${df['close'].iloc[-1]:.2f}")
         
         # Debug do gerador de sinais linha por linha
@@ -67,20 +68,20 @@ def debug_signal_generation():
         print(f"   Cooldown ativo: {is_cooldown}")
         
         if is_cooldown:
-            print("   ❌ SINAL BLOQUEADO POR COOLDOWN!")
+            print("   SINAL BLOQUEADO POR COOLDOWN!")
             # Forçar reset do cooldown para teste
             if symbol in signal_generator.last_signal_time:
                 del signal_generator.last_signal_time[symbol]
-            print("   ✅ Cooldown resetado para teste")
+            print("   Cooldown resetado para teste")
         
         # Verificar análise técnica
         print("\n6. Testando análise técnica:")
         try:
-            technical_result = signal_generator._analyze_technical_indicators(df, symbol)
+            technical_result = signal_generator._analyze_technical_indicators(df)
             print(f"   Resultado técnico: {technical_result}")
             
             if technical_result['signal'] == 'hold':
-                print("   ⚠️ Análise técnica resultou em 'hold'")
+                print("   Analise tecnica resultou em 'hold'")
                 
                 # Vamos forçar condições mais agressivas temporariamente
                 print("\n7. Aplicando configurações ultra-agressivas:")
@@ -91,48 +92,55 @@ def debug_signal_generation():
                 config.SIGNAL_CONFIG['enable_confluence'] = False
                 signal_generator.config = config
                 
-                print("   ✅ Configurações ultra-agressivas aplicadas")
+                print("   Configuracoes ultra-agressivas aplicadas")
                 
                 # Tentar novamente
                 print("\n8. Tentativa com configurações agressivas:")
                 signal = signal_generator.generate_signal(symbol, timeframe)
                 
                 if signal:
-                    print(f"   🎯 SINAL GERADO COM SUCESSO!")
+                    print(f"   SINAL GERADO COM SUCESSO!")
                     print(f"   Tipo: {signal.signal_type}")
-                    print(f"   Confiança: {signal.confidence:.1%}")
-                    print(f"   Preço entrada: ${signal.entry_price}")
+                    print(f"   Confianca: {signal.confidence:.1%}")
+                    print(f"   Preco entrada: ${signal.entry_price}")
                     print(f"   Stop Loss: ${signal.stop_loss}")
                     print(f"   Take Profit: ${signal.take_profit}")
-                    print(f"   Razões: {signal.reasons}")
+                    print(f"   Razoes: {signal.reasons}")
                 else:
-                    print("   ❌ AINDA NÃO GEROU SINAL")
+                    print("   AINDA NAO GEROU SINAL")
                     
                     # Debug ainda mais profundo
                     print("\n9. Debug profundo dos indicadores:")
                     
                     # Verificar RSI
                     from src.technical_indicators import TechnicalIndicators
-                    tech_indicators = TechnicalIndicators()
+                    tech_indicators = TechnicalIndicators(config)
                     
-                    rsi = tech_indicators.calculate_rsi(df, 14)
-                    current_rsi = rsi.iloc[-1] if not rsi.empty else None
-                    print(f"   RSI atual: {current_rsi:.2f}" if current_rsi else "   RSI: N/A")
+                    df_with_indicators = tech_indicators.calculate_all_indicators(df)
+                    current_rsi = df_with_indicators['rsi'].iloc[-1] if 'rsi' in df_with_indicators.columns else None
+                    print(f"   RSI atual: {current_rsi:.2f}" if current_rsi and not pd.isna(current_rsi) else "   RSI: N/A")
                     
                     # Verificar MACD
-                    macd_line, macd_signal, macd_hist = tech_indicators.calculate_macd(df)
-                    if not macd_line.empty:
-                        print(f"   MACD: {macd_line.iloc[-1]:.4f}")
-                        print(f"   MACD Signal: {macd_signal.iloc[-1]:.4f}")
-                        print(f"   MACD Hist: {macd_hist.iloc[-1]:.4f}")
+                    if 'macd' in df_with_indicators.columns:
+                        macd_current = df_with_indicators['macd'].iloc[-1]
+                        macd_signal_current = df_with_indicators['macd_signal'].iloc[-1]
+                        macd_hist_current = df_with_indicators['macd_histogram'].iloc[-1]
+                        print(f"   MACD: {macd_current:.4f}")
+                        print(f"   MACD Signal: {macd_signal_current:.4f}")
+                        print(f"   MACD Hist: {macd_hist_current:.4f}")
+                    else:
+                        print("   MACD: N/A")
                     
                     # Verificar Bollinger Bands
-                    bb_upper, bb_middle, bb_lower = tech_indicators.calculate_bollinger_bands(df)
                     current_price_df = df['close'].iloc[-1]
-                    if not bb_upper.empty:
-                        print(f"   BB Upper: ${bb_upper.iloc[-1]:.2f}")
-                        print(f"   BB Lower: ${bb_lower.iloc[-1]:.2f}")
-                        print(f"   Preço atual vs BB: {current_price_df:.2f}")
+                    if 'bb_upper' in df_with_indicators.columns:
+                        bb_upper_current = df_with_indicators['bb_upper'].iloc[-1]
+                        bb_lower_current = df_with_indicators['bb_lower'].iloc[-1]
+                        print(f"   BB Upper: ${bb_upper_current:.2f}")
+                        print(f"   BB Lower: ${bb_lower_current:.2f}")
+                        print(f"   Preco atual vs BB: {current_price_df:.2f}")
+                    else:
+                        print("   Bollinger Bands: N/A")
                         
                         # Forçar sinal baseado em condições extremas
                         print("\n10. FORÇANDO GERAÇÃO DE SINAL:")
@@ -161,15 +169,15 @@ def debug_signal_generation():
                         # Registrar o sinal forçado
                         signal_generator._register_signal(forced_signal)
                         
-                        print(f"   🚀 SINAL FORÇADO CRIADO!")
+                        print(f"   SINAL FORCADO CRIADO!")
                         print(f"   Tipo: {forced_signal.signal_type}")
-                        print(f"   Confiança: {forced_signal.confidence:.1%}")
+                        print(f"   Confianca: {forced_signal.confidence:.1%}")
                         print(f"   ID: {forced_signal.id}")
             else:
-                print(f"   ✅ Análise técnica OK: {technical_result['signal']}")
+                print(f"   Analise tecnica OK: {technical_result['signal']}")
                 
         except Exception as e:
-            print(f"   ❌ ERRO na análise técnica: {e}")
+            print(f"   ERRO na analise tecnica: {e}")
             import traceback
             traceback.print_exc()
         
@@ -182,11 +190,11 @@ def debug_signal_generation():
             for signal in active_signals[-3:]:  # Últimos 3
                 print(f"   - {signal['symbol']} {signal['signal_type']} ({signal['confidence']:.1%})")
         
-        print("\n🏁 DEBUG CONCLUÍDO!")
+        print("\nDEBUG CONCLUIDO!")
         return active_signals
         
     except Exception as e:
-        print(f"❌ ERRO GERAL: {e}")
+        print(f"ERRO GERAL: {e}")
         import traceback
         traceback.print_exc()
         return None

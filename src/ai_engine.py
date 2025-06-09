@@ -219,7 +219,7 @@ class AITradingEngine:
             df_clean = df_clean.loc[common_index]
             labels_clean = labels_clean.loc[common_index]
             
-            if len(df_clean) < self.config.ML_CONFIG['min_training_samples']:
+            if len(df_clean) < self.config.MIN_TRAINING_SAMPLES:
                 logger.warning(f"Dados insuficientes para treinamento: {len(df_clean)}")
                 return {'success': False, 'error': 'Dados insuficientes'}
             
