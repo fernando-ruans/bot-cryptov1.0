@@ -1,0 +1,48 @@
+# Core dependencies
+flask
+flask-cors
+flask-socketio
+python-socketio
+requests
+numpy
+pandas
+scipy
+
+# Trading and Market Data
+ccxt
+yfinance
+websocket-client
+
+# Machine Learning and AI
+scikit-learn
+xgboost
+lightgbm
+joblib
+
+# Technical Analysis
+pandas-ta
+
+# Data Visualization
+matplotlib
+seaborn
+plotly
+
+# Web Framework
+gunicorn
+eventlet
+
+# Database
+sqlalchemy
+
+# Utilities
+python-dotenv
+click
+colorama
+tqdm
+psutil
+APScheduler
+pytz
+python-dateutil
+requests-cache
+retrying
+loguru
