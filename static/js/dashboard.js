@@ -9,7 +9,11 @@ class SimpleTradingDashboard {
         this.socket = null;
         this.currentSignal = null;
         this.currentSymbol = 'BTCUSDT';
+        this.currentTimeframe = '5m';
         this.tradingViewWidget = null;
+        this.isConnected = false;
+        this.lastPrices = {};
+        this.priceUpdateInterval = null;
         this.portfolio = {
             total_trades: 0,
             win_rate: 0,
@@ -99,6 +103,61 @@ class SimpleTradingDashboard {
         document.getElementById('assetSelector').addEventListener('change', (e) => {
             this.changeAsset(e.target.value);
         });
+
+        // Seletor de timeframe
+        document.getElementById('timeframeSelector').addEventListener('change', (e) => {
+            console.log(`🔄 Timeframe selecionado: ${e.target.value}`);
+            this.changeTimeframe(e.target.value);
+        });
+        
+        // Iniciar atualização automática de preços
+        this.startPriceUpdates();
+        
+        // Otimizar atualização baseada na visibilidade da página
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Página não visível - reduzir frequência
+                this.stopPriceUpdates();
+                this.priceUpdateInterval = setInterval(() => {
+                    this.updateCurrentPrice();
+                }, 5000); // 5 segundos quando não visível
+            } else {
+                // Página visível - máxima frequência
+                this.startPriceUpdates();
+            }
+        });
+    }
+    
+    startPriceUpdates() {
+        // Limpar intervalo anterior se existir
+        if (this.priceUpdateInterval) {
+            clearInterval(this.priceUpdateInterval);
+        }
+        
+        // Atualizar preço imediatamente
+        this.updateCurrentPrice();
+        
+        // Configurar atualização automática a cada 1 segundo para sincronizar com o gráfico
+        this.priceUpdateInterval = setInterval(() => {
+            this.updateCurrentPrice();
+        }, 1000);
+        
+        console.log('🔄 Atualização automática de preços iniciada (1s)');
+    }
+    
+    stopPriceUpdates() {
+        if (this.priceUpdateInterval) {
+            clearInterval(this.priceUpdateInterval);
+            this.priceUpdateInterval = null;
+            console.log('⏹️ Atualização automática de preços parada');
+        }
+        
+        // Parar também o intervalo de captura do gráfico
+        if (this.chartPriceInterval) {
+            clearInterval(this.chartPriceInterval);
+            this.chartPriceInterval = null;
+            console.log('⏹️ Captura de preços do gráfico interrompida');
+        }
     }
 
     initWebSocket() {
@@ -152,7 +211,8 @@ class SimpleTradingDashboard {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    symbol: this.currentSymbol
+                    symbol: this.currentSymbol,
+                    timeframe: this.currentTimeframe
                 })
             });
 
@@ -323,11 +383,11 @@ class SimpleTradingDashboard {
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
                         <strong>${trade.symbol}</strong><br>
-                        <small class="text-muted">${trade.action} @ $${parseFloat(trade.entry_price).toFixed(2)}</small>
+                        <small class="text-muted">${trade.trade_type} @ $${parseFloat(trade.entry_price).toFixed(2)}</small>
                     </div>
                     <div class="text-end">
-                        <span class="badge ${trade.current_pnl >= 0 ? 'badge-profit' : 'badge-loss'} mb-1">
-                            ${trade.current_pnl >= 0 ? '+' : ''}$${trade.current_pnl.toFixed(2)}
+                        <span class="badge ${trade.pnl >= 0 ? 'badge-profit' : 'badge-loss'} mb-1">
+                            ${trade.pnl >= 0 ? 'GANHO' : 'PERDA'} (${trade.pnl_percent ? trade.pnl_percent.toFixed(2) + '%' : '0%'})
                         </span><br>
                         <button class="btn btn-warning-custom btn-sm" onclick="dashboard.closeTrade('${trade.id}')" title="Fechar Trade">
                             <i class="fas fa-times"></i>
@@ -397,12 +457,12 @@ class SimpleTradingDashboard {
         tbody.innerHTML = trades.slice(0, 20).map(trade => `
             <tr>
                 <td><strong>${trade.symbol}</strong></td>
-                <td><span class="badge ${trade.action === 'BUY' ? 'bg-success' : 'bg-danger'}">${trade.action}</span></td>
+                <td><span class="badge ${trade.trade_type === 'BUY' ? 'bg-success' : 'bg-danger'}">${trade.trade_type}</span></td>
                 <td>$${parseFloat(trade.entry_price).toFixed(2)}</td>
                 <td>${trade.exit_price ? '$' + parseFloat(trade.exit_price).toFixed(2) : '-'}</td>
                 <td>
                     <span class="fw-bold ${trade.pnl >= 0 ? 'text-success' : 'text-danger'}">
-                        ${trade.pnl >= 0 ? '+' : ''}$${trade.pnl.toFixed(2)}
+                        ${trade.pnl >= 0 ? 'GANHO' : 'PERDA'} (${trade.pnl_percent ? trade.pnl_percent.toFixed(2) + '%' : '0%'})
                     </span>
                 </td>
                 <td><small>${new Date(trade.timestamp).toLocaleString('pt-BR')}</small></td>
@@ -483,10 +543,44 @@ class SimpleTradingDashboard {
             navPriceElement.textContent = `$${price.toFixed(6)}`;
         }
         
-        // Atualizar o preço no painel lateral
+        // Atualizar o preço no painel lateral (card gerador de sinais)
         const sidebarPriceElement = document.getElementById('sidebarCurrentPrice');
         if (sidebarPriceElement) {
+            const lastPrice = this.lastPrices[this.currentSymbol] || price;
+            const priceChanged = lastPrice !== price;
+            
             sidebarPriceElement.textContent = `$${price.toFixed(2)}`;
+            
+            // Animação visual quando o preço muda
+            if (priceChanged) {
+                sidebarPriceElement.style.transition = 'all 0.3s ease';
+                sidebarPriceElement.style.transform = 'scale(1.05)';
+                sidebarPriceElement.style.color = price > lastPrice ? '#27ae60' : '#e74c3c';
+                
+                setTimeout(() => {
+                    sidebarPriceElement.style.transform = 'scale(1)';
+                    sidebarPriceElement.style.color = '';
+                }, 300);
+            }
+            
+            // Calcular variação de preço
+            const priceChangePercent = ((price - lastPrice) / lastPrice * 100);
+            const priceChangeElement = document.getElementById('priceChange');
+            
+            if (priceChangeElement && priceChanged) {
+                const changeText = `${priceChangePercent >= 0 ? '+' : ''}${priceChangePercent.toFixed(2)}%`;
+                priceChangeElement.textContent = changeText;
+                priceChangeElement.className = `badge ms-2 ${priceChangePercent >= 0 ? 'bg-success' : 'bg-danger'}`;
+                
+                // Animação no badge de mudança
+                priceChangeElement.style.animation = 'pulse 0.5s ease-in-out';
+                setTimeout(() => {
+                    priceChangeElement.style.animation = '';
+                }, 500);
+            }
+            
+            // Armazenar preço anterior
+            this.lastPrices[this.currentSymbol] = price;
         }
         
         // Atualizar qualquer outro elemento de preço na interface
@@ -549,8 +643,8 @@ class SimpleTradingDashboard {
         // Limpar sinal atual se existir
         this.clearCurrentSignal();
         
-        // Atualizar preço atual imediatamente
-        this.updateCurrentPrice();
+        // Reiniciar atualização de preços para o novo ativo
+        this.startPriceUpdates();
         
         // Recarregar dados do portfolio para o novo ativo
         this.loadPortfolio();
@@ -559,9 +653,38 @@ class SimpleTradingDashboard {
         this.showAlert(`Ativo alterado para ${newSymbol}`, 'info');
     }
 
+    changeTimeframe(newTimeframe) {
+        console.log(`⏰ Mudando timeframe para: ${newTimeframe}`);
+        
+        this.currentTimeframe = newTimeframe;
+        
+        // Atualizar gráfico TradingView com novo timeframe
+        this.updateTradingViewChart(this.currentSymbol);
+        
+        this.showAlert(`Timeframe alterado para ${newTimeframe}`, 'info');
+    }
+
+    convertTimeframeForTradingView(timeframe) {
+        // Converter timeframes para formato TradingView
+        const timeframeMapping = {
+            '1m': '1',
+            '5m': '5',
+            '15m': '15',
+            '30m': '30',
+            '1h': '60',
+            '4h': '240',
+            '1d': 'D',
+            '1w': 'W'
+        };
+        return timeframeMapping[timeframe] || '5';
+    }
+
     updateTradingViewChart(symbol) {
         const symbolMapping = this.getSymbolMapping();
         const tradingViewSymbol = symbolMapping[symbol] || `BINANCE:${symbol}`;
+        const tradingViewTimeframe = this.convertTimeframeForTradingView(this.currentTimeframe);
+        
+        console.log(`📈 Atualizando gráfico: ${symbol} -> ${tradingViewSymbol}, timeframe: ${this.currentTimeframe} -> ${tradingViewTimeframe}`);
         
         // Remover widget existente
         if (this.tradingViewWidget) {
@@ -574,7 +697,7 @@ class SimpleTradingDashboard {
             "width": "100%",
             "height": "500",
             "symbol": tradingViewSymbol,
-            "interval": "5",
+            "interval": tradingViewTimeframe,
             "timezone": "America/Sao_Paulo",
             "theme": "light",
             "style": "1",
@@ -586,10 +709,160 @@ class SimpleTradingDashboard {
             "studies": [
                 "RSI@tv-basicstudies",
                 "MACD@tv-basicstudies"
-            ]
+            ],
+            "onChartReady": () => {
+                console.log('📈 TradingView carregado - configurando captura de preços');
+                this.setupTradingViewPriceCapture();
+            }
         });
         
         console.log(`📈 Gráfico atualizado para: ${tradingViewSymbol}`);
+    }
+
+    setupTradingViewPriceCapture() {
+        try {
+            // Aguardar o widget estar completamente carregado
+            setTimeout(() => {
+                // Configurar listener para mensagens do TradingView
+                this.setupTradingViewMessageListener();
+                
+                // Configurar intervalo para tentar capturar preço do DOM
+                this.setupDOMPriceCapture();
+                
+                console.log('✅ Captura de preços do TradingView configurada');
+            }, 3000);
+        } catch (error) {
+            console.error('❌ Erro ao configurar captura de preços:', error);
+            // Fallback para o método anterior
+            this.updateCurrentPrice();
+        }
+    }
+    
+    setupTradingViewMessageListener() {
+        // Escutar mensagens do iframe do TradingView
+        window.addEventListener('message', (event) => {
+            try {
+                if (event.origin.includes('tradingview.com') && event.data) {
+                    const data = typeof event.data === 'string' ? JSON.parse(event.data) : event.data;
+                    
+                    // Procurar por dados de preço nas mensagens
+                    if (data.name === 'quote-update' || data.name === 'quote_update') {
+                        if (data.data && data.data.lp) {
+                            const price = parseFloat(data.data.lp);
+                            if (!isNaN(price)) {
+                                this.updatePriceDisplay(price);
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                // Ignorar erros de parsing silenciosamente
+            }
+        });
+    }
+    
+    setupDOMPriceCapture() {
+        // Configurar intervalo para capturar preço do DOM do TradingView
+        this.chartPriceInterval = setInterval(() => {
+            this.capturePriceFromDOM();
+        }, 1000); // Verificar a cada 1 segundo
+    }
+    
+    capturePriceFromDOM() {
+        try {
+            // Tentar encontrar elementos de preço no iframe do TradingView
+            const chartContainer = document.getElementById('tradingview_chart');
+            if (chartContainer) {
+                const iframe = chartContainer.querySelector('iframe');
+                if (iframe && iframe.contentDocument) {
+                    // Procurar por elementos que contenham o preço
+                    const priceSelectors = [
+                        '[data-name="legend-source-item"]',
+                        '.js-symbol-last',
+                        '[class*="price"]',
+                        '[class*="last"]'
+                    ];
+                    
+                    for (const selector of priceSelectors) {
+                        const elements = iframe.contentDocument.querySelectorAll(selector);
+                        for (const element of elements) {
+                            const text = element.textContent || element.innerText;
+                            const priceMatch = text.match(/([0-9,]+\.?[0-9]*)/g);
+                            if (priceMatch) {
+                                const price = parseFloat(priceMatch[0].replace(/,/g, ''));
+                                if (!isNaN(price) && price > 1000) { // Filtro básico para BTC
+                                    this.updatePriceDisplay(price);
+                                    return;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            // Fallback silencioso - iframe pode estar bloqueado por CORS
+            // Usar API externa como backup
+            if (Math.random() < 0.1) { // 10% das vezes para não sobrecarregar
+                this.updateCurrentPrice();
+            }
+        }
+    }
+
+
+
+    updatePriceDisplay(price) {
+        if (price && !isNaN(price)) {
+            // Atualizar elementos de preço diretamente
+            const priceElements = {
+                navPriceElement: document.getElementById('navPriceElement'),
+                sidebarCurrentPrice: document.getElementById('sidebarCurrentPrice'),
+                currentPriceElements: document.querySelectorAll('.current-price')
+            };
+            
+            const formattedPrice = `$${price.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })}`;
+            
+            // Atualizar preço na navegação
+            if (priceElements.navPriceElement) {
+                const oldPrice = parseFloat(priceElements.navPriceElement.textContent.replace(/[$,]/g, ''));
+                priceElements.navPriceElement.textContent = formattedPrice;
+                
+                // Animação visual
+                if (!isNaN(oldPrice) && oldPrice !== price) {
+                    priceElements.navPriceElement.style.transform = 'scale(1.05)';
+                    priceElements.navPriceElement.style.color = price > oldPrice ? '#28a745' : '#dc3545';
+                    setTimeout(() => {
+                        priceElements.navPriceElement.style.transform = 'scale(1)';
+                        priceElements.navPriceElement.style.color = '';
+                    }, 300);
+                }
+            }
+            
+            // Atualizar preço no sidebar
+            if (priceElements.sidebarCurrentPrice) {
+                const oldPrice = parseFloat(priceElements.sidebarCurrentPrice.textContent.replace(/[$,]/g, ''));
+                priceElements.sidebarCurrentPrice.textContent = formattedPrice;
+                
+                // Animação visual
+                if (!isNaN(oldPrice) && oldPrice !== price) {
+                    priceElements.sidebarCurrentPrice.style.transform = 'scale(1.05)';
+                    priceElements.sidebarCurrentPrice.style.color = price > oldPrice ? '#28a745' : '#dc3545';
+                    setTimeout(() => {
+                        priceElements.sidebarCurrentPrice.style.transform = 'scale(1)';
+                        priceElements.sidebarCurrentPrice.style.color = '';
+                    }, 300);
+                }
+            }
+            
+            // Atualizar outros elementos com classe current-price
+            priceElements.currentPriceElements.forEach(element => {
+                element.textContent = formattedPrice;
+            });
+            
+            console.log(`💰 Preço atualizado do gráfico: ${formattedPrice}`);
+        }
     }
 
     clearCurrentSignal() {

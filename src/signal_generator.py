@@ -94,30 +94,75 @@ class SignalGenerator:
             # Obter dados de mercado
             df = self.market_data.get_historical_data(symbol, timeframe, 500)
             logger.info(f"Dados obtidos para {symbol}: {len(df)} registros")
-            if df.empty or len(df) < 100:
+            
+            # Validação robusta dos dados
+            if df is None:
+                logger.error(f"DataFrame é None para {symbol}")
+                return None
+            
+            if df.empty:
+                logger.warning(f"DataFrame vazio para {symbol}")
+                return None
+                
+            if len(df) < 100:
                 logger.warning(f"Dados insuficientes para {symbol}: {len(df)} registros")
                 return None
-            logger.info(f"✓ Dados suficientes para {symbol}: {len(df)} registros")
+            
+            # Verificar se as colunas essenciais existem
+            required_columns = ['open', 'high', 'low', 'close', 'volume']
+            missing_columns = [col for col in required_columns if col not in df.columns]
+            if missing_columns:
+                logger.error(f"Colunas faltantes no DataFrame para {symbol}: {missing_columns}")
+                return None
+            
+            # Verificar se há dados válidos (não NaN)
+            if df[required_columns].isnull().all().any():
+                logger.error(f"Dados contêm apenas valores NaN para {symbol}")
+                return None
+                
+            logger.info(f"✓ Dados válidos para {symbol}: {len(df)} registros")
             
             # Calcular indicadores técnicos
             logger.info(f"Calculando indicadores técnicos para {symbol}")
-            df = self.technical_indicators.calculate_all_indicators(df)
-            logger.info(f"✓ Indicadores técnicos calculados para {symbol}")
+            try:
+                df = self.technical_indicators.calculate_all_indicators(df)
+                if df is None or df.empty:
+                    logger.error(f"Falha ao calcular indicadores técnicos para {symbol}")
+                    return None
+                logger.info(f"✓ Indicadores técnicos calculados para {symbol}")
+            except Exception as e:
+                logger.error(f"Erro ao calcular indicadores técnicos para {symbol}: {e}")
+                return None
             
             # Análise de contexto de mercado
             logger.info(f"Analisando contexto de mercado para {symbol}")
-            market_context = self._analyze_market_context(symbol, timeframe)
-            logger.info(f"✓ Contexto de mercado analisado para {symbol}")
+            try:
+                market_context = self._analyze_market_context(symbol, timeframe)
+                logger.info(f"✓ Contexto de mercado analisado para {symbol}")
+            except Exception as e:
+                logger.error(f"Erro na análise de contexto para {symbol}: {e}")
+                market_context = {}
             
             # Análise técnica
             logger.info(f"Executando análise técnica para {symbol}")
-            technical_analysis = self._analyze_technical_indicators(df)  # Usando versão corrigida
-            logger.info(f"✓ Análise técnica: {technical_analysis['signal']} (confiança: {technical_analysis['confidence']:.2f})")
+            try:
+                technical_analysis = self._analyze_technical_indicators(df)
+                if not technical_analysis or 'signal' not in technical_analysis:
+                    logger.error(f"Análise técnica retornou resultado inválido para {symbol}")
+                    return None
+                logger.info(f"✓ Análise técnica: {technical_analysis['signal']} (confiança: {technical_analysis['confidence']:.2f})")
+            except Exception as e:
+                logger.error(f"Erro na análise técnica para {symbol}: {e}")
+                return None
             
             # Predição de IA
             logger.info(f"Executando predição de IA para {symbol}")
-            ai_prediction = self.ai_engine.predict_signal(df, symbol)
-            logger.info(f"✓ Predição de IA concluída para {symbol}")
+            try:
+                ai_prediction = self.ai_engine.predict_signal(df, symbol)
+                logger.info(f"✓ Predição de IA concluída para {symbol}")
+            except Exception as e:
+                logger.error(f"Erro na predição de IA para {symbol}: {e}")
+                ai_prediction = {'signal': 'hold', 'confidence': 0.0, 'reasons': []}
             
             # Análise de volume
             logger.info(f"Analisando volume para {symbol}")
@@ -193,7 +238,21 @@ class SignalGenerator:
             return signal
             
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
             logger.error(f"Erro ao gerar sinal para {symbol}: {e}")
+            logger.error(f"Detalhes do erro: {error_details}")
+            
+            # Tentar identificar o tipo específico do erro
+            if "KeyError" in str(e):
+                logger.error(f"Erro de chave faltante: {e}")
+            elif "AttributeError" in str(e):
+                logger.error(f"Erro de atributo: {e}")
+            elif "NoneType" in str(e):
+                logger.error(f"Erro de valor None: {e}")
+            elif "DataFrame" in str(e):
+                logger.error(f"Erro relacionado ao DataFrame: {e}")
+            
             return None
     
     def _is_in_cooldown(self, symbol: str) -> bool:

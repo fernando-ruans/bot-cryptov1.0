@@ -230,7 +230,7 @@ def api_close_trade():
         logger.info(f"🔒 Fechando trade: {trade_id}")
         
         # Fechar trade
-        success = paper_trading.close_trade(trade_id)
+        success = paper_trading.close_trade_manually(trade_id)
         
         if success:
             logger.info(f"✅ Trade {trade_id} fechado com sucesso")
@@ -252,16 +252,18 @@ def api_trading_history():
         # Converter trades para dicionários
         trades_data = []
         for trade in trades:
-            trades_data.append({
+            trade_dict = trade.to_dict() if hasattr(trade, 'to_dict') else {
                 'id': trade.id,
                 'symbol': trade.symbol,
-                'action': trade.action,
+                'trade_type': trade.trade_type,
                 'entry_price': trade.entry_price,
                 'exit_price': trade.exit_price,
-                'amount': trade.amount,                'pnl': trade.pnl or 0,
+                'pnl': trade.pnl or 0,
+                'pnl_percent': getattr(trade, 'pnl_percent', 0),
                 'status': trade.status,
                 'timestamp': trade.timestamp.isoformat()
-            })
+            }
+            trades_data.append(trade_dict)
         
         logger.info(f"📜 Histórico: {len(trades_data)} trades")
         return jsonify({
