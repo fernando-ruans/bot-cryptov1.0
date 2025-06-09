@@ -572,43 +572,111 @@ class SimpleTradingDashboard {
 
     displayTradesHistory(trades) {
         const tbody = document.querySelector('#tradesHistoryTable tbody');
+        const totalTradesCount = document.getElementById('totalTradesCount');
+        
+        // Atualizar contador de trades
+        if (totalTradesCount) {
+            totalTradesCount.textContent = `${trades.length} trade${trades.length !== 1 ? 's' : ''}`;
+        }
         
         if (trades.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted py-4">Nenhum trade realizado ainda</td></tr>';
+            tbody.innerHTML = `
+                <tr class="empty-state">
+                    <td colspan="11">
+                        <div class="text-center py-4">
+                            <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted mb-2">Nenhum trade realizado ainda</h6>
+                            <p class="text-muted small mb-0">Os trades aparecerão aqui quando forem executados</p>
+                        </div>
+                    </td>
+                </tr>
+            `;
             return;
         }
         
-        tbody.innerHTML = trades.slice(0, 20).map(trade => `
-            <tr>
-                <td><strong>${trade.symbol}</strong></td>
-                <td><span class="badge ${trade.trade_type === 'BUY' ? 'bg-success' : 'bg-danger'}">${trade.trade_type}</span></td>
-                <td>$${parseFloat(trade.entry_price).toFixed(2)}</td>
-                <td><span class="text-danger">${trade.stop_loss ? ((Math.abs(trade.stop_loss - trade.entry_price) / trade.entry_price) * 100).toFixed(1) + '%' : 'N/A'}</span></td>
-                <td><span class="text-success">${trade.take_profit ? ((Math.abs(trade.take_profit - trade.entry_price) / trade.entry_price) * 100).toFixed(1) + '%' : 'N/A'}</span></td>
-                <td>${trade.exit_price ? '$' + parseFloat(trade.exit_price).toFixed(2) : '-'}</td>
-                <td>
-                    <span class="fw-bold ${trade.pnl >= 0 ? 'text-success' : 'text-danger'}">
-                        ${trade.pnl >= 0 ? 'GANHO' : 'PERDA'} (${trade.pnl_percent ? trade.pnl_percent.toFixed(2) + '%' : '0%'})
-                    </span>
-                </td>
-                <td>
-                    <span class="badge bg-info">
-                        ${trade.signal_confidence ? (trade.signal_confidence * 100).toFixed(1) + '%' : 'N/A'}
-                    </span>
-                </td>
-                <td>
-                    <span class="badge ${trade.exit_reason === 'profit' ? 'bg-success' : trade.exit_reason === 'loss' ? 'bg-danger' : 'bg-secondary'}">
-                        ${trade.exit_reason ? (trade.exit_reason === 'profit' ? 'Take Profit' : trade.exit_reason === 'loss' ? 'Stop Loss' : trade.exit_reason === 'manual' ? 'Manual' : trade.exit_reason) : '-'}
-                    </span>
-                </td>
-                <td><small>${new Date(trade.timestamp).toLocaleString('pt-BR')}</small></td>
-                <td>
-                    <span class="badge ${trade.status === 'open' ? 'bg-warning' : trade.pnl >= 0 ? 'bg-success' : 'bg-danger'}">
-                        ${trade.status === 'open' ? 'Aberto' : (trade.pnl >= 0 ? 'Lucro' : 'Perda')}
-                    </span>
-                </td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = trades.slice(0, 20).map(trade => {
+            const pnlClass = trade.pnl > 0 ? 'pnl-positive' : trade.pnl < 0 ? 'pnl-negative' : 'pnl-neutral';
+            const pnlValue = trade.pnl ? parseFloat(trade.pnl).toFixed(2) : '0.00';
+            const pnlPercent = trade.pnl_percent ? trade.pnl_percent.toFixed(2) : '0.00';
+            const pnlSign = trade.pnl >= 0 ? '+' : '';
+            
+            return `
+                <tr class="trade-row">
+                    <td class="symbol-col">
+                        <strong class="text-primary">${trade.symbol}</strong>
+                    </td>
+                    <td class="action-col">
+                        <span class="trade-badge ${trade.trade_type === 'BUY' ? 'buy' : 'sell'}">
+                            ${trade.trade_type}
+                        </span>
+                    </td>
+                    <td class="price-col">
+                        <span class="fw-semibold">$${parseFloat(trade.entry_price).toFixed(4)}</span>
+                    </td>
+                    <td class="price-col">
+                        ${trade.stop_loss ? 
+                            `<span class="text-danger fw-semibold">$${parseFloat(trade.stop_loss).toFixed(4)}</span>` : 
+                            '<span class="text-muted">-</span>'
+                        }
+                    </td>
+                    <td class="price-col">
+                        ${trade.take_profit ? 
+                            `<span class="text-success fw-semibold">$${parseFloat(trade.take_profit).toFixed(4)}</span>` : 
+                            '<span class="text-muted">-</span>'
+                        }
+                    </td>
+                    <td class="price-col">
+                        ${trade.exit_price ? 
+                            `<span class="fw-semibold">$${parseFloat(trade.exit_price).toFixed(4)}</span>` : 
+                            '<span class="text-muted">-</span>'
+                        }
+                    </td>
+                    <td class="pnl-col">
+                        <div class="${pnlClass}">
+                            <div class="fw-bold">${pnlSign}$${pnlValue}</div>
+                            <small>(${pnlSign}${pnlPercent}%)</small>
+                        </div>
+                    </td>
+                    <td class="confidence-col">
+                        <span class="badge bg-info">
+                            ${trade.signal_confidence ? (trade.signal_confidence * 100).toFixed(0) + '%' : 'N/A'}
+                        </span>
+                    </td>
+                    <td class="reason-col">
+                        <span class="badge ${
+                            trade.exit_reason === 'profit' ? 'bg-success' : 
+                            trade.exit_reason === 'loss' ? 'bg-danger' : 
+                            trade.exit_reason === 'manual' ? 'bg-warning' : 
+                            'bg-secondary'
+                        }">
+                            ${
+                                trade.exit_reason === 'profit' ? 'Take Profit' :
+                                trade.exit_reason === 'loss' ? 'Stop Loss' :
+                                trade.exit_reason === 'manual' ? 'Manual' :
+                                trade.exit_reason || '-'
+                            }
+                        </span>
+                    </td>
+                    <td class="datetime-col">
+                        <div class="text-muted small">
+                            <div>${new Date(trade.timestamp).toLocaleDateString('pt-BR')}</div>
+                            <div>${new Date(trade.timestamp).toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})}</div>
+                        </div>
+                    </td>
+                    <td class="status-col">
+                        <span class="trade-badge ${
+                            trade.status === 'open' ? 'active' : 
+                            trade.pnl >= 0 ? 'buy' : 'sell'
+                        }">
+                            ${
+                                trade.status === 'open' ? 'Ativo' : 
+                                trade.pnl >= 0 ? 'Lucro' : 'Perda'
+                            }
+                        </span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }
 
     handlePriceUpdate(data) {
@@ -849,15 +917,25 @@ class SimpleTradingDashboard {
             'info': 'fa-info-circle'
         };
         return icons[type] || 'fa-info-circle';
-    }
-
-    async updateCurrentPrice() {
+    }    async updateCurrentPrice() {
         try {
-            const response = await fetch(`/api/price/${this.currentSymbol}`);
-            const data = await response.json();
+            // Usar endpoint de tempo real primeiro (muito mais rápido)
+            let response = await fetch(`/api/price/realtime/${this.currentSymbol}`);
+            let data = await response.json();
+            
+            // Se o endpoint tempo real falhou, usar o tradicional
+            if (!data.success) {
+                response = await fetch(`/api/price/${this.currentSymbol}`);
+                data = await response.json();
+            }
             
             if (data.success) {
                 this.displayCurrentPrice(data.price);
+                
+                // Log adicional para mostrar velocidade
+                if (data.source && data.age_seconds !== undefined) {
+                    console.log(`💰 Preço ${data.source}: ${this.currentSymbol} = $${data.price.toFixed(2)} (${data.age_seconds.toFixed(1)}s atrás)`);
+                }
             } else {
                 console.warn(`⚠️ Não foi possível obter preço para ${this.currentSymbol}`);
             }

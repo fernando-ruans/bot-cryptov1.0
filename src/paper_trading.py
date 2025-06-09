@@ -233,16 +233,24 @@ class PaperTradingManager:
             return None
     
     def update_prices(self):
-        """Atualiza preços de todos os trades ativos"""
+        """Atualiza preços de todos os trades ativos usando API de tempo real"""
         if not self.active_trades:
             return
+        
+        # Importar API de tempo real
+        from .realtime_price_api import realtime_price_api
         
         trades_to_close = []
         
         for trade_id, trade in self.active_trades.items():
             try:
-                # Obter preço atual
-                current_price = self.market_data.get_current_price(trade.symbol)
+                # Usar API de tempo real primeiro (muito mais rápido)
+                current_price = realtime_price_api.get_current_price(trade.symbol)
+                
+                # Se falhou, usar fallback tradicional
+                if current_price is None:
+                    current_price = self.market_data.get_current_price(trade.symbol)
+                
                 if current_price:
                     # Atualizar preço e verificar SL/TP
                     should_close = trade.update_current_price(current_price)
@@ -289,8 +297,13 @@ class PaperTradingManager:
         
         trade = self.active_trades[trade_id]
         
-        # Obter preço atual para fechamento
-        current_price = self.market_data.get_current_price(trade.symbol)
+        # Obter preço atual para fechamento usando API de tempo real
+        from .realtime_price_api import realtime_price_api
+        
+        current_price = realtime_price_api.get_current_price(trade.symbol)
+        if current_price is None:
+            current_price = self.market_data.get_current_price(trade.symbol)
+            
         if current_price:
             trade.update_current_price(current_price)
         

@@ -21,6 +21,7 @@ from src.signal_generator import SignalGenerator
 from src.database import DatabaseManager
 from src.config import Config
 from src.paper_trading import PaperTradingManager, AutoTradeMonitor
+from src.realtime_price_api import realtime_price_api
 
 # Configurar logging
 logging.basicConfig(
@@ -474,6 +475,46 @@ def get_current_price_endpoint(symbol):
         
     except Exception as e:
         logger.error(f"❌ Erro ao obter preço: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/price/realtime/<symbol>')
+def get_realtime_price_endpoint(symbol):
+    """Obter preço em tempo real ultra-rápido"""
+    try:
+        # Normalizar símbolo
+        symbol = symbol.upper()
+        
+        # Usar API otimizada diretamente
+        price_info = realtime_price_api.get_price_info(symbol)
+        
+        if price_info:
+            return jsonify({
+                'success': True,
+                'symbol': symbol,
+                'price': price_info['price'],
+                'timestamp': price_info['timestamp'],
+                'source': price_info['source'],
+                'age_seconds': price_info['age_seconds']
+            })
+        
+        # Fallback para API tradicional
+        current_price = realtime_price_api.get_current_price(symbol)
+        if current_price:
+            return jsonify({
+                'success': True,
+                'symbol': symbol,
+                'price': current_price,
+                'timestamp': datetime.now().isoformat(),
+                'source': 'fallback'
+            })
+        
+        return jsonify({
+            'success': False,
+            'error': f'Preço não disponível para {symbol}'
+        }), 404
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao obter preço tempo real: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 # ==================== ROTAS DEBUG ====================

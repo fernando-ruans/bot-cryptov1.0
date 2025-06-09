@@ -160,8 +160,13 @@ class SignalGenerator:
             logger.info(f"  - Score Mercado: {market_score:.2f}")
             logger.info(f"  - Confiança Final: {final_confidence:.2f}")
             
-            # Obter preço atual
-            current_price = self.market_data.get_current_price(symbol)
+            # Obter preço atual usando API de tempo real
+            from .realtime_price_api import realtime_price_api
+            
+            current_price = realtime_price_api.get_current_price(symbol)
+            if current_price is None:
+                current_price = self.market_data.get_current_price(symbol)
+                
             if current_price is None:
                 logger.error(f"Não foi possível obter preço atual para {symbol}")
                 raise ValueError(f"PRICE_ERROR:{symbol}")

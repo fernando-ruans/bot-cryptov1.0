@@ -14,6 +14,7 @@ import requests
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
+from .realtime_price_api import realtime_price_api
 
 logger = logging.getLogger(__name__)
 
@@ -75,8 +76,7 @@ class MarketDataManager:
                 'enableRateLimit': True,
                 'sandbox': False,
             })
-            
-            # Kraken público
+              # Kraken público
             self.exchanges['kraken'] = ccxt.kraken({
                 'enableRateLimit': True,
                 'sandbox': False,
@@ -94,11 +94,14 @@ class MarketDataManager:
         if self.is_running:
             return
             
+        # Iniciar API de preços em tempo real primeiro
+        realtime_price_api.start()
+        logger.info("🚀 API de preços em tempo real iniciada")
+        
         self.is_running = True
         self.update_thread = threading.Thread(target=self._data_update_loop)
         self.update_thread.daemon = True
         self.update_thread.start()
-        
         logger.info("Feed de dados iniciado")
     
     def stop_data_feed(self):
@@ -106,6 +109,10 @@ class MarketDataManager:
         self.is_running = False
         if self.update_thread:
             self.update_thread.join()
+        
+        # Parar API de preços em tempo real
+        realtime_price_api.stop()
+        
         logger.info("Feed de dados parado")
     
     def _data_update_loop(self):
@@ -431,8 +438,17 @@ class MarketDataManager:
         return self.data_cache.get(cache_key, pd.DataFrame())
     
     def get_current_price(self, symbol: str) -> Optional[float]:
-        """Obter preço atual"""
+        """Obter preço atual usando API otimizada"""
         try:
+            # 1. Tentar API em tempo real primeiro (muito mais rápida)
+            realtime_price = realtime_price_api.get_current_price(symbol)
+            if realtime_price is not None:
+                logger.debug(f"💰 Preço tempo real obtido: {symbol} = ${realtime_price:.6f}")
+                return realtime_price
+            
+            # 2. Fallback para método original se a API rápida falhar
+            logger.debug(f"⚠️ Fallback para método tradicional: {symbol}")
+            
             if self.demo_mode or 'binance' not in self.exchanges:
                 # Usar dados do cache ou gerar novos
                 cache_key = f"{symbol}_1h"
