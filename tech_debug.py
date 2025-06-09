@@ -42,17 +42,16 @@ try:
         print(f"Volume Spike: {latest['volume_ratio'] > 1.5}")
     else:
         print(f"Volume Spike: N/A")
-    
-    # AI Engine
+      # AI Engine
     print("\n🤖 Testando AI Engine...")
     ai_engine = AITradingEngine(config)
-    prediction = ai_engine.predict(df, 'BTCUSDT')
+    prediction = ai_engine.predict_signal(df_with_indicators, 'BTCUSDT')
     print(f"Predição AI: {prediction}")
-    
-    # Signal Generator
+      # Signal Generator
     print("\n🎯 Testando Signal Generator...")
     signal_gen = SignalGenerator(ai_engine, market_data)
-      # Verificar cooldown
+    
+    # Verificar cooldown
     print("Verificando cooldown...")
     is_in_cooldown = signal_gen._is_in_cooldown('BTCUSDT')
     print(f"Em cooldown: {is_in_cooldown}")
@@ -67,7 +66,8 @@ try:
     
     if signal is None:
         print("\n❌ NENHUM SINAL GERADO - Investigando motivos...")
-          # Verificar análise técnica detalhada
+        
+        # Verificar análise técnica detalhada
         print("\n🔍 Análise técnica detalhada:")
         print(f"  Força dos sinais: {signal_strength}")
           # Verificar thresholds
