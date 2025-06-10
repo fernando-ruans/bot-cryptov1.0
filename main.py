@@ -58,6 +58,33 @@ paper_trading = PaperTradingManager(market_data, realtime_updates)
 from src.signal_generator import set_socketio_instance
 set_socketio_instance(socketio)
 
+# Conectar RealTimePriceAPI ao sistema WebSocket
+def price_update_callback(symbol: str, price: float):
+    """Callback para conectar preços em tempo real ao WebSocket"""
+    try:
+        # Preparar dados de preço para broadcast
+        price_data = {
+            'price': price,
+            'change_24h': 0,  # Pode ser expandido futuramente
+            'change_percent': 0,
+            'volume': 0,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        # Transmitir via WebSocket para todos os clientes conectados
+        realtime_updates.broadcast_price_update(symbol, price_data)
+        
+    except Exception as e:
+        logger.error(f"❌ Erro no callback de preços: {e}")
+
+# Adicionar callback ao sistema de preços em tempo real
+realtime_price_api.add_callback(price_update_callback)
+
+# Iniciar sistema de preços em tempo real
+realtime_price_api.start()
+
+logger.info("🔗 Sistema de preços conectado ao WebSocket")
+
 class SimpleTradingBot:
     """Bot de Trading Simplificado"""
     def __init__(self):
@@ -73,6 +100,13 @@ class SimpleTradingBot:
         market_data.start_data_feed()
         ai_engine.load_models()
         
+        # Configurar eventos do WebSocket
+        realtime_updates.setup_events()
+          # Garantir que o sistema de preços em tempo real esteja ativo
+        if not realtime_price_api.running:
+            realtime_price_api.start()
+            logger.info("🚀 Sistema de preços em tempo real iniciado")
+        
         logger.info("✅ Trading Bot AI iniciado com sucesso!")
         
     def stop(self):
@@ -80,6 +114,10 @@ class SimpleTradingBot:
         logger.info("⏹️ Parando Trading Bot AI...")
         self.is_running = False
         market_data.stop_data_feed()
+        
+        # Parar sistema de preços em tempo real
+        realtime_price_api.stop()
+        logger.info("⏹️ Sistema de preços em tempo real parado")
         
     def get_status(self):
         """Status do bot"""
@@ -90,6 +128,39 @@ class SimpleTradingBot:
 
 # Instância global do bot
 trading_bot = SimpleTradingBot()
+
+def sync_active_trade_symbols():
+    """Sincronizar símbolos de trades ativos com sistema de preços em tempo real"""
+    try:
+        # Obter trades ativos do paper trading
+        active_trades = paper_trading.get_active_trades()
+        
+        if active_trades:
+            # Extrair símbolos únicos dos trades ativos
+            active_symbols = list(set([trade.get('symbol', 'BTCUSDT') for trade in active_trades]))
+            
+            # Garantir que pelo menos um símbolo padrão esteja incluído
+            if 'BTCUSDT' not in active_symbols:
+                active_symbols.append('BTCUSDT')
+            
+            # Iniciar monitoramento dos símbolos ativos
+            realtime_updates.start_price_updates(active_symbols)
+            
+            logger.info(f"🔄 Monitoramento de preços sincronizado para {len(active_symbols)} símbolos: {active_symbols}")
+            
+            return active_symbols
+        else:
+            # Se não há trades ativos, monitorar símbolos padrão
+            default_symbols = ['BTCUSDT', 'ETHUSDT']
+            realtime_updates.start_price_updates(default_symbols)
+            
+            logger.info(f"🔄 Nenhum trade ativo, monitorando símbolos padrão: {default_symbols}")
+            
+            return default_symbols
+            
+    except Exception as e:
+        logger.error(f"❌ Erro ao sincronizar símbolos de trades ativos: {e}")
+        return ['BTCUSDT']  # Fallback para símbolo padrão
 
 def convert_hold_to_signal(signal, symbol, timeframe):
     """Converter sinal HOLD em BUY ou SELL baseado em análise simples"""
@@ -431,12 +502,18 @@ def api_confirm_signal():
             return jsonify({'success': False, 'error': 'Sinal não fornecido'}), 400
         
         logger.info(f"✅ Confirmando sinal: {signal['signal_type']} {signal['symbol']}")
-        
-        # Confirmar sinal no paper trading
+          # Confirmar sinal no paper trading
         trade = paper_trading.confirm_signal(signal, amount)
         
         if trade:
             logger.info(f"📈 Trade aberto: {trade.id}")
+            
+            # Sincronizar símbolos de trades ativos com sistema de preços
+            try:
+                sync_active_trade_symbols()
+            except Exception as sync_error:
+                logger.warning(f"⚠️ Erro ao sincronizar símbolos: {sync_error}")
+            
             return jsonify({
                 'success': True,
                 'message': 'Trade confirmado',
@@ -499,12 +576,18 @@ def api_close_trade():
             return jsonify({'success': False, 'error': 'ID do trade não fornecido'}), 400
         
         logger.info(f"🔒 Fechando trade: {trade_id}")
-        
-        # Fechar trade
+          # Fechar trade
         success = paper_trading.close_trade_manually(trade_id)
         
         if success:
             logger.info(f"✅ Trade {trade_id} fechado com sucesso")
+            
+            # Sincronizar símbolos de trades ativos com sistema de preços
+            try:
+                sync_active_trade_symbols()
+            except Exception as sync_error:
+                logger.warning(f"⚠️ Erro ao sincronizar símbolos: {sync_error}")
+            
             return jsonify({'success': True, 'message': 'Trade fechado'})
         else:
             return jsonify({'success': False, 'error': 'Trade não encontrado'}), 404
@@ -821,24 +904,22 @@ def api_stop_realtime():
             'error': str(e)
         }), 500
 
-@app.route('/api/realtime/status')
-def api_realtime_status():
-    """API para verificar status das atualizações em tempo real"""
+@app.route('/api/realtime/sync-symbols', methods=['POST'])
+def api_sync_realtime_symbols():
+    """API para sincronizar símbolos de trades ativos com sistema de preços"""
     try:
-        status = {
-            'active': realtime_updates.is_active,
-            'connected_clients': len(realtime_updates.connected_clients),
-            'active_subscriptions': len(realtime_updates.subscribed_symbols) if realtime_updates.subscribed_symbols else 0,
-            'symbols': list(realtime_updates.subscribed_symbols.keys()) if realtime_updates.subscribed_symbols else []
-        }
+        # Sincronizar símbolos automaticamente
+        active_symbols = sync_active_trade_symbols()
         
         return jsonify({
             'success': True,
-            'status': status
+            'message': 'Símbolos sincronizados com trades ativos',
+            'symbols': active_symbols,
+            'count': len(active_symbols)
         })
         
     except Exception as e:
-        logger.error(f"❌ Erro ao obter status em tempo real: {e}")
+        logger.error(f"❌ Erro ao sincronizar símbolos: {e}")
         return jsonify({
             'success': False,
             'error': str(e)
