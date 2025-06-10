@@ -177,9 +177,7 @@ class PaperTradingManager:
         self.active_trades: Dict[str, PaperTrade] = {}
         self.trade_history: List[PaperTrade] = []
         
-        # Thread de monitoramento
-        self._monitor_thread = None
-        self._monitor_running = False
+        # Thread de monitoramento        self._monitor_thread = None        self._monitor_running = False
         
         logger.info(f"📊 Paper Trading Manager inicializado com ${initial_balance:.2f}")
     
@@ -200,7 +198,18 @@ class PaperTradingManager:
                 return None
             
             # Calcular quantidade baseada no valor
+            # ⭐ GARANTIR QUE AMOUNT E ENTRY_PRICE SEJAM VÁLIDOS
+            if amount <= 0:
+                logger.error(f"❌ Amount inválido: {amount}")
+                return None
+                
             quantity = amount / entry_price
+              # ⭐ VALIDAÇÃO ADICIONAL DA QUANTIDADE
+            if quantity <= 0:
+                logger.error(f"❌ Quantidade calculada inválida: {quantity} (amount: {amount}, entry_price: {entry_price})")
+                return None
+            
+            logger.info(f"💰 Quantidade calculada: {quantity:.8f} (${amount} / ${entry_price})")
             
             # Criar trade
             trade = PaperTrade(

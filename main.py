@@ -532,26 +532,18 @@ def api_portfolio():
     try:
         portfolio = paper_trading.get_portfolio_stats()
         active_trades = paper_trading.get_active_trades()
-        
-        # Converter trades ativos para dicionários
+          # Usar dados completos dos trades e apenas atualizar preços atuais
         active_trades_data = []
         for trade in active_trades:
-            current_price = market_data.get_current_price(trade['symbol'])
+            # Usar o dicionário completo do trade
+            trade_data = trade.copy()
             
-            active_trades_data.append({
-                'id': trade['id'],
-                'symbol': trade['symbol'],
-                'trade_type': trade['trade_type'],
-                'entry_price': trade['entry_price'],
-                'current_price': current_price or trade['current_price'],
-                'stop_loss': trade.get('stop_loss'),
-                'take_profit': trade.get('take_profit'),
-                'signal_confidence': trade.get('signal_confidence'),
-                'pnl': trade['pnl'],
-                'pnl_percent': trade['pnl_percent'],
-                'timestamp': trade['timestamp'],
-                'status': trade['status']
-            })
+            # Atualizar preço atual se disponível
+            current_price = market_data.get_current_price(trade['symbol'])
+            if current_price:
+                trade_data['current_price'] = current_price
+            
+            active_trades_data.append(trade_data)
         
         logger.info(f"📊 Portfolio: {portfolio['total_trades']} trades, {portfolio['win_rate']:.1f}% win rate")
         
@@ -618,16 +610,47 @@ def api_trading_history():
                 'timestamp': trade.timestamp.isoformat()
             }
             trades_data.append(trade_dict)
-        
-        logger.info(f"📜 Histórico: {len(trades_data)} trades")
+
         return jsonify({
             'success': True,
             'trades': trades_data,
-            'count': len(trades_data)
+            'total': len(trades_data)
         })
         
     except Exception as e:
         logger.error(f"❌ Erro ao obter histórico: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/paper_trading/update_prices', methods=['POST'])
+def api_update_prices():
+    """Forçar atualização manual de preços dos trades ativos"""
+    try:
+        logger.info("🔄 Forçando atualização manual de preços...")
+        
+        # Contar trades antes da atualização
+        trades_before = len(paper_trading.active_trades)
+        
+        # Executar atualização de preços
+        paper_trading.update_prices()
+        
+        # Contar trades após a atualização
+        trades_after = len(paper_trading.active_trades)
+        
+        # Verificar se algum trade foi fechado
+        trades_closed = trades_before - trades_after
+        
+        logger.info(f"✅ Atualização concluída: {trades_before} → {trades_after} trades ativos")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Preços atualizados. {trades_closed} trades finalizados.',
+            'trades_before': trades_before,
+            'trades_after': trades_after,
+            'trades_closed': trades_closed
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro na atualização de preços: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/api/price/<symbol>')
