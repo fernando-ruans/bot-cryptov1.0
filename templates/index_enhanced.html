@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Bot AI - Enhanced Dashboard</title>    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/enhanced-animations.css') }}" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a1d29;
+            --secondary-color: #2d3748;
+            --accent-color: #4f46e5;
+            --accent-light: #6366f1;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --light-color: #f8fafc;
+            --dark-color: #0f172a;
+            --surface-color: #ffffff;
+            --border-color: #e2e8f0;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --gradient-primary: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+            --gradient-success: linear-gradient(135deg, #10b981, #059669);
+            --gradient-danger: linear-gradient(135deg, #ef4444, #dc2626);
+            --gradient-surface: linear-gradient(135deg, #ffffff, #f8fafc);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: var(--gradient-primary);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar-brand i {
+            background: linear-gradient(45deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-right: 0.75rem;
+            font-size: 1.75rem;
+        }
+
+        .navbar-text {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--gradient-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-color);
+        }
+
+        .card-header {
+            background: var(--gradient-primary);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 1.25rem 1.5rem;
+            border-radius: 20px 20px 0 0 !important;
+        }
+
+        .card-header h5 {
+            margin: 0;
+            font-size: 1.1rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        /* Enhanced Stats Cards */
+        .stat-card {
+            background: var(--gradient-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card h4 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-card h6 {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .stat-icon {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            opacity: 0.1;
+            color: var(--accent-color);
+        }
+
+        /* Enhanced Buttons */
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.39);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-success {
+            background: var(--gradient-success);
+            box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.39);
+        }
+
+        .btn-danger {
+            background: var(--gradient-danger);
+            box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.39);
+        }
+
+        .btn-lg {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            border-radius: 15px;
+        }
+
+        /* Enhanced Chart Container */
+        .chart-container {
+            height: 600px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+        }        /* Enhanced Asset Selector */
+        .asset-selector-container {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid var(--accent-color);
+            border-radius: 15px;
+            padding: 1rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .asset-selector-container:hover {
+            border-color: var(--accent-light);
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .form-select {
+            border-radius: 12px;
+            border: 2px solid var(--accent-color);
+            padding: 0.875rem 1.25rem;
+            font-weight: 700;
+            font-size: 1.1rem;
+            background: linear-gradient(135deg, #ffffff, #f8fafc);
+            color: var(--primary-color);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            min-width: 160px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-select:focus {
+            border-color: var(--accent-light);
+            box-shadow: 0 0 0 0.3rem rgba(79, 70, 229, 0.25), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #ffffff, #f1f5f9);
+            transform: translateY(-1px);
+            outline: none;
+        }
+
+        .form-select:hover {
+            border-color: var(--accent-light);
+            background: linear-gradient(135deg, #ffffff, #f1f5f9);
+            transform: translateY(-1px);
+        }        .form-select option {
+            padding: 0.875rem;
+            font-weight: 700;
+            background-color: white;
+            color: var(--primary-color);
+            font-size: 1.1rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-select optgroup {
+            font-weight: 800;
+            color: var(--accent-color);
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.5rem;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Estilo especial para labels dos seletores */
+        .asset-selector-container .form-label {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Melhorar contraste do texto selecionado */
+        .form-select:focus option:checked,
+        .form-select option:checked {
+            background: var(--gradient-primary) !important;
+            color: white !important;
+            font-weight: 800 !important;
+        }
+
+        /* Adicionar ícone personalizado ao select */
+        .form-select {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%234f46e5' d='m2 0-2 2h4zm0 5 2-2h-4z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 16px 12px;
+        }
+
+        /* Signal Card */
+        .signal-card {
+            background: linear-gradient(135deg, #fef3c7, #fed7aa);
+            border: 2px solid var(--warning-color);
+            border-radius: 20px;
+            animation: signalPulse 2s infinite;
+        }
+
+        @keyframes signalPulse {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        .signal-card.buy {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            border-color: var(--success-color);
+        }
+
+        .signal-card.sell {
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border-color: var(--danger-color);
+        }
+
+        /* Enhanced Table */
+        .table {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .table thead th {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+            padding: 1rem;
+        }
+
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(79, 70, 229, 0.05);
+            transform: scale(1.01);
+        }
+
+        .table td {
+            padding: 1rem;
+            border-color: var(--border-color);
+            vertical-align: middle;
+        }
+
+        /* Enhanced Badges */
+        .badge {
+            padding: 0.5rem 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge.bg-success {
+            background: var(--gradient-success) !important;
+        }
+
+        .badge.bg-danger {
+            background: var(--gradient-danger) !important;
+        }
+
+        /* Status Indicator */
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            position: relative;
+        }
+
+        .status-running {
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+
+        .status-stopped {
+            background: var(--danger-color);
+        }
+
+        @keyframes pulse {
+            0% { 
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% { 
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+            100% { 
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        /* Trade Cards */
+        .trade-card {
+            background: var(--gradient-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .trade-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .trade-card .profit-indicator {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .trade-card .loss-indicator {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        /* Price Display */
+        .price-display {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .price-up {
+            color: var(--success-color);
+            animation: priceFlash 0.6s ease-in-out;
+        }
+
+        .price-down {
+            color: var(--danger-color);
+            animation: priceFlashRed 0.6s ease-in-out;
+        }
+
+        @keyframes priceFlash {
+            0% { background-color: rgba(16, 185, 129, 0.2); transform: scale(1); }
+            50% { background-color: rgba(16, 185, 129, 0.4); transform: scale(1.02); }
+            100% { background-color: transparent; transform: scale(1); }
+        }
+
+        @keyframes priceFlashRed {
+            0% { background-color: rgba(239, 68, 68, 0.2); transform: scale(1); }
+            50% { background-color: rgba(239, 68, 68, 0.4); transform: scale(1.02); }
+            100% { background-color: transparent; transform: scale(1); }
+        }
+
+        /* Notifications */
+        .notification {
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 1rem;
+        }
+
+        /* Dark Mode Support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --surface-color: #1e293b;
+                --text-primary: #f1f5f9;
+                --text-secondary: #94a3b8;
+                --border-color: #334155;
+                --light-color: #0f172a;
+            }
+            
+            body {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            }
+        }        /* Responsive Design */
+        @media (max-width: 768px) {
+            .card-body {
+                padding: 1rem;
+            }
+            
+            .stat-card {
+                padding: 1.5rem 1rem;
+            }
+            
+            .stat-card h4 {
+                font-size: 2rem;
+            }
+            
+            .chart-container {
+                height: 400px;
+            }
+            
+            .btn {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }            .asset-selector-container {
+                padding: 0.75rem;
+                margin-bottom: 1rem;
+                background: rgba(255, 255, 255, 0.98);
+                border: 3px solid var(--accent-color);
+            }
+
+            .form-select {
+                font-size: 1rem;
+                padding: 0.75rem 1rem;
+                min-width: 140px;
+                font-weight: 700;
+            }
+
+            .card-header .d-flex {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .card-header .d-flex > h5 {
+                margin-bottom: 0;
+                text-align: center;
+            }
+
+            .asset-selector-container .form-label {
+                font-size: 0.8rem;
+                margin-bottom: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .asset-selector-container {
+                width: 100%;
+                margin-bottom: 0.75rem;
+                padding: 1rem;
+            }
+
+            .form-select {
+                width: 100%;
+                min-width: auto;
+                font-size: 1.1rem;
+                padding: 1rem;
+                text-align: center;
+            }
+
+            .d-flex.gap-3 {
+                flex-direction: column;
+                gap: 0.75rem !important;
+            }
+
+            .asset-selector-container .form-label {
+                text-align: center;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Efeito especial quando o select está ativo */
+        .form-select:active {
+            transform: scale(1.02);
+            border-color: var(--accent-light);
+            box-shadow: 0 0 0 0.4rem rgba(79, 70, 229, 0.3);
+        }
+
+        /* Animação de entrada para os seletores */
+        .asset-selector-container {
+            animation: slideInFromTop 0.6s ease-out;
+        }
+
+        @keyframes slideInFromTop {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Loading Animations */
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Enhanced Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--light-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-light);
+        }
+    </style>
+</head>
+<body>
+    <!-- Enhanced Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-robot"></i>
+                Trading Bot AI - Enhanced
+            </a>
+            <div class="ms-auto d-flex align-items-center">
+                <span class="navbar-text me-4">
+                    <i class="fas fa-chart-line me-2"></i>
+                    <strong id="navCurrentAsset" class="price-display">BTCUSDT</strong>
+                    <span class="ms-2 price-display" id="navCurrentPrice">$0.00</span>
+                </span>
+                <span class="navbar-text">
+                    <span class="status-indicator" id="botStatus"></span>
+                    Status: <span id="botStatusText">Carregando...</span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <!-- Enhanced Stats Section -->
+        <div class="row mb-5">
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-chart-bar stat-icon"></i>
+                    <h4 id="totalTrades">0</h4>
+                    <h6>Total de Trades</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-percentage stat-icon"></i>
+                    <h4 id="winRate">0%</h4>
+                    <h6>Taxa de Acerto</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-dollar-sign stat-icon"></i>
+                    <h4 id="totalPnL">R$ 0,00</h4>
+                    <h6>P&L Total</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="stat-card">
+                    <i class="fas fa-clock stat-icon"></i>
+                    <h4 id="activeTrades">0</h4>
+                    <h6>Trades Ativos</h6>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Enhanced Chart Section -->
+            <div class="col-lg-8 mb-4">
+                <div class="card">                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>
+                            <i class="fas fa-chart-candlestick me-2"></i>
+                            Análise Técnica - <span id="currentAsset">BTCUSDT</span>
+                        </h5><div class="d-flex gap-3 align-items-center">
+                            <!-- Asset Selector -->
+                            <div class="asset-selector-container">
+                                <label for="assetSelector" class="form-label text-white fw-bold mb-2">
+                                    <i class="fas fa-coins me-1"></i>Ativo
+                                </label>
+                                <select id="assetSelector" class="form-select">
+                                    <optgroup label="📈 Principais">
+                                        <option value="BTCUSDT" selected>BTC/USDT</option>
+                                        <option value="ETHUSDT">ETH/USDT</option>
+                                        <option value="BNBUSDT">BNB/USDT</option>
+                                        <option value="ADAUSDT">ADA/USDT</option>
+                                        <option value="SOLUSDT">SOL/USDT</option>
+                                    </optgroup>
+                                    <optgroup label="🔥 Populares">
+                                        <option value="XRPUSDT">XRP/USDT</option>
+                                        <option value="DOTUSDT">DOT/USDT</option>
+                                        <option value="LINKUSDT">LINK/USDT</option>
+                                        <option value="MATICUSDT">MATIC/USDT</option>
+                                        <option value="AVAXUSDT">AVAX/USDT</option>
+                                        <option value="LTCUSDT">LTC/USDT</option>
+                                        <option value="UNIUSDT">UNI/USDT</option>
+                                        <option value="ATOMUSDT">ATOM/USDT</option>
+                                        <option value="ALGOUSDT">ALGO/USDT</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <!-- Timeframe Selector -->
+                            <div class="asset-selector-container">
+                                <label for="timeframeSelector" class="form-label text-white fw-bold mb-2">
+                                    <i class="fas fa-clock me-1"></i>Período
+                                </label>
+                                <select id="timeframeSelector" class="form-select">
+                                    <option value="1m">1 Minuto</option>
+                                    <option value="5m" selected>5 Minutos</option>
+                                    <option value="15m">15 Minutos</option>
+                                    <option value="30m">30 Minutos</option>
+                                    <option value="1h">1 Hora</option>
+                                    <option value="4h">4 Horas</option>
+                                    <option value="1d">1 Dia</option>
+                                    <option value="1w">1 Semana</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="tradingview_chart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Control Panel -->
+            <div class="col-lg-4">
+                <!-- Signal Generator -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-brain me-2"></i>Gerador de Sinais IA</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div id="signalContent" style="display: none;">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Analisando mercado...
+                            </div>
+                        </div>
+                        <div id="signalActions" style="display: none;">
+                            <button id="executeSignalBtn" class="btn btn-success btn-lg w-100 mb-3">
+                                <i class="fas fa-rocket me-2"></i>Executar Trade
+                            </button>
+                        </div>
+                        <button id="generateSignalBtn" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-magic me-2"></i>Gerar Sinal Inteligente
+                        </button>
+                        <p class="text-muted mt-3 mb-0 small">
+                            <i class="fas fa-lightbulb me-1"></i>
+                            IA analisa múltiplos indicadores técnicos
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Current Signal Display -->
+                <div id="currentSignalCard" class="card signal-card mb-4" style="display: none;">
+                    <div class="card-header">
+                        <h5><i class="fas fa-bell me-2"></i>Sinal Detectado</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <strong>Ação:</strong><br>
+                                <span id="signalAction" class="badge fs-6">-</span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Preço:</strong><br>
+                                <span id="signalPrice" class="fw-bold price-display">-</span>
+                            </div>
+                        </div>
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <strong>Símbolo:</strong><br>
+                                <span id="signalSymbol" class="fw-bold">-</span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Confiança:</strong><br>
+                                <span id="signalConfidence" class="badge bg-info fs-6">-</span>
+                            </div>
+                        </div>
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <strong>Stop Loss:</strong><br>
+                                <span id="signalStopLoss" class="text-danger fw-bold price-display">-</span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Take Profit:</strong><br>
+                                <span id="signalTakeProfit" class="text-success fw-bold price-display">-</span>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button id="confirmSignalBtn" class="btn btn-success">
+                                <i class="fas fa-check me-2"></i>Confirmar Trade
+                            </button>
+                            <button id="rejectSignalBtn" class="btn btn-danger">
+                                <i class="fas fa-times me-2"></i>Rejeitar Sinal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Trades -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5><i class="fas fa-chart-area me-2"></i>Trades Ativos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="activeTradesList">
+                            <div class="text-center text-muted py-4">
+                                <i class="fas fa-chart-line fa-2x mb-3 opacity-50"></i>
+                                <p>Nenhum trade ativo no momento</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Enhanced Trade History -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-history me-2"></i>Histórico de Operações</h5>
+                        <button id="refreshHistoryBtn" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-sync-alt me-1"></i>Atualizar
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="tradesHistoryTable" class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-coins me-1"></i>Símbolo</th>
+                                        <th><i class="fas fa-exchange-alt me-1"></i>Ação</th>
+                                        <th><i class="fas fa-arrow-right me-1"></i>Entrada</th>
+                                        <th><i class="fas fa-shield-alt me-1"></i>Stop Loss</th>
+                                        <th><i class="fas fa-target me-1"></i>Take Profit</th>
+                                        <th><i class="fas fa-arrow-left me-1"></i>Saída</th>
+                                        <th><i class="fas fa-chart-line me-1"></i>P&L</th>
+                                        <th><i class="fas fa-brain me-1"></i>Confiança</th>
+                                        <th><i class="fas fa-info me-1"></i>Motivo</th>
+                                        <th><i class="fas fa-clock me-1"></i>Data/Hora</th>
+                                        <th><i class="fas fa-flag me-1"></i>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="11" class="text-center text-muted py-4">
+                                            <i class="fas fa-chart-bar fa-2x mb-3 opacity-50"></i>
+                                            <br>Nenhum trade realizado ainda
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Notification Container -->
+    <div id="notificationContainer" style="position: fixed; top: 20px; right: 20px; z-index: 1060; max-width: 400px;"></div>    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/enhanced-features.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        // Enhanced initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Inicializando Enhanced Trading Dashboard...');
+            window.dashboard = new SimpleTradingDashboard();
+            
+            // Add some enhanced features
+            addEnhancedFeatures();
+        });
+
+        function addEnhancedFeatures() {
+            // Add loading states to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Add smooth transitions to stats
+            const stats = document.querySelectorAll('.stat-card h4');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animation = 'countUp 1s ease-out';
+                    }
+                });
+            });
+            
+            stats.forEach(stat => observer.observe(stat));
+
+            // Enhanced price updates with animations
+            const originalUpdatePrice = window.dashboard?.updatePriceDisplay;
+            if (originalUpdatePrice) {
+                window.dashboard.updatePriceDisplay = function(price) {
+                    originalUpdatePrice.call(this, price);
+                    
+                    // Add enhanced visual feedback
+                    const priceElements = document.querySelectorAll('.price-display');
+                    priceElements.forEach(el => {
+                        el.style.transition = 'all 0.3s ease';
+                        el.style.transform = 'scale(1.05)';
+                        setTimeout(() => {
+                            el.style.transform = 'scale(1)';
+                        }, 300);
+                    });
+                };
+            }
+        }
+
+        // Add CSS animation for count up effect
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes countUp {
+                from { 
+                    opacity: 0; 
+                    transform: translateY(20px) scale(0.8); 
+                }
+                to { 
+                    opacity: 1; 
+                    transform: translateY(0) scale(1); 
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

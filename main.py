@@ -252,7 +252,7 @@ def convert_hold_to_signal(signal, symbol, timeframe):
 @app.route('/')
 def index():
     """Dashboard Principal"""
-    return render_template('index.html')
+    return render_template('index_enhanced.html')
 
 # ==================== APIS ESSENCIAIS ====================
 

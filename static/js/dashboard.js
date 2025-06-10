@@ -312,12 +312,11 @@ class SimpleTradingDashboard {    constructor() {
             });
 
             const data = await response.json();
-            
-            if (data.success && data.signal) {
+              if (data.success && data.signal) {
                 console.log('✅ Sinal gerado:', data.signal);
                 this.currentSignal = data.signal;
                 this.displayCurrentSignal(data.signal);
-                this.showAlert(`Novo sinal detectado: ${data.signal.signal_type} ${data.signal.symbol}`, 'success');
+                // Removido: notificação duplicada - será exibida via WebSocket
             } else {
                 console.error('❌ Erro ao gerar sinal:', data.error);
                 this.showSpecificErrorAlert(data.error, data.error_type);
@@ -763,28 +762,29 @@ class SimpleTradingDashboard {    constructor() {
         } else if (data.type === 'take_profit_hit') {
             this.showNotification(`🎯 Take Profit atingido para ${data.symbol}`, 'success');
         }
-    }
-
-    // Novas funções para notificações em tempo real
+    }    // Novas funções para notificações em tempo real
     handleNewSignal(data) {
         console.log('🎯 Novo sinal recebido:', data);
         
-        const confidence = (data.confidence * 100).toFixed(1);
-        const signalType = data.signal_type.toUpperCase();
-        
-        this.showNotification(
-            `🎯 NOVO SINAL: ${signalType} ${data.symbol} | Confiança: ${confidence}% | Preço: $${data.entry_price}`,
-            'info',
-            true // Duração extendida
-        );
-        
-        // Auto-refresh se for o ativo atual
+        // Só mostrar notificação se for para o ativo atual
         if (data.symbol === this.currentSymbol) {
+            const confidence = (data.confidence * 100).toFixed(1);
+            const signalType = data.signal_type.toUpperCase();
+            
+            this.showNotification(
+                `🎯 NOVO SINAL: ${signalType} ${data.symbol} | Confiança: ${confidence}% | Preço: $${data.entry_price}`,
+                'info',
+                true // Duração extendida
+            );
+            
+            // Auto-refresh do portfolio
             setTimeout(() => {
                 this.loadPortfolio();
             }, 1000);
+        } else {
+            console.log(`📊 Sinal recebido para ${data.symbol}, mas ativo atual é ${this.currentSymbol} - notificação suprimida`);
         }
-    }    handleTradeOpened(data) {
+    }handleTradeOpened(data) {
         console.log('📊 Trade aberto:', data);
         
         this.showNotification(
@@ -1221,17 +1221,54 @@ class SimpleTradingDashboard {    constructor() {
             
             // Forex e Índices removidos - sistema agora suporta apenas crypto
         };
-    }
-
-    changeAsset(newSymbol) {
+    }    changeAsset(newSymbol) {
         console.log(`🔄 Mudando ativo para: ${newSymbol}`);
+        
+        // Validar se o símbolo é diferente do atual
+        if (this.currentSymbol === newSymbol) {
+            console.log('⚠️ Ativo já selecionado, ignorando mudança');
+            return;
+        }
+        
+        // Mostrar loading no gráfico
+        const chartContainer = document.getElementById('tradingview_chart');
+        if (chartContainer) {
+            chartContainer.innerHTML = `
+                <div class="d-flex justify-content-center align-items-center h-100">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                        <p class="text-muted">Carregando gráfico de ${newSymbol}...</p>
+                    </div>
+                </div>
+            `;
+        }
         
         this.currentSymbol = newSymbol;
         
-        // Atualizar interface
-        document.getElementById('currentSymbol').textContent = newSymbol;
-        document.getElementById('navCurrentAsset').textContent = newSymbol;
-        document.getElementById('selectedAssetBadge').textContent = newSymbol;
+        // Atualizar interface com animação
+        const updateElement = (id, value) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.style.transition = 'all 0.3s ease';
+                element.style.transform = 'scale(1.05)';
+                element.textContent = value;
+                setTimeout(() => {
+                    element.style.transform = 'scale(1)';
+                }, 300);
+            }
+        };
+        
+        updateElement('currentSymbol', newSymbol);
+        updateElement('navCurrentAsset', newSymbol);
+        updateElement('selectedAssetBadge', newSymbol);
+        
+        // Atualizar título do card do gráfico
+        const chartTitle = document.querySelector('.card-header h5');
+        if (chartTitle) {
+            chartTitle.innerHTML = `<i class="fas fa-chart-candlestick me-2"></i>Análise Técnica - ${newSymbol}`;
+        }
         
         // Atualizar gráfico TradingView
         this.updateTradingViewChart(newSymbol);
@@ -1240,13 +1277,20 @@ class SimpleTradingDashboard {    constructor() {
         this.clearCurrentSignal();
         
         // Reiniciar atualização de preços para o novo ativo
-        this.startPriceUpdates();
+        this.stopPriceUpdates();
+        setTimeout(() => {
+            this.startPriceUpdates();
+        }, 1000);
         
         // Recarregar dados do portfolio para o novo ativo
         this.loadPortfolio();
         this.loadActiveTradesStatus();
         
-        this.showAlert(`Ativo alterado para ${newSymbol}`, 'info');
+        // Mostrar notificação com ícone do ativo
+        this.showNotification(`📈 Ativo alterado para ${newSymbol}`, 'success');
+        
+        // Log para debugging
+        console.log(`✅ Ativo alterado com sucesso para: ${newSymbol}`);
     }
 
     changeTimeframe(newTimeframe) {
@@ -1273,25 +1317,36 @@ class SimpleTradingDashboard {    constructor() {
             '1w': 'W'
         };
         return timeframeMapping[timeframe] || '5';
-    }
-
-    updateTradingViewChart(symbol) {
+    }    updateTradingViewChart(symbol) {
         const symbolMapping = this.getSymbolMapping();
         const tradingViewSymbol = symbolMapping[symbol] || `BINANCE:${symbol}`;
         const tradingViewTimeframe = this.convertTimeframeForTradingView(this.currentTimeframe);
         
         console.log(`📈 Atualizando gráfico: ${symbol} -> ${tradingViewSymbol}, timeframe: ${this.currentTimeframe} -> ${tradingViewTimeframe}`);
         
-        // Remover widget existente
+        // Remover widget existente com transição suave
         if (this.tradingViewWidget) {
             const container = document.getElementById('tradingview_chart');
-            container.innerHTML = '';
+            if (container) {
+                container.style.opacity = '0.5';
+                container.style.transition = 'opacity 0.3s ease';
+                
+                setTimeout(() => {
+                    container.innerHTML = '';
+                    this.createTradingViewWidget(tradingViewSymbol, tradingViewTimeframe, container);
+                }, 300);
+            }
+        } else {
+            const container = document.getElementById('tradingview_chart');
+            this.createTradingViewWidget(tradingViewSymbol, tradingViewTimeframe, container);
         }
-        
+    }
+    
+    createTradingViewWidget(tradingViewSymbol, tradingViewTimeframe, container) {
         // Criar novo widget
         this.tradingViewWidget = new TradingView.widget({
             "width": "100%",
-            "height": "500",
+            "height": "600",
             "symbol": tradingViewSymbol,
             "interval": tradingViewTimeframe,
             "timezone": "America/Sao_Paulo",
@@ -1304,15 +1359,25 @@ class SimpleTradingDashboard {    constructor() {
             "container_id": "tradingview_chart",
             "studies": [
                 "RSI@tv-basicstudies",
-                "MACD@tv-basicstudies"
+                "MACD@tv-basicstudies",
+                "MASimple@tv-basicstudies"
             ],
             "onChartReady": () => {
-                console.log('📈 TradingView carregado - configurando captura de preços');
+                console.log(`📈 TradingView carregado para ${tradingViewSymbol} - configurando captura de preços`);
                 this.setupTradingViewPriceCapture();
+                
+                // Restaurar opacidade do container
+                if (container) {
+                    container.style.opacity = '1';
+                    container.style.transition = 'opacity 0.5s ease';
+                }
+                
+                // Notificar que o gráfico foi carregado
+                this.showNotification(`📊 Gráfico carregado para ${tradingViewSymbol.replace('BINANCE:', '')}`, 'info');
             }
         });
         
-        console.log(`📈 Gráfico atualizado para: ${tradingViewSymbol}`);
+        console.log(`✅ Widget TradingView criado para: ${tradingViewSymbol}`);
     }
 
     setupTradingViewPriceCapture() {

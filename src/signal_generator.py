@@ -1210,15 +1210,14 @@ class SignalGenerator:
             
             # Atualizar último tempo de sinal
             self.last_signal_time[signal.symbol] = signal.timestamp
-            
-            # Limitar histórico
+              # Limitar histórico
             if len(self.signal_history) > 1000:
                 self.signal_history = self.signal_history[-500:]
             
-            # Emit WebSocket notification
-            emit_signal_notification(signal.to_dict())
+            # Notificação será enviada pelo main.py via realtime_updates
+            # emit_signal_notification(signal.to_dict()) - Removido para evitar duplicatas
             
-            logger.info(f"🔔 Sinal registrado e notificação enviada: {signal.id}")
+            logger.info(f"🔔 Sinal registrado: {signal.id}")
             
         except Exception as e:
             logger.error(f"Erro ao registrar sinal: {e}")
