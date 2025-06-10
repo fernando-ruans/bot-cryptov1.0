@@ -748,7 +748,34 @@
         <div class="container">            <a class="navbar-brand" href="#">
                 <i class="fas fa-robot"></i>
                 CryptoNinja 🥷
-            </a><div class="ms-auto d-flex align-items-center">
+            </a>            <div class="ms-auto d-flex align-items-center">
+                <!-- User Menu -->
+                <div class="dropdown me-3">
+                    <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-ninja"></i> {{ current_user.username if current_user.is_authenticated else 'Usuário' }}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        {% if current_user.is_authenticated %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                                <i class="fas fa-user"></i> Meu Perfil
+                            </a></li>
+                            {% if current_user.is_admin %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth.admin_users') }}">
+                                <i class="fas fa-users-cog"></i> Painel Admin
+                            </a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a></li>
+                        {% else %}
+                            <li><a class="dropdown-item" href="{{ url_for('auth.login') }}">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                
                 <!-- Market Data Display -->
                 <div class="market-data-container me-4">
                     <div class="d-flex align-items-center">

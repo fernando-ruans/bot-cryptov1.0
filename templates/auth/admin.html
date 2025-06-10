@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoNinja 🥷 - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --ninja-dark: #0a0a0a;
+            --ninja-gray: #1a1a1a;
+            --ninja-accent: #ff6b35;
+            --ninja-gold: #ffd700;
+            --ninja-green: #00ff88;
+            --ninja-red: #ff4757;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--ninja-dark) 0%, var(--ninja-gray) 100%);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .ninja-container {
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid var(--ninja-accent);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .ninja-header {
+            background: linear-gradient(135deg, var(--ninja-accent), #ff8c42);
+            border-radius: 15px 15px 0 0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .ninja-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            margin: 0;
+        }
+
+        .user-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+        }
+
+        .btn-ninja {
+            background: linear-gradient(135deg, var(--ninja-accent), #ff8c42);
+            border: none;
+            color: white;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ninja:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.4);
+            color: white;
+        }
+
+        .btn-danger-ninja {
+            background: linear-gradient(135deg, var(--ninja-red), #ff6b6b);
+            border: none;
+            color: white;
+        }
+
+        .btn-success-ninja {
+            background: linear-gradient(135deg, var(--ninja-green), #00d563);
+            border: none;
+            color: white;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            color: white;
+        }
+
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--ninja-accent);
+            color: white;
+            box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+        }
+
+        .badge-admin {
+            background: linear-gradient(135deg, var(--ninja-gold), #ffed4e);
+            color: #000;
+        }
+
+        .badge-user {
+            background: linear-gradient(135deg, #6c757d, #8d9498);
+        }
+
+        .stats-card {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-xl-10">
+                <div class="ninja-container">
+                    <div class="ninja-header">
+                        <h1 class="ninja-title">🥷 CryptoNinja Admin Panel</h1>
+                        <p class="mb-0">Gestão de Usuários do Sistema</p>
+                    </div>
+                    
+                    <div class="p-4">
+                        <!-- Estatísticas -->
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <div class="stats-card p-3 text-center">
+                                    <h3 class="text-warning mb-1">{{ total_users }}</h3>
+                                    <small>Total de Usuários</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card p-3 text-center">
+                                    <h3 class="text-success mb-1">{{ active_users }}</h3>
+                                    <small>Usuários Ativos</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card p-3 text-center">
+                                    <h3 class="text-info mb-1">{{ admin_users }}</h3>
+                                    <small>Administradores</small>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="stats-card p-3 text-center">
+                                    <h3 class="text-primary mb-1">{{ total_trades }}</h3>
+                                    <small>Total de Trades</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Criar Novo Usuário -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card bg-dark border-warning">
+                                    <div class="card-header bg-warning text-dark">
+                                        <h5 class="mb-0"><i class="fas fa-user-plus"></i> Criar Novo Usuário</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="createUserForm">
+                                            <div class="row">
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Username</label>
+                                                        <input type="text" class="form-control" name="username" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Email</label>
+                                                        <input type="email" class="form-control" name="email" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Senha</label>
+                                                        <input type="password" class="form-control" name="password" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <div class="form-check mb-3">
+                                                        <input class="form-check-input" type="checkbox" name="is_admin" id="isAdmin">
+                                                        <label class="form-check-label" for="isAdmin">
+                                                            Administrador
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="mb-3">
+                                                        <label class="form-label">Saldo Inicial</label>
+                                                        <input type="number" class="form-control" name="balance" value="10000" step="0.01">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <button type="submit" class="btn btn-ninja">
+                                                <i class="fas fa-plus"></i> Criar Usuário
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lista de Usuários -->
+                        <div class="row">
+                            <div class="col-12">
+                                <h4 class="text-warning mb-3"><i class="fas fa-users"></i> Lista de Usuários</h4>
+                                <div class="row" id="usersList">
+                                    {% for user in users %}
+                                    <div class="col-md-6 col-lg-4 mb-3">
+                                        <div class="user-card p-3">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <h6 class="mb-0">{{ user.username }}</h6>
+                                                {% if user.is_admin %}
+                                                    <span class="badge badge-admin">Admin</span>
+                                                {% else %}
+                                                    <span class="badge badge-user">User</span>
+                                                {% endif %}
+                                            </div>
+                                            <p class="text-muted small mb-2">{{ user.email }}</p>
+                                            <div class="row text-center mb-3">
+                                                <div class="col-4">
+                                                    <small class="text-success">Saldo</small><br>
+                                                    <strong>${{ "%.2f"|format(user.balance) }}</strong>
+                                                </div>
+                                                <div class="col-4">
+                                                    <small class="text-info">Trades</small><br>
+                                                    <strong>{{ user.total_trades }}</strong>
+                                                </div>
+                                                <div class="col-4">
+                                                    <small class="text-warning">P&L</small><br>
+                                                    <strong class="{% if user.total_pnl >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                                        ${{ "%.2f"|format(user.total_pnl) }}
+                                                    </strong>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                {% if user.is_active %}
+                                                    <button class="btn btn-sm btn-danger-ninja" onclick="toggleUserStatus({{ user.id }}, false)">
+                                                        <i class="fas fa-ban"></i> Desativar
+                                                    </button>
+                                                {% else %}
+                                                    <button class="btn btn-sm btn-success-ninja" onclick="toggleUserStatus({{ user.id }}, true)">
+                                                        <i class="fas fa-check"></i> Ativar
+                                                    </button>
+                                                {% endif %}
+                                                {% if not user.is_admin %}
+                                                    <button class="btn btn-sm btn-warning" onclick="toggleAdminStatus({{ user.id }}, true)">
+                                                        <i class="fas fa-crown"></i> Admin
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                            <small class="text-muted">
+                                                Criado: {{ user.created_at.strftime('%d/%m/%Y') if user.created_at }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botões de Ação -->
+                        <div class="row mt-4">
+                            <div class="col-12 text-center">
+                                <a href="/" class="btn btn-ninja me-3">
+                                    <i class="fas fa-chart-line"></i> Voltar ao Dashboard
+                                </a>
+                                <a href="/auth/logout" class="btn btn-outline-light">
+                                    <i class="fas fa-sign-out-alt"></i> Logout
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Criar usuário
+        document.getElementById('createUserForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const userData = {
+                username: formData.get('username'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                is_admin: formData.get('is_admin') === 'on',
+                balance: parseFloat(formData.get('balance')) || 10000
+            };
+            
+            try {
+                const response = await fetch('/auth/admin/create-user', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ Usuário criado com sucesso!');
+                    location.reload();
+                } else {
+                    alert('❌ Erro: ' + result.message);
+                }
+            } catch (error) {
+                alert('❌ Erro ao criar usuário: ' + error.message);
+            }
+        });
+        
+        // Alternar status do usuário
+        async function toggleUserStatus(userId, active) {
+            try {
+                const response = await fetch(`/auth/admin/toggle-user/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ active })
+                });
+                
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('❌ Erro ao alterar status do usuário');
+                }
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
+        
+        // Alternar status de admin
+        async function toggleAdminStatus(userId, isAdmin) {
+            try {
+                const response = await fetch(`/auth/admin/toggle-admin/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ is_admin: isAdmin })
+                });
+                
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('❌ Erro ao alterar permissões do usuário');
+                }
+            } catch (error) {
+                alert('❌ Erro: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

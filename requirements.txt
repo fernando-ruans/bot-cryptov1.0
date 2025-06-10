@@ -33,6 +33,9 @@ eventlet
 
 # Database
 sqlalchemy
+psycopg2-binary
+flask-login
+flask-bcrypt
 
 # Utilities
 python-dotenv

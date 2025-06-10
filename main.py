@@ -10,9 +10,10 @@ import logging
 import threading
 import time
 from datetime import datetime
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
+from flask_login import login_required, current_user
 
 # Importar módulos essenciais
 from src.ai_engine import AITradingEngine
@@ -22,6 +23,10 @@ from src.database import DatabaseManager
 from src.config import Config
 from src.paper_trading import PaperTradingManager, AutoTradeMonitor
 from src.realtime_price_api import realtime_price_api
+
+# Importar sistema de autenticação
+from src.auth.models import db, bcrypt
+from src.auth.routes import init_auth
 
 # Configurar logging
 logging.basicConfig(
@@ -37,11 +42,93 @@ logger = logging.getLogger(__name__)
 # Inicializar Flask
 app = Flask(__name__, template_folder='templates', static_folder='static')
 app.config['SECRET_KEY'] = 'trading_bot_ai_simple_2024'
+
+# Configurar PostgreSQL
+try:
+    # Tentar PostgreSQL primeiro
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+        'DATABASE_URL', 
+        'postgresql://postgres:admin@localhost:5432/cryptoninja_db'
+    )
+except:
+    # Fallback para SQLite se PostgreSQL não estiver disponível
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cryptoninja.db'
+    logger.warning("⚠️ PostgreSQL não disponível, usando SQLite como fallback")
+    
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Inicializar extensões
+db.init_app(app)
+bcrypt.init_app(app)
+init_auth(app)  # Configurar sistema de autenticação
+
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
+# Inicializar banco de dados
+def init_database():
+    """Inicializar banco de dados PostgreSQL ou SQLite"""
+    try:
+        with app.app_context():
+            # Tentar conectar e criar tabelas
+            db.create_all()
+            
+            # Verificar qual banco está sendo usado
+            if 'sqlite' in app.config['SQLALCHEMY_DATABASE_URI']:
+                logger.info("🗄️ Banco SQLite inicializado com sucesso")
+            else:
+                logger.info("🗄️ Banco PostgreSQL inicializado com sucesso")
+            
+            # Verificar se existe usuário admin
+            from src.auth.models import User
+            admin_user = User.query.filter_by(username='admin').first()
+            
+            if not admin_user:
+                # Criar usuário admin padrão
+                admin_user = User(
+                    username='admin',
+                    email='admin@cryptoninja.com',
+                    password='ninja123',  # Senha padrão - deve ser alterada
+                    is_admin=True
+                )
+                db.session.add(admin_user)
+                db.session.commit()
+                logger.info("🥷 Usuário admin criado com sucesso (senha: ninja123)")
+            else:
+                logger.info("🥷 Usuário admin já existe")
+                
+    except Exception as e:
+        logger.error(f"❌ Erro ao inicializar banco de dados: {e}")
+        # Tentar SQLite como fallback
+        try:
+            app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///cryptoninja.db'
+            with app.app_context():
+                db.create_all()
+                logger.info("🗄️ Usando SQLite como fallback")
+                
+                # Criar admin no SQLite
+                from src.auth.models import User
+                admin_user = User.query.filter_by(username='admin').first()
+                if not admin_user:
+                    admin_user = User(
+                        username='admin',
+                        email='admin@cryptoninja.com',
+                        password='ninja123',
+                        is_admin=True
+                    )
+                    db.session.add(admin_user)
+                    db.session.commit()
+                    logger.info("🥷 Usuário admin criado no SQLite")
+                    
+        except Exception as e2:
+            logger.error(f"❌ Erro crítico na inicialização do banco: {e2}")
+
 # Inicializar componentes essenciais
 logger.info("🚀 Inicializando Trading Bot AI - Versão Simplificada")
+
+# Inicializar banco de dados primeiro
+init_database()
+
 config = Config()
 db_manager = DatabaseManager()
 market_data = MarketDataManager(config)
@@ -250,9 +337,16 @@ def convert_hold_to_signal(signal, symbol, timeframe):
 # ==================== ROTAS WEB ====================
 
 @app.route('/')
+@login_required
 def index():
     """Dashboard Principal"""
     return render_template('index_enhanced.html')
+
+@app.route('/main')
+@login_required
+def main():
+    """Rota alternativa para o dashboard principal"""
+    return redirect(url_for('index'))
 
 # ==================== APIS ESSENCIAIS ====================
 

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoNinja 🥷 - Meu Perfil</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1a1d29;
+            --secondary-color: #2d3748;
+            --accent-color: #4f46e5;
+            --accent-light: #6366f1;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --gradient-primary: linear-gradient(135deg, var(--accent-color), var(--accent-light));
+            --gradient-ninja: linear-gradient(135deg, #1a1d29, #2d3748, #4f46e5);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gradient-ninja);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .navbar {
+            background: rgba(26, 29, 41, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(79, 70, 229, 0.3);
+        }
+
+        .main-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2.5rem;
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        .btn-ninja {
+            background: var(--gradient-primary);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-ninja:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.4);
+            color: white;
+        }
+
+        .btn-danger-ninja {
+            background: linear-gradient(135deg, var(--danger-color), #f87171);
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .info-value {
+            font-weight: 600;
+        }
+
+        .badge-admin {
+            background: var(--gradient-primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-user {
+            background: linear-gradient(135deg, var(--success-color), #34d399);
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .positive { color: var(--success-color); }
+        .negative { color: var(--danger-color); }
+
+        .actions {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        @keyframes ninja-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(79, 70, 229, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(79, 70, 229, 0.6); }
+        }
+
+        .profile-card {
+            animation: ninja-glow 3s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold" href="/">
+                🥷 CryptoNinja - Meu Perfil
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link text-white" href="/">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a>
+                {% if user.is_admin %}
+                <a class="nav-link text-white" href="{{ url_for('auth.admin_users') }}">
+                    <i class="fas fa-users-cog"></i> Admin
+                </a>
+                {% endif %}
+                <a class="nav-link text-white" href="{{ url_for('auth.logout') }}">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-container">
+        <!-- Profile Header -->
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="profile-avatar">
+                    <i class="fas fa-user-ninja"></i>
+                </div>
+                <h2>{{ user.username }}</h2>
+                <p class="text-light mb-0">
+                    {% if user.is_admin %}
+                        <span class="badge-admin">🛡️ Administrador</span>
+                    {% else %}
+                        <span class="badge-user">👤 Usuário</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- User Info -->
+            <div class="mb-4">
+                <div class="info-row">
+                    <span class="info-label">📧 Email:</span>
+                    <span class="info-value">{{ user.email }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">📅 Membro desde:</span>
+                    <span class="info-value">
+                        {{ user.created_at.strftime('%d/%m/%Y') if user.created_at else 'N/A' }}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">🕐 Último login:</span>
+                    <span class="info-value">
+                        {{ user.last_login.strftime('%d/%m/%Y %H:%M') if user.last_login else 'Primeiro acesso' }}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">✅ Status:</span>
+                    <span class="info-value">
+                        {% if user.is_active %}
+                            <span class="positive">🟢 Ativo</span>
+                        {% else %}
+                            <span class="negative">🔴 Inativo</span>
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trading Stats -->
+        <div class="profile-card">
+            <h4 class="mb-4">📊 Estatísticas de Trading</h4>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">
+                        ${{ "%.2f"|format(user.balance) }}
+                    </div>
+                    <div class="stat-label">💰 Saldo Atual</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">{{ user.total_trades }}</div>
+                    <div class="stat-label">📈 Total de Trades</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value 
+                        {% if user.total_pnl > 0 %}positive{% elif user.total_pnl < 0 %}negative{% endif %}">
+                        ${{ "%.2f"|format(user.total_pnl) }}
+                    </div>
+                    <div class="stat-label">💸 P&L Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">
+                        {% if user.total_trades > 0 %}
+                            {{ "%.1f"|format((user.total_pnl / user.total_trades)) }}%
+                        {% else %}
+                            0.0%
+                        {% endif %}
+                    </div>
+                    <div class="stat-label">📊 Win Rate Médio</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="profile-card">
+            <h4 class="mb-4">⚙️ Ações</h4>
+            <div class="actions">
+                <a href="/" class="btn-ninja me-3">
+                    <i class="fas fa-chart-line"></i> Voltar ao Dashboard
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="btn-ninja btn-danger-ninja">
+                    <i class="fas fa-sign-out-alt"></i> Fazer Logout
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Ninja Effects -->
+    <script>
+        // Smooth page entrance
+        document.addEventListener('DOMContentLoaded', function() {
+            document.body.style.opacity = '0';
+            document.body.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                document.body.style.transition = 'all 0.6s ease';
+                document.body.style.opacity = '1';
+                document.body.style.transform = 'translateY(0)';
+            }, 100);
+        });
+
+        // Hover effects for stat cards
+        document.querySelectorAll('.stat-card').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
