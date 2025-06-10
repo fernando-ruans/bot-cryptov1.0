@@ -9,12 +9,12 @@ import logging
 from datetime import datetime
 from typing import Dict, Any, Optional
 from flask_socketio import SocketIO, emit, join_room, leave_room
+from flask import request
 
 logger = logging.getLogger(__name__)
 
 class RealTimeUpdates:
     """Sistema de atualizações em tempo real via WebSocket"""
-    
     def __init__(self, socketio: SocketIO):
         self.socketio = socketio
         self.connected_clients = set()
@@ -28,9 +28,9 @@ class RealTimeUpdates:
         """Configurar eventos de WebSocket"""
         
         @self.socketio.on('connect')
-        def handle_connect():
+        def handle_connect(auth=None):
             """Cliente conectado"""
-            client_id = self.socketio.request.sid
+            client_id = request.sid
             self.connected_clients.add(client_id)
             logger.info(f"🔌 Cliente conectado: {client_id}")
             
@@ -44,7 +44,7 @@ class RealTimeUpdates:
         @self.socketio.on('disconnect')
         def handle_disconnect():
             """Cliente desconectado"""
-            client_id = self.socketio.request.sid
+            client_id = request.sid
             self.connected_clients.discard(client_id)
             
             # Limpar subscrições
@@ -56,7 +56,7 @@ class RealTimeUpdates:
         @self.socketio.on('subscribe_symbol')
         def handle_subscribe_symbol(data):
             """Subscrever atualizações de um símbolo"""
-            client_id = self.socketio.request.sid
+            client_id = request.sid
             symbol = data.get('symbol', 'BTCUSDT')
             
             if client_id not in self.subscribed_symbols:
@@ -78,7 +78,7 @@ class RealTimeUpdates:
         @self.socketio.on('unsubscribe_symbol')
         def handle_unsubscribe_symbol(data):
             """Cancelar subscrição de um símbolo"""
-            client_id = self.socketio.request.sid
+            client_id = request.sid
             symbol = data.get('symbol')
             
             if client_id in self.subscribed_symbols:
@@ -167,8 +167,7 @@ class RealTimeUpdates:
                 'total_trades': portfolio_data.get('total_trades', 0),
                 'win_rate': portfolio_data.get('win_rate', 0),
                 'active_trades': portfolio_data.get('active_trades', 0),
-                'balance': portfolio_data.get('balance', 10000),
-                'timestamp': datetime.now().isoformat()
+                'balance': portfolio_data.get('balance', 10000),                'timestamp': datetime.now().isoformat()
             }
             
             self.socketio.emit('portfolio_update', portfolio_info)
@@ -184,20 +183,27 @@ class RealTimeUpdates:
                 'id': trade_data.get('id'),
                 'symbol': trade_data.get('symbol'),
                 'exit_reason': trade_data.get('exit_reason'),
-                'pnl': trade_data.get('pnl', 0),
+                'pnl': trade_data.get('realized_pnl', trade_data.get('pnl', 0)),  # Usar realized_pnl primeiro
                 'pnl_percent': trade_data.get('pnl_percent', 0),
                 'exit_price': trade_data.get('exit_price'),
                 'duration': trade_data.get('duration_minutes', 0),
                 'timestamp': datetime.now().isoformat()
             }
             
+            # Log detalhado para debug
+            logger.info(f"📡 Enviando notificação de trade fechado via WebSocket:")
+            logger.info(f"   Trade ID: {close_info['id']}")
+            logger.info(f"   Symbol: {close_info['symbol']}")
+            logger.info(f"   Exit Reason: {close_info['exit_reason']}")
+            logger.info(f"   P&L: ${close_info['pnl']:.2f} ({close_info['pnl_percent']:.2f}%)")
+            
             self.socketio.emit('trade_closed', close_info)
             
             # Determinar ícone baseado no resultado
-            icon = "🟢" if trade_data.get('pnl', 0) >= 0 else "🔴"
-            result = "LUCRO" if trade_data.get('pnl', 0) >= 0 else "PERDA"
+            icon = "🟢" if close_info['pnl'] >= 0 else "🔴"
+            result = "LUCRO" if close_info['pnl'] >= 0 else "PERDA"
             
-            logger.info(f"{icon} Trade fechado: {trade_data.get('symbol')} - {result} ({trade_data.get('pnl_percent', 0):.2f}%)")
+            logger.info(f"{icon} ✅ WebSocket trade_closed emitido: {close_info['symbol']} - {result}")
             
         except Exception as e:
             logger.error(f"❌ Erro ao transmitir fechamento: {e}")

@@ -105,8 +105,12 @@ class PaperTrade:
     def to_dict(self) -> Dict:
         """Converte para dicionário com métricas detalhadas"""
         duration = None
+        duration_minutes = 0
+        
         if self.exit_timestamp and self.timestamp:
-            duration = str(self.exit_timestamp - self.timestamp)
+            duration_delta = self.exit_timestamp - self.timestamp
+            duration = str(duration_delta)
+            duration_minutes = int(duration_delta.total_seconds() / 60)
         
         # Calcular distâncias de SL e TP
         sl_distance_pct = None
@@ -148,10 +152,10 @@ class PaperTrade:
             'timeframe': self.timeframe,
             'unrealized_pnl': self.unrealized_pnl,
             'realized_pnl': self.realized_pnl,
-            'pnl': self.realized_pnl if self.status == 'closed' else self.unrealized_pnl,
-            'pnl_percent': self.pnl_percent,
+            'pnl': self.realized_pnl if self.status == 'closed' else self.unrealized_pnl,            'pnl_percent': self.pnl_percent,
             'pnl_percentage': self.pnl_percent,  # Compatibilidade
             'duration': duration,
+            'duration_minutes': duration_minutes,  # Campo necessário para WebSocket
             'sl_distance_pct': sl_distance_pct,
             'tp_distance_pct': tp_distance_pct,
             'risk_reward_ratio': risk_reward_ratio,

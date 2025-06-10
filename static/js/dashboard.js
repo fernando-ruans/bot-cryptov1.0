@@ -637,10 +637,12 @@ class SimpleTradingDashboard {    constructor() {
                 </div>
             `;
         }).join('');
-    }
-
-    async closeTrade(tradeId) {
+    }    async closeTrade(tradeId) {
         console.log('🔒 Fechando trade:', tradeId);
+        
+        if (!confirm('Tem certeza que deseja fechar este trade?')) {
+            return;
+        }
         
         try {
             const response = await fetch('/api/paper_trading/close_trade', {
@@ -658,16 +660,22 @@ class SimpleTradingDashboard {    constructor() {
             if (data.success) {
                 console.log('✅ Trade fechado com sucesso!');
                 this.showAlert('Trade fechado com sucesso!', 'success');
-                this.loadPortfolio();
-                this.loadActiveTradesStatus();
-                this.loadTradesHistory();
+                
+                // Forçar atualização imediata de todas as seções
+                setTimeout(() => {
+                    this.loadPortfolio();
+                    this.loadActiveTradesStatus();
+                    this.loadTradesHistory();
+                    console.log('📊 Interface atualizada após fechamento manual');
+                }, 300);
+                
             } else {
                 console.error('❌ Erro ao fechar trade:', data.error);
                 this.showAlert('Erro ao fechar trade: ' + (data.error || 'Erro desconhecido'), 'danger');
             }
         } catch (error) {
             console.error('❌ Erro de conexão ao fechar trade:', error);
-            this.showAlert('Erro de conexão ao fechar trade', 'danger');
+            this.showAlert('Erro de conexão ao fechar trade. Verifique sua internet.', 'danger');
         }
     }
 
@@ -793,14 +801,23 @@ class SimpleTradingDashboard {    constructor() {
         const icon = data.pnl >= 0 ? '💰' : '📉';
         const type = data.pnl >= 0 ? 'success' : 'danger';
         
+        // Mensagem mais detalhada da notificação
+        const reasonText = data.exit_reason === 'take_profit' ? 'Take Profit' : 
+                          data.exit_reason === 'stop_loss' ? 'Stop Loss' :
+                          data.exit_reason === 'manual' ? 'Manual' : 'Fechado';
+        
         this.showNotification(
-            `${icon} Trade ${data.symbol} fechado: ${pnlText} (${data.exit_reason || 'Manual'})`,
+            `${icon} Trade ${data.symbol} fechado: ${pnlText} (${reasonText})`,
             type
         );
         
-        this.loadPortfolio();
-        this.loadActiveTradesStatus(); // Isso reiniciará o monitoramento multi-símbolos com a lista atualizada
-        this.loadTradesHistory();
+        // Forçar atualização completa da interface
+        setTimeout(() => {
+            this.loadPortfolio();
+            this.loadActiveTradesStatus(); // Isso reiniciará o monitoramento multi-símbolos com a lista atualizada
+            this.loadTradesHistory(); // Atualizar histórico imediatamente
+            console.log('📊 Interface atualizada após fechamento de trade');
+        }, 500); // Aguardar 500ms para garantir que o servidor processou
     }
 
     handlePortfolioUpdate(data) {
