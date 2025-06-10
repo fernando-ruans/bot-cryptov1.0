@@ -73,9 +73,11 @@ class SimpleTradingDashboard {    constructor() {
             this.currentSymbol = assetSelector.value;
             console.log(`💰 Ativo sincronizado: ${this.currentSymbol}`);
         }
-        
-        // Atualizar elementos da interface com o ativo inicial
+          // Atualizar elementos da interface com o ativo inicial
         this.updateInterfaceElements();
+        
+        // Inicializar contador de trades ativos
+        this.updateActiveTradesCounter(0);
         
         this.initTradingView();
         this.initEventListeners();
@@ -542,10 +544,11 @@ class SimpleTradingDashboard {    constructor() {
             this.multiSymbolPriceInterval = null;
             console.log('⏹️ Monitoramento multi-símbolos interrompido');
         }
-    }
-
-    displayActiveTrades(activeTrades) {
+    }    displayActiveTrades(activeTrades) {
         const container = document.getElementById('activeTradesList');
+        
+        // Atualizar contador
+        this.updateActiveTradesCounter(activeTrades.length);
         
         if (activeTrades.length === 0) {
             container.innerHTML = `
@@ -564,14 +567,13 @@ class SimpleTradingDashboard {    constructor() {
             const pnlPercent = ((currentPrice - entryPrice) / entryPrice * 100).toFixed(2);
         const pnlValue = this.formatPrice(currentPrice - entryPrice, this.currentSymbol);
             const isProfit = currentPrice >= entryPrice;
-            
-            return `
+              return `
                 <div class="card mb-3 shadow-sm border-0 trade-card">
                     <div class="card-body p-3">
                         <!-- Header com símbolo e tipo -->
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex align-items-center">
-                                <h6 class="mb-0 fw-bold text-primary">${trade.symbol}</h6>
+                                <h6 class="mb-0 fw-bold trade-symbol">${trade.symbol}</h6>
                                 <span class="badge ${trade.trade_type === 'BUY' ? 'bg-success' : 'bg-danger'} ms-2">
                                     <i class="fas ${trade.trade_type === 'BUY' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i> ${trade.trade_type}
                                 </span>
@@ -596,12 +598,11 @@ class SimpleTradingDashboard {    constructor() {
                                 </div>
                             </div>
                         </div>
-                        
-                        <!-- P&L -->
+                          <!-- P&L -->
                         <div class="text-center mb-3">
                             <div class="${isProfit ? 'bg-success' : 'bg-danger'} bg-opacity-10 rounded p-2">
                                 <small class="text-muted d-block mb-1">Resultado Atual</small>
-                                <div class="${isProfit ? 'text-success' : 'text-danger'} fw-bold">
+                                <div class="trade-pnl ${isProfit ? 'profit' : 'loss'}">
                                     ${isProfit ? '+' : ''}$${pnlValue} (${isProfit ? '+' : ''}${pnlPercent}%)
                                 </div>
                             </div>
@@ -1243,9 +1244,23 @@ class SimpleTradingDashboard {    constructor() {
         const chartTitle = document.querySelector('.card-header h5');
         if (chartTitle) {
             chartTitle.innerHTML = `<i class="fas fa-chart-candlestick me-2"></i>Análise Técnica - ${this.currentSymbol}`;
-        }
+        }        console.log(`🔄 Interface atualizada para ativo: ${this.currentSymbol}`);
+    }
 
-        console.log(`🔄 Interface atualizada para ativo: ${this.currentSymbol}`);
+    updateActiveTradesCounter(count) {
+        const counterElement = document.getElementById('activeTradesCount');
+        if (counterElement) {
+            counterElement.textContent = count;
+            
+            // Adicionar animação ao contador quando mudar
+            if (count > 0) {
+                counterElement.classList.remove('bg-primary');
+                counterElement.classList.add('bg-success');
+            } else {
+                counterElement.classList.remove('bg-success');
+                counterElement.classList.add('bg-primary');
+            }
+        }
     }
 
     displayCurrentPrice(price) {
