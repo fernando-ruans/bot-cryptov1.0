@@ -67,13 +67,15 @@ class SimpleTradingDashboard {    constructor() {
             this.currentTimeframe = timeframeSelector.value;
             console.log(`📊 Timeframe sincronizado: ${this.currentTimeframe}`);
         }
-        
-        // Sincronizar ativo com o valor selecionado no HTML
+          // Sincronizar ativo com o valor selecionado no HTML
         const assetSelector = document.getElementById('assetSelector');
         if (assetSelector && assetSelector.value) {
             this.currentSymbol = assetSelector.value;
             console.log(`💰 Ativo sincronizado: ${this.currentSymbol}`);
         }
+        
+        // Atualizar elementos da interface com o ativo inicial
+        this.updateInterfaceElements();
         
         this.initTradingView();
         this.initEventListeners();
@@ -82,7 +84,7 @@ class SimpleTradingDashboard {    constructor() {
         this.loadActiveTradesStatus();
         this.loadTradesHistory();
         
-        // Carregar preço inicial
+        // Carregar dados de mercado inicial
         this.updateCurrentPrice();
         
         // Auto-refresh a cada 30 segundos
@@ -1070,29 +1072,180 @@ class SimpleTradingDashboard {    constructor() {
         return icons[type] || 'fa-info-circle';
     }    async updateCurrentPrice() {
         try {
-            // Usar endpoint de tempo real primeiro (muito mais rápido)
-            let response = await fetch(`/api/price/realtime/${this.currentSymbol}`);
-            let data = await response.json();
+            // Usar API da Binance diretamente para dados de mercado completos
+            const marketData = await this.getBinanceMarketData(this.currentSymbol);
             
-            // Se o endpoint tempo real falhou, usar o tradicional
-            if (!data.success) {
-                response = await fetch(`/api/price/${this.currentSymbol}`);
-                data = await response.json();
-            }
-            
-            if (data.success) {
-                this.displayCurrentPrice(data.price);
-                
-                // Log adicional para mostrar velocidade
-                if (data.source && data.age_seconds !== undefined) {
-                    console.log(`💰 Preço ${data.source}: ${this.currentSymbol} = $${this.formatPrice(data.price, this.currentSymbol)} (${data.age_seconds.toFixed(1)}s atrás)`);
-                }
+            if (marketData) {
+                this.updateMarketDisplay(marketData);
+                console.log(`💰 Dados de mercado atualizados: ${this.currentSymbol}`);
             } else {
-                console.warn(`⚠️ Não foi possível obter preço para ${this.currentSymbol}`);
+                // Fallback para endpoints locais
+                let response = await fetch(`/api/price/realtime/${this.currentSymbol}`);
+                let data = await response.json();
+                
+                if (!data.success) {
+                    response = await fetch(`/api/price/${this.currentSymbol}`);
+                    data = await response.json();
+                }
+                
+                if (data.success) {
+                    this.displayCurrentPrice(data.price);
+                    console.log(`💰 Preço ${data.source || 'local'}: ${this.currentSymbol} = $${this.formatPrice(data.price, this.currentSymbol)}`);
+                }
             }
         } catch (error) {
             console.error('❌ Erro ao atualizar preço:', error);
         }
+    }
+
+    async getBinanceMarketData(symbol) {
+        try {
+            // Converter símbolo para formato Binance se necessário
+            const binanceSymbol = symbol.replace('/', '');
+            
+            // Buscar dados de ticker 24h da Binance
+            const response = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${binanceSymbol}`);
+            
+            if (!response.ok) {
+                console.warn(`⚠️ Erro na API Binance para ${symbol}: ${response.status}`);
+                return null;
+            }
+            
+            const data = await response.json();
+            
+            return {
+                symbol: symbol,
+                price: parseFloat(data.lastPrice),
+                change24h: parseFloat(data.priceChange),
+                changePercent24h: parseFloat(data.priceChangePercent),
+                high24h: parseFloat(data.highPrice),
+                low24h: parseFloat(data.lowPrice),
+                volume24h: parseFloat(data.volume),
+                timestamp: Date.now()
+            };
+        } catch (error) {
+            console.error(`❌ Erro ao buscar dados Binance para ${symbol}:`, error);
+            return null;
+        }
+    }    updateMarketDisplay(marketData) {
+        console.log('📊 Atualizando display de mercado:', marketData);
+        
+        const lastPrice = this.lastPrices[marketData.symbol] || marketData.price;
+        const priceChanged = lastPrice !== marketData.price;
+        const isUpward = marketData.price > lastPrice;
+        
+        // Atualizar preço principal
+        this.updatePriceElement('navCurrentPrice', marketData.price, priceChanged, isUpward, marketData.symbol);
+        
+        // Atualizar variação 24h
+        this.updateChangeDisplay(marketData.changePercent24h);
+        
+        // Atualizar outros dados de mercado no header
+        this.updateMarketStats(marketData);
+        
+        // Salvar último preço
+        this.lastPrices[marketData.symbol] = marketData.price;
+        
+        console.log(`💰 Display atualizado - ${marketData.symbol}: $${this.formatPrice(marketData.price, marketData.symbol)} (${marketData.changePercent24h >= 0 ? '+' : ''}${marketData.changePercent24h.toFixed(2)}%)`);
+    }
+
+    updatePriceElement(elementId, price, priceChanged, isUpward, symbol) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+        
+        const formattedPrice = `$${this.formatPrice(price, symbol)}`;
+        element.textContent = formattedPrice;
+        
+        if (priceChanged) {
+            // Remover classes anteriores
+            element.classList.remove('price-up', 'price-down');
+            
+            // Adicionar nova classe com animação
+            const changeClass = isUpward ? 'price-up' : 'price-down';
+            element.classList.add(changeClass);
+            
+            // Animação de pulso
+            element.style.transform = 'scale(1.05)';
+            setTimeout(() => {
+                element.style.transform = 'scale(1)';
+                element.classList.remove(changeClass);
+            }, 500);
+        }
+    }
+
+    updateChangeDisplay(changePercent) {
+        // Criar ou atualizar elemento de variação se não existir
+        let changeElement = document.getElementById('priceChange24h');
+        if (!changeElement) {
+            const navPrice = document.getElementById('navCurrentPrice');
+            if (navPrice) {
+                changeElement = document.createElement('span');
+                changeElement.id = 'priceChange24h';
+                changeElement.className = 'ms-2 fw-bold';
+                navPrice.parentNode.appendChild(changeElement);
+            }
+        }
+        
+        if (changeElement) {
+            const isPositive = changePercent >= 0;
+            const sign = isPositive ? '+' : '';
+            const colorClass = isPositive ? 'text-success' : 'text-danger';
+            const icon = isPositive ? '▲' : '▼';
+            
+            changeElement.textContent = `${icon} ${sign}${changePercent.toFixed(2)}%`;
+            changeElement.className = `ms-2 fw-bold ${colorClass}`;
+        }
+    }
+
+    updateMarketStats(marketData) {
+        // Atualizar high/low se existirem elementos
+        this.updateStatElement('high24h', marketData.high24h, marketData.symbol);
+        this.updateStatElement('low24h', marketData.low24h, marketData.symbol);
+        this.updateStatElement('volume24h', this.formatVolume(marketData.volume24h));
+    }
+
+    updateStatElement(elementId, value, symbol = null) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            if (symbol && typeof value === 'number') {
+                element.textContent = `$${this.formatPrice(value, symbol)}`;
+            } else {
+                element.textContent = value;
+            }
+        }
+    }    formatVolume(volume) {
+        if (volume >= 1e9) {
+            return (volume / 1e9).toFixed(2) + 'B';
+        } else if (volume >= 1e6) {
+            return (volume / 1e6).toFixed(2) + 'M';
+        } else if (volume >= 1e3) {
+            return (volume / 1e3).toFixed(2) + 'K';
+        }
+        return volume.toFixed(2);
+    }
+
+    updateInterfaceElements() {
+        // Atualizar elementos da interface com o ativo atual
+        const elements = [
+            { id: 'currentSymbol', value: this.currentSymbol },
+            { id: 'navCurrentAsset', value: this.currentSymbol },
+            { id: 'selectedAssetBadge', value: this.currentSymbol }
+        ];
+
+        elements.forEach(({ id, value }) => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.textContent = value;
+            }
+        });
+
+        // Atualizar título do card do gráfico se existir
+        const chartTitle = document.querySelector('.card-header h5');
+        if (chartTitle) {
+            chartTitle.innerHTML = `<i class="fas fa-chart-candlestick me-2"></i>Análise Técnica - ${this.currentSymbol}`;
+        }
+
+        console.log(`🔄 Interface atualizada para ativo: ${this.currentSymbol}`);
     }
 
     displayCurrentPrice(price) {
@@ -1269,9 +1422,11 @@ class SimpleTradingDashboard {    constructor() {
         if (chartTitle) {
             chartTitle.innerHTML = `<i class="fas fa-chart-candlestick me-2"></i>Análise Técnica - ${newSymbol}`;
         }
-        
-        // Atualizar gráfico TradingView
+          // Atualizar gráfico TradingView
         this.updateTradingViewChart(newSymbol);
+        
+        // Atualizar dados de mercado imediatamente
+        this.updateCurrentPrice();
         
         // Limpar sinal atual se existir
         this.clearCurrentSignal();

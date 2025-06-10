@@ -69,11 +69,63 @@
             -webkit-text-fill-color: transparent;
             margin-right: 0.75rem;
             font-size: 1.75rem;
-        }
-
-        .navbar-text {
+        }        .navbar-text {
             color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 500;
+        }
+
+        /* Market Data Display */
+        .market-data-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .market-info .price-display {
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .market-stats {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .market-stats span {
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .market-stats {
+                display: none;
+            }
+            .market-data-container {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Price Change Animations */
+        .price-up {
+            color: var(--success-color) !important;
+            animation: priceFlash 0.5s ease-in-out;
+        }
+
+        .price-down {
+            color: var(--danger-color) !important;
+            animation: priceFlashRed 0.5s ease-in-out;
+        }
+
+        @keyframes priceFlash {
+            0%, 100% { background-color: transparent; }
+            50% { background-color: rgba(16, 185, 129, 0.2); }
+        }
+
+        @keyframes priceFlashRed {
+            0%, 100% { background-color: transparent; }
+            50% { background-color: rgba(239, 68, 68, 0.2); }
         }
 
         /* Cards */
@@ -614,13 +666,31 @@
             <a class="navbar-brand" href="#">
                 <i class="fas fa-robot"></i>
                 Trading Bot AI - Enhanced
-            </a>
-            <div class="ms-auto d-flex align-items-center">
-                <span class="navbar-text me-4">
-                    <i class="fas fa-chart-line me-2"></i>
-                    <strong id="navCurrentAsset" class="price-display">BTCUSDT</strong>
-                    <span class="ms-2 price-display" id="navCurrentPrice">$0.00</span>
-                </span>
+            </a>            <div class="ms-auto d-flex align-items-center">
+                <!-- Market Data Display -->
+                <div class="market-data-container me-4">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-chart-line me-2"></i>
+                        <div class="market-info">
+                            <div class="d-flex align-items-center">
+                                <strong id="navCurrentAsset" class="price-display me-2">BTCUSDT</strong>
+                                <span class="price-display fw-bold" id="navCurrentPrice">$0.00</span>
+                                <span id="priceChange24h" class="ms-2 fw-bold"></span>
+                            </div>
+                            <div class="market-stats small text-light opacity-75">
+                                <span class="me-3">
+                                    <i class="fas fa-arrow-up me-1"></i>H: <span id="high24h">$0.00</span>
+                                </span>
+                                <span class="me-3">
+                                    <i class="fas fa-arrow-down me-1"></i>L: <span id="low24h">$0.00</span>
+                                </span>
+                                <span>
+                                    <i class="fas fa-chart-bar me-1"></i>Vol: <span id="volume24h">0</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <span class="navbar-text">
                     <span class="status-indicator" id="botStatus"></span>
                     Status: <span id="botStatusText">Carregando...</span>
