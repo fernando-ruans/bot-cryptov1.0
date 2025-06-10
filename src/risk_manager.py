@@ -252,24 +252,16 @@ class RiskManager:
         except Exception as e:
             logger.error(f"Erro ao calcular risco de correlação: {e}")
             return 0
-    
-    def _are_correlated(self, symbol1: str, symbol2: str) -> bool:
+      def _are_correlated(self, symbol1: str, symbol2: str) -> bool:
         """Verificar se dois símbolos são correlacionados"""
         # Correlações conhecidas (simplificado)
         crypto_pairs = self.config.CRYPTO_PAIRS
-        forex_pairs = self.config.FOREX_PAIRS
         
         # Criptomoedas são geralmente correlacionadas
         if symbol1 in crypto_pairs and symbol2 in crypto_pairs:
             return True
         
-        # Pares de forex com moedas comuns
-        if symbol1 in forex_pairs and symbol2 in forex_pairs:
-            if symbol1[:3] == symbol2[:3] or symbol1[3:] == symbol2[3:]:
-                return True
-            if symbol1[:3] == symbol2[3:] or symbol1[3:] == symbol2[:3]:
-                return True
-        
+        # Forex removido - apenas crypto suportado
         return False
     
     def open_position(self, signal_data: Dict, position_size: float) -> Optional[Position]:

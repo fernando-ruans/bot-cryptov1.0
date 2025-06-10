@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 API de preços em tempo real otimizada para alta velocidade
-Usa WebSockets e APIs públicas mais rápidas - APENAS CRYPTO
+Usa WebSockets e APIs públicas mais rápidas
 """
 
 import asyncio
@@ -98,8 +98,7 @@ class RealTimePriceAPI:
                                     
                                     # Notificar callbacks
                                     self._notify_price_update(symbol, price)
-                                    
-                        except asyncio.TimeoutError:
+                                  except asyncio.TimeoutError:
                             # Ping para manter conexão viva
                             await websocket.ping()
                             
@@ -148,8 +147,7 @@ class RealTimePriceAPI:
                     }
                     
                     self._notify_price_update(symbol, price)
-                    
-        except Exception as e:
+                      except Exception as e:
             logger.debug(f"Erro REST crypto: {e}")
     
     def _notify_price_update(self, symbol: str, price: float):
@@ -187,8 +185,7 @@ class RealTimePriceAPI:
                 if 'price' in data:
                     price = float(data['price'])
                     
-                    # Atualizar cache
-                    self.price_cache[symbol] = {
+                    # Atualizar cache                    self.price_cache[symbol] = {
                         'price': price,
                         'timestamp': datetime.now(),
                         'source': 'immediate_rest'

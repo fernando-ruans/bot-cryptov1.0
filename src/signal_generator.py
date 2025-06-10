@@ -532,15 +532,7 @@ class SignalGenerator:
                 return {
                     'asset_class': 'crypto',
                     'risk_level': 'high',
-                    'market_hours': '24/7',
-                    'correlation_with_traditional': 'low'
-                }
-            elif 'USD' in symbol:
-                return {
-                    'asset_class': 'forex',
-                    'risk_level': 'medium',
-                    'market_hours': '24/5',
-                    'correlation_with_traditional': 'high'
+                    'market_hours': '24/7',                    'correlation_with_traditional': 'low'
                 }
             else:
                 return {
@@ -893,16 +885,12 @@ class SignalGenerator:
             macro_context = market_context.get('macro_context', {})
             asset_class = macro_context.get('asset_class', 'unknown')
             risk_level = macro_context.get('risk_level', 'medium')
-            
-            # Ajustar baseado na classe de ativo
+              # Ajustar baseado na classe de ativo
             if asset_class == 'crypto':
                 # Crypto tem maior volatilidade
                 buy_score *= 1.1
                 sell_score *= 1.1
                 reasons.append("Asset class: Crypto (higher volatility expected)")
-            elif asset_class == 'forex':
-                # Forex é mais estável
-                reasons.append("Asset class: Forex (stable market conditions)")
             
             # Ajustar baseado no nível de risco
             risk_multipliers = {
@@ -913,6 +901,7 @@ class SignalGenerator:
             
             risk_multiplier = risk_multipliers.get(risk_level, 1.0)
             buy_score *= risk_multiplier
+            sell_score *= risk_multiplier
             sell_score *= risk_multiplier
             
             # Volatility adjustments

@@ -21,12 +21,9 @@ class SimpleTradingDashboard {
             total_pnl: 0,
             active_trades: 0
         };
-        
-        // Assets suportados
+          // Assets suportados - apenas crypto após remoção do forex
         this.supportedAssets = {
-            'crypto': ['BTCUSDT', 'ETHUSDT', 'ADAUSDT', 'DOTUSDT', 'LINKUSDT', 'BNBUSDT', 'XRPUSDT', 'SOLUSDT', 'AVAXUSDT', 'MATICUSDT'],
-            'forex': ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD'],
-            'indices': ['SPX500', 'US30', 'NAS100', 'UK100']
+            'crypto': ['BTCUSDT', 'ETHUSDT', 'ADAUSDT', 'DOTUSDT', 'LINKUSDT', 'BNBUSDT', 'XRPUSDT', 'SOLUSDT', 'AVAXUSDT', 'MATICUSDT', 'UNIUSDT', 'ATOMUSDT', 'ALGOUSDT', 'LTCUSDT']
         };
         
         this.init();
@@ -1036,22 +1033,11 @@ class SimpleTradingDashboard {
             // Crypto Alt
             'MATICUSDT': 'BINANCE:MATICUSDT',
             'AVAXUSDT': 'BINANCE:AVAXUSDT',
-            'LTCUSDT': 'BINANCE:LTCUSDT',
-            'UNIUSDT': 'BINANCE:UNIUSDT',
+            'LTCUSDT': 'BINANCE:LTCUSDT',            'UNIUSDT': 'BINANCE:UNIUSDT',
             'ATOMUSDT': 'BINANCE:ATOMUSDT',
-            'ALGOUSDT': 'BINANCE:ALGOUSDT',
+            'ALGOUSDT': 'BINANCE:ALGOUSDT'
             
-            // Forex
-            'EURUSD': 'FX:EURUSD',
-            'GBPUSD': 'FX:GBPUSD',
-            'USDJPY': 'FX:USDJPY',
-            'AUDUSD': 'FX:AUDUSD',
-            'USDCAD': 'FX:USDCAD',
-            
-            // Índices
-            'SPX': 'SP:SPX',
-            'NDX': 'NASDAQ:NDX',
-            'DJI': 'DJ:DJI'
+            // Forex e Índices removidos - sistema agora suporta apenas crypto
         };
     }
 

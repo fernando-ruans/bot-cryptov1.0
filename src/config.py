@@ -26,15 +26,10 @@ class Config:
         'BNBUSDT', 'XRPUSDT', 'LTCUSDT', 'BCHUSDT', 'EOSUSDT',
         # Crypto Alt (média liquidez)  
         'SOLUSDT', 'MATICUSDT', 'AVAXUSDT', 'UNIUSDT', 'ATOMUSDT',
-        'ALGOUSDT', 'FILUSDT', 'AAVEUSDT', 'SUSHIUSDT', 'COMPUSDT'
-    ])
+        'ALGOUSDT', 'FILUSDT', 'AAVEUSDT', 'SUSHIUSDT', 'COMPUSDT'    ])
     
-    FOREX_PAIRS: List[str] = field(default_factory=lambda: [
-        # Forex Major (alta liquidez)
-        'EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF', 'AUDUSD',
-        'USDCAD', 'NZDUSD', 'EURJPY', 'GBPJPY', 'EURGBP',
-        # Forex Minor (média liquidez)
-        'EURCHF', 'GBPCHF', 'AUDCAD', 'AUDJPY', 'NZDJPY'    ])
+    # FOREX_PAIRS removido - sistema agora suporta apenas criptomoedas
+    FOREX_PAIRS: List[str] = field(default_factory=lambda: [])
     
     # Configurações de IA
     AI_MODEL_PATH: str = 'models/'
@@ -173,8 +168,7 @@ class Config:
         'quantum_ml': False,            # ML quântico (experimental)
         'neuromorphic_computing': False # Computação neuromórfica (experimental)
     })
-    
-    # Configurações de notificação
+      # Configurações de notificação
     NOTIFICATION_CONFIG: Dict = field(default_factory=lambda: {
         'telegram_enabled': False,
         'telegram_token': os.getenv('TELEGRAM_TOKEN', ''),
@@ -191,25 +185,23 @@ class Config:
         os.makedirs('logs', exist_ok=True)
         
     def get_all_pairs(self) -> List[str]:
-        """Retorna todos os pares de trading"""
-        return self.CRYPTO_PAIRS + self.FOREX_PAIRS
+        """Retorna todos os pares de trading - apenas crypto"""
+        return self.CRYPTO_PAIRS
     
     def is_crypto_pair(self, symbol: str) -> bool:
         """Verifica se é um par de criptomoeda"""
         return symbol in self.CRYPTO_PAIRS
     
     def is_forex_pair(self, symbol: str) -> bool:
-        """Verifica se é um par de forex"""
-        return symbol in self.FOREX_PAIRS
+        """Verifica se é um par de forex - DESABILITADO"""
+        return False  # Forex removido do sistema
     
     def get_asset_type(self, symbol: str) -> str:
-        """Retorna o tipo de ativo (crypto, forex)"""
+        """Retorna o tipo de ativo (apenas crypto suportado)"""
         if self.is_crypto_pair(symbol):
             return 'crypto'
-        elif self.is_forex_pair(symbol):
-            return 'forex'
         else:
-            return 'unknown'
+            return 'unknown'  # Forex não mais suportado
     
     def get_model_path(self, model_name: str) -> str:
         """Retorna o caminho completo do modelo"""

@@ -56,13 +56,8 @@ def is_crypto_symbol(symbol: str) -> bool:
     return any(symbol.endswith(suffix) for suffix in crypto_suffixes)
 
 def is_forex_symbol(symbol: str) -> bool:
-    """Verificar se é símbolo de forex"""
-    forex_pairs = [
-        'EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF', 'AUDUSD', 'USDCAD', 'NZDUSD',
-        'EURJPY', 'GBPJPY', 'EURGBP', 'AUDJPY', 'EURAUD', 'EURCHF', 'AUDNZD',
-        'NZDJPY', 'GBPAUD', 'GBPCAD', 'EURNZD', 'AUDCAD', 'GBPCHF', 'AUDCHF'
-    ]
-    return symbol.upper() in forex_pairs
+    """Verificar se é símbolo de forex - DESABILITADO"""
+    return False  # Forex removido do sistema
 
 def get_timeframe_minutes(timeframe: str) -> int:
     """Converter timeframe para minutos"""
@@ -246,25 +241,12 @@ def is_market_open(symbol: str, current_time: datetime = None) -> bool:
     """Verificar se mercado está aberto"""
     if current_time is None:
         current_time = datetime.utcnow()
-    
-    # Crypto mercados são 24/7
+      # Crypto funciona 24/7
     if is_crypto_symbol(symbol):
         return True
     
-    # Forex fecha nos fins de semana
-    if is_forex_symbol(symbol):
-        weekday = current_time.weekday()
-        hour = current_time.hour
-        
-        # Sexta 22:00 UTC até Domingo 22:00 UTC
-        if weekday == 4 and hour >= 22:  # Sexta após 22:00
-            return False
-        elif weekday in [5, 6]:  # Sábado e Domingo
-            return False
-        elif weekday == 6 and hour < 22:  # Domingo antes das 22:00
-            return False
-    
-    return True
+    # Forex removido - apenas crypto suportado
+    return True  # Assumir mercado aberto para compatibilidade
 
 def retry_on_failure(max_retries: int = 3, delay: float = 1.0):
     """Decorator para retry em caso de falha"""
@@ -516,14 +498,13 @@ class ConfigValidator:
             errors.append("BINANCE_SECRET_KEY não configurada")
         
         return errors
-    
-    @staticmethod
+      @staticmethod
     def validate_trading_pairs(config) -> List[str]:
-        """Validar pares de trading"""
+        """Validar pares de trading - apenas crypto suportado"""
         errors = []
         
-        if not config.CRYPTO_PAIRS and not config.FOREX_PAIRS:
-            errors.append("Nenhum par de trading configurado")
+        if not config.CRYPTO_PAIRS:
+            errors.append("Nenhum par de crypto configurado")
         
         return errors
     

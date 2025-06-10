@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de Preços Forex</title>
+    <meta charset="utf-8">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-item { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .price { font-weight: bold; color: #007bff; }
+        .error { color: #dc3545; }
+        .success { color: #28a745; }
+    </style>
+</head>
+<body>
+    <h1>Teste de Preços em Tempo Real</h1>
+    <div id="results"></div>
+
+    <script>
+        const assets = ['BTCUSDT', 'ETHUSDT', 'EURUSD', 'GBPUSD', 'USDJPY'];
+        const resultsDiv = document.getElementById('results');
+
+        function formatPriceWithSymbol(price, symbol) {
+            const forexAssets = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD'];
+            const formattedPrice = price.toLocaleString('en-US', {
+                minimumFractionDigits: forexAssets.includes(symbol) ? 4 : 2,
+                maximumFractionDigits: forexAssets.includes(symbol) ? 5 : 2
+            });
+            
+            if (forexAssets.includes(symbol)) {
+                return formattedPrice; // Forex sem símbolo de moeda
+            } else {
+                return `$${formattedPrice}`; // Crypto com símbolo $
+            }
+        }
+
+        async function testAsset(asset) {
+            const div = document.createElement('div');
+            div.className = 'test-item';
+            div.innerHTML = `<strong>${asset}:</strong> Testando...`;
+            resultsDiv.appendChild(div);
+
+            try {
+                const response = await fetch(`/api/price/realtime/${asset}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const formattedPrice = formatPriceWithSymbol(data.price, asset);
+                    div.innerHTML = `
+                        <strong>${asset}:</strong> 
+                        <span class="price success">${formattedPrice}</span>
+                        <br><small>Fonte: ${data.source} | Idade: ${data.age_seconds.toFixed(1)}s</small>
+                    `;
+                } else {
+                    div.innerHTML = `<strong>${asset}:</strong> <span class="error">Falha - ${data.error || 'Erro desconhecido'}</span>`;
+                }
+            } catch (error) {
+                div.innerHTML = `<strong>${asset}:</strong> <span class="error">Erro: ${error.message}</span>`;
+            }
+        }
+
+        // Testar todos os ativos
+        assets.forEach(asset => testAsset(asset));
+
+        // Atualizar a cada 5 segundos
+        setInterval(() => {
+            resultsDiv.innerHTML = '<h2>Atualizando...</h2>';
+            assets.forEach(asset => testAsset(asset));
+        }, 5000);
+    </script>
+</body>
+</html>
