@@ -436,8 +436,7 @@ class AITradingEngine:
         except Exception as e:
             logger.error(f"Erro no treinamento Neural Network: {e}")
             return {'model': None, 'accuracy': 0, 'predictions': None}
-    
-    def _create_ensemble(self, models_results: Dict, X_train, y_train, X_test, y_test) -> Dict:
+      def _create_ensemble(self, models_results: Dict, X_train, y_train, X_test, y_test) -> Dict:
         """Criar modelo ensemble"""
         try:
             # Selecionar modelos válidos
@@ -468,32 +467,7 @@ class AITradingEngine:
             return {'model': None, 'accuracy': 0, 'predictions': None}
     
     def predict_signal(self, df: pd.DataFrame, symbol: str) -> Dict:
-        """Gerar predição de sinal"""        # TEMPORÁRIO: GERAR SINAIS BALANCEADOS SEM HOLD PARA TESTE
-        import hashlib
-        
-        # Usar hash do símbolo + timestamp para gerar sinais pseudo-aleatórios balanceados
-        hash_input = f"{symbol}{datetime.now().strftime('%Y%m%d%H')}"
-        hash_value = int(hashlib.md5(hash_input.encode()).hexdigest()[:8], 16)
-        
-        # Gerar apenas sinais BUY (1) ou SELL (-1), eliminando HOLD (0)
-        signal_value = 1 if hash_value % 2 == 0 else -1
-        confidence = 0.6 + (hash_value % 25) / 100  # Confiança entre 0.6 e 0.84
-        
-        signal_names = {-1: 'SELL', 1: 'BUY'}
-        logger.info(f"🚨 MODO TESTE: Gerando sinal {signal_names[signal_value]} para {symbol} (SEM HOLD)")
-        
-        return {
-            'signal': signal_value,
-            'confidence': confidence,
-            'individual_predictions': {
-                'test_model': signal_value
-            },
-            'timestamp': datetime.now().isoformat(),
-            'test_mode': True
-        }
-        
-        # Código original comentado temporariamente
-        """
+        """Gerar predição de sinal"""
         try:
             if symbol not in self.models:
                 return {'signal': 0, 'confidence': 0, 'error': 'Modelo não treinado'}
@@ -501,8 +475,7 @@ class AITradingEngine:
             # Preparar features
             df_features = self.prepare_features(df)
             
-            # Selecionar features numéricas
-            numeric_features = df_features.select_dtypes(include=[np.number]).columns
+            # Selecionar features numéricas            numeric_features = df_features.select_dtypes(include=[np.number]).columns
             X = df_features[numeric_features].iloc[-1:]
             
             # Escalar e selecionar features
@@ -554,7 +527,6 @@ class AITradingEngine:
         except Exception as e:
             logger.error(f"Erro na predição: {e}")
             return {'signal': 0, 'confidence': 0, 'error': str(e)}
-        """
     
     def _save_models(self, symbol: str):
         """Salvar modelos em disco"""

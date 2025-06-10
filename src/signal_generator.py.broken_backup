@@ -10,19 +10,11 @@ from typing import Dict, List, Optional, Tuple
 import logging
 import json
 
-try:
-    from .technical_indicators import TechnicalIndicators
-    from .market_data import MarketDataManager
-    from .ai_engine import AITradingEngine
-    from .market_analyzer import MarketAnalyzer
-    from .config import Config
-except ImportError:
-    # Fallback para imports absolutos quando executado diretamente
-    from technical_indicators import TechnicalIndicators
-    from market_data import MarketDataManager
-    from ai_engine import AITradingEngine
-    from market_analyzer import MarketAnalyzer
-    from config import Config
+from .technical_indicators import TechnicalIndicators
+from .market_data import MarketDataManager
+from .ai_engine import AITradingEngine
+from .market_analyzer import MarketAnalyzer
+from .config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -417,8 +409,7 @@ class SignalGenerator:
                 confidence = min(buy_strength / 2.0, 1.0)  # Divisor reduzido para 2.0
             elif sell_strength >= min_strength and sell_strength > buy_strength + min_diff:
                 signal_type = 'sell'
-                confidence = min(sell_strength / 2.0, 1.0)  # Divisor reduzido para 2.0
-            elif buy_strength >= min_strength and buy_strength > sell_strength:
+                confidence = min(sell_strength / 2.0, 1.0)  # Divisor reduzido para 2.0            elif buy_strength >= min_strength and buy_strength > sell_strength:
                 # Se buy é maior mas diferença < min_diff, ainda dar sinal buy com confiança reduzida
                 signal_type = 'buy'
                 confidence = min(buy_strength / 3.0, 0.6)  # Confiança reduzida
@@ -426,29 +417,41 @@ class SignalGenerator:
                 # Se sell é maior mas diferença < min_diff, ainda dar sinal sell com confiança reduzida
                 signal_type = 'sell'
                 confidence = min(sell_strength / 3.0, 0.6)  # Confiança reduzida
-            elif buy_strength >= min_strength and buy_strength == sell_strength:
-                # Empate - escolher baseado no primeiro sinal mais forte encontrado
+            elif buy_strength >= min_strength and buy_strength == sell_strength:                # Empate - escolher baseado no primeiro sinal mais forte encontrado
                 if buy_signals and sell_signals:
                     max_buy = max(buy_signals)
                     max_sell = max(sell_signals)
+                    # Sempre escolher o sinal mais forte, nunca HOLD
                     if max_buy >= max_sell:
                         signal_type = 'buy'
-                        confidence = min(buy_strength / 2.2, 0.6)  # Divisor mais baixo para empates
+                        confidence = min(buy_strength / 2.5, 0.5)  # Confiança reduzida para empates
                     else:
                         signal_type = 'sell'
-                        confidence = min(sell_strength / 2.2, 0.6)
-                elif buy_signals:
+                        confidence = min(sell_strength / 2.5, 0.5)  # Confiança reduzida para empates                elif buy_signals:
                     signal_type = 'buy'
-                    confidence = min(buy_strength / 2.2, 0.6)
+                    confidence = min(buy_strength / 2.5, 0.5)
                 elif sell_signals:
                     signal_type = 'sell'
-                    confidence = min(sell_strength / 2.2, 0.6)
+                    confidence = min(sell_strength / 2.5, 0.5)
                 else:
-                    signal_type = 'hold'
-                    confidence = 0.0
+                    # Nenhum sinal claro - usar tendência de preço como fallback
+                    latest = df.iloc[-1]
+                    prev = df.iloc[-2] if len(df) > 1 else latest
+                    if latest['close'] > prev['close']:
+                        signal_type = 'buy'  # Preço subindo
+                    else:
+                        signal_type = 'sell'  # Preço descendo
+                    confidence = 0.15  # Confiança mínima
             else:
-                signal_type = 'hold'
-                confidence = 0.0
+                # Força mínima insuficiente - usar momentum simples
+                latest = df.iloc[-1]
+                prev = df.iloc[-2] if len(df) > 1 else latest
+                if latest['close'] > prev['close']:
+                    signal_type = 'buy'
+                    confidence = 0.1
+                else:
+                    signal_type = 'sell'
+                    confidence = 0.1
             
             return {
                 'signal': signal_type,
@@ -904,12 +907,10 @@ class SignalGenerator:
             risk_multipliers = {
                 'low': 1.1,
                 'medium': 1.0,
-                'high': 0.9
-            }
+                'high': 0.9            }
             
             risk_multiplier = risk_multipliers.get(risk_level, 1.0)
             buy_score *= risk_multiplier
-            sell_score *= risk_multiplier
             sell_score *= risk_multiplier
             
             # Volatility adjustments
@@ -927,60 +928,79 @@ class SignalGenerator:
             strong_threshold = 0.25   # Threshold para sinais fortes
             medium_threshold = 0.15   # Threshold para sinais médios
             weak_threshold = 0.08     # Threshold para sinais fracos
-            
-            # Calcular diferença entre scores para validar direção
+              # Calcular diferença entre scores para validar direção
             score_difference = abs(buy_score - sell_score)
-            min_difference = 0.05  # Diferença mínima para evitar sinais ambíguos
+            min_difference = 0.02  # Diferença mínima reduzida para ser menos restritivo
             
-            if score_difference < min_difference:
-                # Sinais muito próximos - preferir HOLD
-                final_signal = 'hold'
-                final_confidence = 0.0
-                logger.info(f"Sinal HOLD - scores muito próximos (diff: {score_difference:.3f})")
-            elif buy_score > sell_score and buy_score > strong_threshold:
-                # Sinal BUY forte
-                final_signal = 'buy'
-                final_confidence = min(buy_score * 0.85, 0.75)  # Cap em 75%
-                logger.info(f"Sinal BUY FORTE gerado com confiança {final_confidence:.3f}")
-            elif sell_score > buy_score and sell_score > strong_threshold:
-                # Sinal SELL forte
-                final_signal = 'sell'
-                final_confidence = min(sell_score * 0.85, 0.75)  # Cap em 75%
-                logger.info(f"Sinal SELL FORTE gerado com confiança {final_confidence:.3f}")
-            elif buy_score > sell_score and buy_score > medium_threshold:
-                # Sinal BUY médio
-                final_signal = 'buy'
-                final_confidence = min(buy_score * 0.7, 0.55)  # Cap em 55%
-                logger.info(f"Sinal BUY MÉDIO gerado com confiança {final_confidence:.3f}")
-            elif sell_score > buy_score and sell_score > medium_threshold:
-                # Sinal SELL médio
-                final_signal = 'sell'
-                final_confidence = min(sell_score * 0.7, 0.55)  # Cap em 55%
-                logger.info(f"Sinal SELL MÉDIO gerado com confiança {final_confidence:.3f}")
-            elif buy_score > sell_score and buy_score > weak_threshold:
-                # Sinal BUY fraco - apenas se houver confluência
-                if self._has_strong_confluence(technical, ai_prediction, volume):
+            # FORÇAR SEMPRE BUY OU SELL - NUNCA HOLD
+            if buy_score > sell_score:
+                # Sinal BUY (sempre que buy > sell)
+                if buy_score > strong_threshold:
                     final_signal = 'buy'
-                    final_confidence = min(buy_score * 0.6, 0.35)  # Cap em 35%
-                    logger.info(f"Sinal BUY FRACO com confluência - confiança {final_confidence:.3f}")
+                    final_confidence = min(buy_score * 0.85, 0.75)  # Cap em 75%
+                    logger.info(f"Sinal BUY FORTE gerado com confiança {final_confidence:.3f}")
+                elif buy_score > medium_threshold:
+                    final_signal = 'buy'
+                    final_confidence = min(buy_score * 0.7, 0.55)  # Cap em 55%
+                    logger.info(f"Sinal BUY MÉDIO gerado com confiança {final_confidence:.3f}")
                 else:
-                    final_signal = 'hold'
-                    final_confidence = 0.0
-                    logger.info(f"Sinal BUY fraco rejeitado - sem confluência suficiente")
-            elif sell_score > buy_score and sell_score > weak_threshold:
-                # Sinal SELL fraco - apenas se houver confluência
-                if self._has_strong_confluence(technical, ai_prediction, volume):
+                    # BUY fraco mas ainda BUY
+                    final_signal = 'buy'
+                    final_confidence = min(buy_score * 0.5, 0.35)  # Cap em 35%
+                    logger.info(f"Sinal BUY FRACO gerado com confiança {final_confidence:.3f}")
+            elif sell_score > buy_score:
+                # Sinal SELL (sempre que sell > buy)                if sell_score > strong_threshold:
                     final_signal = 'sell'
-                    final_confidence = min(sell_score * 0.6, 0.35)  # Cap em 35%
-                    logger.info(f"Sinal SELL FRACO com confluência - confiança {final_confidence:.3f}")
+                    final_confidence = min(sell_score * 0.85, 0.75)  # Cap em 75%
+                    logger.info(f"Sinal SELL FORTE gerado com confiança {final_confidence:.3f}")
+                elif sell_score > medium_threshold:
+                    final_signal = 'sell'
+                    final_confidence = min(sell_score * 0.7, 0.55)  # Cap em 55%
+                    logger.info(f"Sinal SELL MÉDIO gerado com confiança {final_confidence:.3f}")
                 else:
-                    final_signal = 'hold'
-                    final_confidence = 0.0
-                    logger.info(f"Sinal SELL fraco rejeitado - sem confluência suficiente")
+                    # SELL fraco mas ainda SELL
+                    final_signal = 'sell'
+                    final_confidence = min(sell_score * 0.5, 0.35)  # Cap em 35%
+                    logger.info(f"Sinal SELL FRACO gerado com confiança {final_confidence:.3f}")
             else:
-                final_signal = 'hold'
-                final_confidence = 0.0
-                logger.info(f"Sinal HOLD - scores insuficientes (buy: {buy_score:.3f}, sell: {sell_score:.3f})")
+                # Empate exato - usar análise técnica como tiebreaker
+                if technical.get('signal') == 'buy':
+                    final_signal = 'buy'
+                    final_confidence = 0.25  # Confiança baixa para empates
+                    logger.info(f"Sinal BUY por tiebreaker técnico (empate)")
+                elif technical.get('signal') == 'sell':
+                    final_signal = 'sell'
+                    final_confidence = 0.25  # Confiança baixa para empates
+                    logger.info(f"Sinal SELL por tiebreaker técnico (empate)")
+                else:
+                    # Último recurso - usar momentum de preço
+                    if 'close' in technical.get('reasons', []):
+                        final_signal = 'buy'  # Default para BUY se preço está subindo
+                    else:
+                        final_signal = 'sell'  # Default para SELL
+                    final_confidence = 0.15
+                    logger.info(f"Sinal {final_signal.upper()} por último recurso (empate total)")
+                    
+            elif buy_score > sell_score and buy_score > weak_threshold:
+                # Sinal BUY fraco - sempre gerar BUY
+                final_signal = 'buy'
+                final_confidence = min(buy_score * 0.4, 0.25)  # Cap em 25%
+                logger.info(f"Sinal BUY FRACO gerado com confiança {final_confidence:.3f}")
+            elif sell_score > buy_score and sell_score > weak_threshold:
+                # Sinal SELL fraco - sempre gerar SELL
+                final_signal = 'sell'
+                final_confidence = min(sell_score * 0.4, 0.25)  # Cap em 25%
+                logger.info(f"Sinal SELL FRACO gerado com confiança {final_confidence:.3f}")
+            else:
+                # Scores muito baixos - usar tiebreaker mais agressivo
+                if buy_score >= sell_score:
+                    final_signal = 'buy'
+                    final_confidence = 0.15  # Confiança mínima
+                    logger.info(f"Sinal BUY por tiebreaker (scores baixos: buy {buy_score:.3f} >= sell {sell_score:.3f})")
+                else:
+                    final_signal = 'sell'
+                    final_confidence = 0.15  # Confiança mínima
+                    logger.info(f"Sinal SELL por tiebreaker (scores baixos: sell {sell_score:.3f} > buy {buy_score:.3f})")
             
             return {
                 'signal': final_signal,

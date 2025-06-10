@@ -925,8 +925,7 @@ class MarketAnalyzer:
                 "ai_score": confidence,
                 "entry_price": current_price,
                 "stop_loss": stop_loss,
-                "take_profit": take_profit,
-                "risk_reward": risk_reward,
+                "take_profit": take_profit,                "risk_reward": risk_reward,
                 "reasons": reasons,
                 "market_context": market_context,
                 "ai_prediction": ai_prediction
@@ -943,12 +942,14 @@ class MarketAnalyzer:
         
         try:
             # Razões baseadas no tipo de recomendação
+            confidence_pct = ai_prediction.get('confidence', 0) * 100  # Converter para porcentagem
+            
             if recommendation == "buy":
-                reasons.append(f"IA prevê movimento de alta com {ai_prediction.get('buy_score', 0):.1%} de confiança")
+                reasons.append(f"IA prevê movimento de alta com {confidence_pct:.1f}% de confiança")
             elif recommendation == "sell":
-                reasons.append(f"IA prevê movimento de baixa com {ai_prediction.get('sell_score', 0):.1%} de confiança")
+                reasons.append(f"IA prevê movimento de baixa com {confidence_pct:.1f}% de confiança")
             elif recommendation == "hold":
-                reasons.append(f"IA recomenda aguardar com {ai_prediction.get('hold_score', 0):.1%} de confiança")
+                reasons.append(f"IA recomenda aguardar com {confidence_pct:.1f}% de confiança")
             
             # Razões baseadas no regime de mercado
             if 'market_regime' in market_context:

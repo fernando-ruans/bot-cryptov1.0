@@ -91,6 +91,91 @@ class SimpleTradingBot:
 # Instância global do bot
 trading_bot = SimpleTradingBot()
 
+def convert_hold_to_signal(signal, symbol, timeframe):
+    """Converter sinal HOLD em BUY ou SELL baseado em análise simples"""
+    if signal is None or signal.signal_type != 'hold':
+        return signal
+    
+    try:
+        # Obter dados de mercado atuais para análise
+        current_market_data = market_data.get_market_data(symbol, timeframe)
+        
+        if current_market_data is not None and len(current_market_data) >= 5:
+            # Análise simples de momentum para decidir BUY/SELL
+            recent_prices = current_market_data['close'].tail(5).values
+            
+            # Calcular variação percentual recente
+            price_change = (recent_prices[-1] - recent_prices[0]) / recent_prices[0]
+            
+            # Determinar sinal baseado no momentum
+            if price_change > 0.001:  # Alta de mais de 0.1%
+                new_signal_type = 'buy'
+                reason = 'converted_from_hold_momentum_up'
+            else:
+                new_signal_type = 'sell'
+                reason = 'converted_from_hold_momentum_down'
+            
+            # Criar novo sinal mantendo estrutura original
+            from src.signal_generator import Signal
+            
+            new_signal = Signal(
+                symbol=signal.symbol,
+                signal_type=new_signal_type,
+                confidence=0.15,  # Confiança baixa para sinais convertidos
+                entry_price=signal.entry_price,
+                stop_loss=signal.stop_loss,
+                take_profit=signal.take_profit,
+                timeframe=signal.timeframe,
+                reasons=[reason, 'original_was_hold'] + (signal.reasons or [])
+            )
+            
+            logger.info(f"🔄 Convertido HOLD → {new_signal_type.upper()} para {symbol} (momentum: {price_change:.4f})")
+            return new_signal
+        
+        # Fallback: usar timestamp para decisão pseudo-aleatória consistente
+        import hashlib
+        hash_input = f"{symbol}{timeframe}{datetime.now().strftime('%Y%m%d%H')}"
+        hash_value = int(hashlib.md5(hash_input.encode()).hexdigest()[:8], 16)
+        
+        new_signal_type = 'buy' if hash_value % 2 == 0 else 'sell'
+        
+        from src.signal_generator import Signal
+        new_signal = Signal(
+            symbol=signal.symbol,
+            signal_type=new_signal_type,
+            confidence=0.10,
+            entry_price=signal.entry_price,
+            stop_loss=signal.stop_loss,
+            take_profit=signal.take_profit,
+            timeframe=signal.timeframe,
+            reasons=['converted_from_hold_fallback', 'original_was_hold'] + (signal.reasons or [])
+        )
+        
+        logger.info(f"🔄 Convertido HOLD → {new_signal_type.upper()} para {symbol} (fallback)")
+        return new_signal
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao converter HOLD: {e}")
+        # Em caso de erro, retornar sinal SELL conservador
+        from src.signal_generator import Signal
+        new_signal = Signal(
+            symbol=signal.symbol,
+            signal_type='sell',
+            confidence=0.05,
+            entry_price=signal.entry_price,
+            stop_loss=signal.stop_loss,
+            take_profit=signal.take_profit,
+            timeframe=signal.timeframe,
+            reasons=['converted_from_hold_error', 'original_was_hold'] + (signal.reasons or [])
+        )
+        
+        logger.info(f"🔄 Convertido HOLD → SELL para {symbol} (erro - conservador)")
+        return new_signal
+
+# =============================================================================
+# ROTAS DA API
+# =============================================================================
+
 # ==================== ROTAS WEB ====================
 
 @app.route('/')
@@ -136,11 +221,15 @@ def api_generate_signal():
         logger.info(f"🎰 Gerando sinal para {symbol} {timeframe}")
         logger.info(f"📊 DEBUG: Dados da requisição: {data}")
         logger.info(f"📊 DEBUG: Signal generator instance: {signal_generator}")
-        logger.info(f"📊 DEBUG: Signal generator config: {signal_generator.config.SIGNAL_CONFIG}")
-          # Gerar sinal
+        logger.info(f"📊 DEBUG: Signal generator config: {signal_generator.config.SIGNAL_CONFIG}")        # Gerar sinal
         logger.info(f"📊 DEBUG: Chamando signal_generator.generate_signal('{symbol}', '{timeframe}')")
         signal = signal_generator.generate_signal(symbol, timeframe)
         logger.info(f"📊 DEBUG: Resultado do generate_signal: {signal}")
+        
+        # Converter HOLD em BUY/SELL se necessário
+        if signal and signal.signal_type == 'hold':
+            logger.info(f"🔄 Sinal HOLD detectado para {symbol} - convertendo...")
+            signal = convert_hold_to_signal(signal, symbol, timeframe)
         
         if signal is None:
             logger.warning(f"⚠️ Nenhum sinal gerado para {symbol}")
@@ -241,13 +330,22 @@ def api_generate_signals_all_pairs():
         timeframe = data.get('timeframe', '1h')
         
         logger.info(f"🔄 Gerando sinais para todos os pares (timeframe: {timeframe})")
-        
-        # Gerar sinais para todos os pares
+          # Gerar sinais para todos os pares
         signals = signal_generator.generate_signals_for_all_pairs()
+        
+        # Converter sinais HOLD em BUY/SELL
+        converted_signals = []
+        for signal in signals:
+            if signal.signal_type == 'hold':
+                logger.info(f"🔄 Convertendo HOLD para {signal.symbol}")
+                signal = convert_hold_to_signal(signal, signal.symbol, timeframe)
+            converted_signals.append(signal)
+        
+        signals = converted_signals
         
         # Converter sinais para formato de resposta
         signals_data = []
-        for signal in signals:            signals_data.append({
+        for signal in signals:signals_data.append({
                 'symbol': signal.symbol,
                 'signal_type': signal.signal_type,
                 'entry_price': signal.entry_price,
