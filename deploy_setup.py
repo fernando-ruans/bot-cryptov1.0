@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
 """
 CryptoNinja 🥷 - Setup de Deploy Universal
-Script para criar usuários iniciais em qualquer plataforma (Docker, Heroku, AWS, etc.)
+Script para criar usuários iniciais em qualquer plataforma
+
+ATENÇÃO: Este script é LEGADO!
+Use os novos scripts de banco:
+- create_database.sql (local)
+- schema_cloud.sql (cloud genérico) 
+- schema_supabase.sql (supabase com RLS)
+
+Todos já incluem usuários com hashes válidos!
 """
 
 import os

@@ -10,13 +10,30 @@
 ### 🔧 **Processo de Deploy**
 
 #### **1. Configurar Banco de Dados**
-```sql
--- Executar primeiro o schema principal
-psql -f schema_simples.sql
+**Escolha o script apropriado para seu ambiente:**
 
--- Depois executar usuários com hashes válidos
-psql -f deploy_users.sql
+```bash
+# DESENVOLVIMENTO LOCAL (PostgreSQL instalado)
+psql -U postgres -f create_database.sql
+
+# HEROKU, RAILWAY, DIGITALOCEAN
+heroku pg:psql -f schema_cloud.sql
+# OU
+psql $DATABASE_URL -f schema_cloud.sql
+
+# SUPABASE (via SQL Editor)
+# Cole o conteúdo de schema_supabase.sql no SQL Editor
 ```
+
+**Scripts disponíveis:**
+- `create_database.sql` - Cria banco + tabelas (local)
+- `schema_cloud.sql` - Apenas tabelas (cloud genérico)  
+- `schema_supabase.sql` - Supabase com RLS
+
+**Todos incluem usuários de teste:**
+- admin:admin123 (administrador)
+- demo:demo123 (usuário normal)
+- trader:trader123 (usuário com dados)
 
 #### **2. Configurar Variáveis de Ambiente**
 ```bash
@@ -98,7 +115,29 @@ volumes:
   postgres_data:
 ```
 
-#### **6. Deploy AWS/Digital Ocean**
+#### **6. Deploy Supabase + Vercel**
+```bash
+# 1. Criar projeto Supabase
+# Acesse https://supabase.com/dashboard
+# Crie novo projeto
+
+# 2. Configurar banco
+# Acesse SQL Editor no Supabase
+# Cole conteúdo de schema_supabase.sql
+# Execute
+
+# 3. Deploy Vercel
+vercel deploy
+vercel env add DATABASE_URL
+vercel env add SUPABASE_URL  
+vercel env add SUPABASE_ANON_KEY
+
+# 4. Verificar
+# Acesse URL do Vercel
+# Login: admin / admin123
+```
+
+#### **7. Deploy AWS/Digital Ocean**
 ```bash
 # Configurar servidor Ubuntu
 sudo apt update
@@ -132,10 +171,14 @@ print(new_hash)
 
 ### ✅ **Verificação Pós-Deploy**
 1. Acessar aplicação via URL
-2. Testar login: admin / ninja123
-3. Alterar senhas padrão
+2. Testar login com usuários de teste:
+   - **Admin:** admin / admin123
+   - **Demo:** demo / demo123  
+   - **Trader:** trader / trader123
+3. Alterar senhas padrão (IMPORTANTE!)
 4. Verificar funcionalidades de trading
 5. Testar painel administrativo
+6. Verificar dados de mercado em tempo real
 
 ### 🆘 **Troubleshooting**
 
