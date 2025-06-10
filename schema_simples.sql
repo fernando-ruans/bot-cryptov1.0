@@ -129,11 +129,11 @@ CREATE INDEX idx_notifications_user ON notifications(user_id);
 
 -- Inserir usuario admin
 INSERT INTO users (username, email, password_hash, is_admin) 
-VALUES ('admin', 'admin@cryptoninja.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/lewdBVpPI9nD.U2se', TRUE);
+VALUES ('admin', 'admin@cryptoninja.com', '$2b$12$QqsxH202qY/4bQa7SradTu0S8OPAuw7YfSNvGgOiPEqMcMdMwOP56', TRUE);
 
 -- Inserir usuario demo
 INSERT INTO users (username, email, password_hash, is_admin) 
-VALUES ('demo', 'demo@cryptoninja.com', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/lewdBVpPI9nD.U2se', FALSE);
+VALUES ('demo', 'demo@cryptoninja.com', '$2b$12$QqsxH202qY/4bQa7SradTu0S8OPAuw7YfSNvGgOiPEqMcMdMwOP56', FALSE);
 
 -- Comentarios das tabelas
 COMMENT ON TABLE users IS 'Usuarios do sistema CryptoNinja';
