@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Trading Bot AI - Enhanced Dashboard</title>    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>CryptoNinja 🥷 - Stealth Trading AI</title>    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/enhanced-animations.css') }}" rel="stylesheet">
@@ -61,15 +61,19 @@
             color: white !important;
             display: flex;
             align-items: center;
-        }
-
-        .navbar-brand i {
-            background: linear-gradient(45deg, #60a5fa, #34d399);
+        }        .navbar-brand i {
+            background: linear-gradient(45deg, #60a5fa, #34d399, #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-right: 0.75rem;
             font-size: 1.75rem;
-        }        .navbar-text {
+            animation: ninja-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes ninja-glow {
+            0%, 100% { filter: drop-shadow(0 0 5px rgba(139, 92, 246, 0.5)); }
+            50% { filter: drop-shadow(0 0 15px rgba(139, 92, 246, 0.8)); }
+        }.navbar-text {
             color: rgba(255, 255, 255, 0.9) !important;
             font-weight: 500;
         }
@@ -741,11 +745,10 @@
 <body>
     <!-- Enhanced Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
-        <div class="container">
-            <a class="navbar-brand" href="#">
+        <div class="container">            <a class="navbar-brand" href="#">
                 <i class="fas fa-robot"></i>
-                Trading Bot AI - Enhanced
-            </a>            <div class="ms-auto d-flex align-items-center">
+                CryptoNinja 🥷
+            </a><div class="ms-auto d-flex align-items-center">
                 <!-- Market Data Display -->
                 <div class="market-data-container me-4">
                     <div class="d-flex align-items-center">

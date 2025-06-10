@@ -1,5 +1,5 @@
 /**
- * Trading Bot AI - Dashboard Simplificado
+ * CryptoNinja 🥷 - Stealth Trading AI
  * Sistema Paper Trading com Fluxo Simples:
  * 1. Gerar Sinal → 2. Aprovar/Rejeitar → 3. Contabilizar P&L → 4. Calcular Win Rate
  */
@@ -59,7 +59,7 @@ class SimpleTradingDashboard {    constructor() {
     }
 
     init() {
-        console.log('🚀 Inicializando Trading Bot AI - Versão Simplificada');
+        console.log('🚀 Inicializando CryptoNinja 🥷 - Stealth Trading AI');
         
         // Sincronizar timeframe com o valor selecionado no HTML
         const timeframeSelector = document.getElementById('timeframeSelector');
@@ -101,7 +101,7 @@ class SimpleTradingDashboard {    constructor() {
             this.updateCurrentPrice();
         }, 10000);
         
-        console.log('✅ Dashboard inicializado com sucesso!');
+        console.log('✅ CryptoNinja 🥷 inicializado! Pronto para trades furtivos...');
     }
 
     initTradingView() {
