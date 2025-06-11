@@ -1,5 +1,5 @@
-# CryptoNinja 🥷 - Requirements para Deploy Monolítico
-# Dependências otimizadas para Render, Railway, Fly.io
+# CryptoNinja 🥷 - Requirements COMPLETOS para Deploy
+# Todas as dependências verificadas e validadas
 
 # Flask core
 Flask==2.3.2
@@ -21,6 +21,9 @@ requests==2.31.0
 
 # Cryptocurrency APIs
 ccxt==4.0.97
+
+# WebSocket support (para realtime_price_api)
+websockets==13.0
 
 # Data processing
 pandas==2.0.3
@@ -52,3 +55,6 @@ eventlet==0.33.3
 
 # Security
 Werkzeug==2.3.6
+
+# Additional core Python libraries (garantir compatibilidade)
+asyncio-throttle==1.0.2
