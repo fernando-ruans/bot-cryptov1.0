@@ -4,7 +4,7 @@ Gerenciador de dados de mercado para criptomoedas
 """
 
 import ccxt
-import yfinance as yf
+# import yfinance as yf  # Removido - forex desabilitado
 import pandas as pd
 import numpy as np
 import logging

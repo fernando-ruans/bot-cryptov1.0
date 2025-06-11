@@ -4,7 +4,7 @@ Gerenciador de dados de mercado para criptomoedas e forex
 """
 
 import ccxt
-import yfinance as yf
+# import yfinance as yf  # Removido - forex desabilitado
 import pandas as pd
 import numpy as np
 import logging
@@ -310,8 +310,7 @@ class MarketDataManager:
         
         if not data:
             raise ValueError("Nenhum dado retornado pelo CoinGecko")
-        
-        # Converter para DataFrame
+          # Converter para DataFrame
         df_data = []
         for item in data:
             timestamp = pd.to_datetime(item[0], unit='ms')
@@ -331,23 +330,27 @@ class MarketDataManager:
         return df
     
     def _update_forex_data(self, symbol: str):
-        """Atualizar dados de forex"""
-        try:
-            # Converter formato (EURUSD -> EUR=X)
-            yahoo_symbol = f"{symbol[:3]}{symbol[3:]}=X"
-            
-            ticker = yf.Ticker(yahoo_symbol)
-            hist = ticker.history(period="1d", interval="1h")
-            
-            if not hist.empty:                # Converter para formato padrão
-                df = hist[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
-                df.columns = ['open', 'high', 'low', 'close', 'volume']
-                
-                cache_key = f"{symbol}_1h"
-                self.data_cache[cache_key] = df
-                
-        except Exception as e:
-            logger.error(f"Erro ao atualizar dados forex {symbol}: {e}")
+        """Atualizar dados de forex - DESABILITADO"""
+        # Forex foi removido do sistema para otimizar deploy
+        logger.warning(f"Forex desabilitado: {symbol}")
+        return
+        
+        # try:
+        #     # Converter formato (EURUSD -> EUR=X)
+        #     yahoo_symbol = f"{symbol[:3]}{symbol[3:]}=X"
+        #     
+        #     ticker = yf.Ticker(yahoo_symbol)
+        #     hist = ticker.history(period="1d", interval="1h")
+        #     
+        #     if not hist.empty:                # Converter para formato padrão
+        #         df = hist[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
+        #         df.columns = ['open', 'high', 'low', 'close', 'volume']
+        #         
+        #         cache_key = f"{symbol}_1h"
+        #         self.data_cache[cache_key] = df
+        #         
+        # except Exception as e:
+        #     logger.error(f"Erro ao atualizar dados forex {symbol}: {e}")
     
     def _generate_demo_data(self, symbol: str, timeframe: str, limit: int = 500) -> pd.DataFrame:
         """Gerar dados simulados para demonstração"""
