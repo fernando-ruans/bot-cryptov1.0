@@ -1,0 +1,173 @@
+2025-06-11 00:10:00,276 - src.market_data - INFO - Usando APIs públicas para dados de mercado
+2025-06-11 00:10:00,284 - src.market_data - INFO - APIs públicas inicializadas: Binance, Kraken
+2025-06-11 00:10:00,285 - src.ai_engine - INFO - AI Engine inicializado com: Random Forest + XGBoost, LightGBM
+2025-06-11 00:10:00,308 - src.database - INFO - Banco de dados inicializado com sucesso
+2025-06-11 00:10:00,314 - src.database - INFO - Banco de dados inicializado com sucesso
+2025-06-11 00:10:00,318 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-11 00:10:00,318 - src.market_data - INFO - Feed de dados iniciado
+2025-06-11 00:10:00,327 - src.ai_engine - INFO - Nenhum modelo pré-treinado encontrado - funcionando em modo de geração de sinais
+2025-06-11 00:10:00,327 - src.ai_engine - INFO - Load models concluído - sistema pronto
+2025-06-11 00:10:03,533 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-11 00:10:03,898 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-11 00:10:04,247 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-11 00:10:04,567 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-11 00:10:04,882 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-11 00:10:05,200 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-11 00:10:05,520 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-11 00:10:05,831 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-11 00:10:06,936 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-11 00:10:07,256 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-11 00:10:07,577 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-11 00:10:07,901 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-11 00:10:08,218 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-11 00:10:09,327 - src.market_data - INFO - Buscando ADAUSDT da Binance pública
+2025-06-11 00:10:09,735 - src.market_data - INFO - Buscando ADAUSDT da Binance pública
+2025-06-11 00:10:10,056 - src.market_data - INFO - Buscando ADAUSDT da Binance pública
+2025-06-11 00:10:10,378 - src.market_data - INFO - Buscando ADAUSDT da Binance pública
+2025-06-11 00:10:10,703 - src.market_data - INFO - Buscando ADAUSDT da Binance pública
+2025-06-11 00:10:11,015 - src.market_data - INFO - Buscando ADAUSDT da Binance pública
+2025-06-11 00:10:11,341 - src.market_data - INFO - Buscando ADAUSDT da Binance pública
+2025-06-11 00:10:11,672 - src.market_data - INFO - Buscando DOTUSDT da Binance pública
+2025-06-11 00:10:11,996 - src.market_data - INFO - Buscando DOTUSDT da Binance pública
+2025-06-11 00:10:12,325 - src.market_data - INFO - Buscando DOTUSDT da Binance pública
+2025-06-11 00:10:12,641 - src.market_data - INFO - Buscando DOTUSDT da Binance pública
+2025-06-11 00:10:12,986 - src.market_data - INFO - Buscando DOTUSDT da Binance pública
+2025-06-11 00:10:13,307 - src.market_data - INFO - Buscando DOTUSDT da Binance pública
+2025-06-11 00:10:13,638 - src.market_data - INFO - Buscando DOTUSDT da Binance pública
+2025-06-11 00:10:13,959 - src.market_data - INFO - Buscando LINKUSDT da Binance pública
+2025-06-11 00:10:14,278 - src.market_data - INFO - Buscando LINKUSDT da Binance pública
+2025-06-11 00:10:14,606 - src.market_data - INFO - Buscando LINKUSDT da Binance pública
+2025-06-11 00:10:14,930 - src.market_data - INFO - Buscando LINKUSDT da Binance pública
+2025-06-11 00:10:15,256 - src.market_data - INFO - Buscando LINKUSDT da Binance pública
+2025-06-11 00:10:15,580 - src.market_data - INFO - Buscando LINKUSDT da Binance pública
+2025-06-11 00:10:15,904 - src.market_data - INFO - Buscando LINKUSDT da Binance pública
+2025-06-11 00:10:16,226 - src.market_data - INFO - Buscando BNBUSDT da Binance pública
+2025-06-11 00:10:17,329 - src.market_data - INFO - Buscando BNBUSDT da Binance pública
+2025-06-11 00:10:17,651 - src.market_data - INFO - Buscando BNBUSDT da Binance pública
+2025-06-11 00:10:17,969 - src.market_data - INFO - Buscando BNBUSDT da Binance pública
+2025-06-11 00:10:18,382 - src.market_data - INFO - Buscando BNBUSDT da Binance pública
+2025-06-11 00:10:18,701 - src.market_data - INFO - Buscando BNBUSDT da Binance pública
+2025-06-11 00:10:19,029 - src.market_data - INFO - Buscando BNBUSDT da Binance pública
+2025-06-11 00:10:19,356 - src.market_data - INFO - Buscando XRPUSDT da Binance pública
+2025-06-11 00:10:19,677 - src.market_data - INFO - Buscando XRPUSDT da Binance pública
+2025-06-11 00:10:20,004 - src.market_data - INFO - Buscando XRPUSDT da Binance pública
+2025-06-11 00:10:20,334 - src.market_data - INFO - Buscando XRPUSDT da Binance pública
+2025-06-11 00:10:20,657 - src.market_data - INFO - Buscando XRPUSDT da Binance pública
+2025-06-11 00:10:20,997 - src.market_data - INFO - Buscando XRPUSDT da Binance pública
+2025-06-11 00:10:21,347 - src.market_data - INFO - Buscando XRPUSDT da Binance pública
+2025-06-11 00:10:21,716 - src.market_data - INFO - Buscando LTCUSDT da Binance pública
+2025-06-11 00:10:22,101 - src.market_data - INFO - Buscando LTCUSDT da Binance pública
+2025-06-11 00:10:22,490 - src.market_data - INFO - Buscando LTCUSDT da Binance pública
+2025-06-11 00:10:22,840 - src.market_data - INFO - Buscando LTCUSDT da Binance pública
+2025-06-11 00:10:23,193 - src.market_data - INFO - Buscando LTCUSDT da Binance pública
+2025-06-11 00:10:23,774 - src.market_data - INFO - Buscando LTCUSDT da Binance pública
+2025-06-11 00:10:24,091 - src.market_data - INFO - Buscando LTCUSDT da Binance pública
+2025-06-11 00:10:24,413 - src.market_data - INFO - Buscando BCHUSDT da Binance pública
+2025-06-11 00:10:24,735 - src.market_data - INFO - Buscando BCHUSDT da Binance pública
+2025-06-11 00:10:25,285 - src.market_data - INFO - Buscando BCHUSDT da Binance pública
+2025-06-11 00:10:25,636 - src.market_data - INFO - Buscando BCHUSDT da Binance pública
+2025-06-11 00:10:25,992 - src.market_data - INFO - Buscando BCHUSDT da Binance pública
+2025-06-11 00:10:26,345 - src.market_data - INFO - Buscando BCHUSDT da Binance pública
+2025-06-11 00:10:26,967 - src.market_data - INFO - Buscando BCHUSDT da Binance pública
+2025-06-11 00:10:27,324 - src.market_data - INFO - Buscando EOSUSDT da Binance pública
+2025-06-11 00:10:27,673 - src.market_data - INFO - Buscando EOSUSDT da Binance pública
+2025-06-11 00:10:28,024 - src.market_data - INFO - Buscando EOSUSDT da Binance pública
+2025-06-11 00:10:28,473 - src.market_data - INFO - Buscando EOSUSDT da Binance pública
+2025-06-11 00:10:28,654 - src.signal_generator - INFO - === Iniciando análise de mercado com IA para BTCUSDT 5m ===
+2025-06-11 00:10:28,665 - src.signal_generator - INFO - Dados obtidos para BTCUSDT: 500 registros
+2025-06-11 00:10:28,679 - src.signal_generator - INFO - Calculando indicadores técnicos para BTCUSDT
+2025-06-11 00:10:29,140 - src.market_data - INFO - Buscando EOSUSDT da Binance pública
+2025-06-11 00:10:29,544 - src.technical_indicators - ERROR - Erro ao calcular indicadores: aroon_up() got multiple values for argument 'window'
+2025-06-11 00:10:29,585 - src.signal_generator - INFO - Executando análise completa de mercado com IA para BTCUSDT
+2025-06-11 00:10:29,854 - src.market_data - INFO - Buscando EOSUSDT da Binance pública
+2025-06-11 00:10:30,461 - src.technical_indicators - ERROR - Erro ao calcular indicadores: aroon_up() got multiple values for argument 'window'
+2025-06-11 00:10:30,574 - src.market_data - INFO - Buscando EOSUSDT da Binance pública
+2025-06-11 00:10:30,581 - src.market_data - INFO - Buscando EOSUSDT da Binance pública
+2025-06-11 00:10:31,022 - src.market_data - INFO - Buscando SOLUSDT da Binance pública
+2025-06-11 00:10:31,048 - src.market_data - INFO - Buscando SOLUSDT da Binance pública
+2025-06-11 00:10:31,491 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 00:10:31,869 - src.market_data - INFO - Buscando SOLUSDT da Binance pública
+2025-06-11 00:10:31,985 - src.market_data - INFO - Buscando AVAXUSDT da Binance pública
+2025-06-11 00:10:32,406 - src.market_data - INFO - Buscando UNIUSDT da Binance pública
+2025-06-11 00:10:32,506 - src.market_data - INFO - Buscando SOLUSDT da Binance pública
+2025-06-11 00:10:32,796 - src.market_data - INFO - Buscando ATOMUSDT da Binance pública
+2025-06-11 00:10:32,864 - src.market_data - INFO - Buscando SOLUSDT da Binance pública
+2025-06-11 00:10:33,312 - src.market_data - INFO - Buscando ALGOUSDT da Binance pública
+2025-06-11 00:10:33,313 - src.market_data - INFO - Buscando SOLUSDT da Binance pública
+2025-06-11 00:10:33,767 - src.market_data - INFO - Buscando SOLUSDT da Binance pública
+2025-06-11 00:10:33,783 - src.market_data - INFO - Buscando FILUSDT da Binance pública
+2025-06-11 00:10:34,169 - src.market_data - INFO - Buscando SOLUSDT da Binance pública
+2025-06-11 00:10:34,227 - src.market_data - INFO - Buscando AAVEUSDT da Binance pública
+2025-06-11 00:10:34,573 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 00:10:35,030 - src.market_data - INFO - Buscando SUSHIUSDT da Binance pública
+2025-06-11 00:10:35,058 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 00:10:35,539 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 00:10:35,558 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-11 00:10:35,952 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 00:10:36,060 - src.market_analyzer - INFO - Análise de mercado concluída para BTCUSDT 5m. Score: 0.50
+2025-06-11 00:10:36,317 - src.ai_engine - INFO - Features preparadas: 42 colunas, 500 linhas
+2025-06-11 00:10:36,366 - src.signal_generator - INFO -   - Sinal: buy
+2025-06-11 00:10:36,382 - src.signal_generator - INFO -   - Confiança IA: 0.65
+2025-06-11 00:10:36,403 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 00:10:36,405 - src.signal_generator - INFO -   - Score Mercado: 0.50
+2025-06-11 00:10:36,415 - src.signal_generator - INFO -   - Confiança Final: 0.59
+2025-06-11 00:10:36,417 - src.signal_generator - INFO - Timeframe 5m: SL 0.3%, TP 0.5%
+2025-06-11 00:10:36,490 - src.signal_generator - INFO - === Fim da análise de mercado para BTCUSDT ===
+2025-06-11 00:10:36,769 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 00:10:37,116 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 00:10:37,480 - src.market_data - INFO - Buscando AVAXUSDT da Binance pública
+2025-06-11 00:10:38,148 - src.market_data - INFO - Buscando AVAXUSDT da Binance pública
+2025-06-11 00:10:38,539 - src.market_data - INFO - Buscando AVAXUSDT da Binance pública
+2025-06-11 00:10:38,884 - src.market_data - INFO - Buscando AVAXUSDT da Binance pública
+2025-06-11 00:10:39,244 - src.market_data - INFO - Buscando AVAXUSDT da Binance pública
+2025-06-11 00:10:39,598 - src.market_data - INFO - Buscando AVAXUSDT da Binance pública
+2025-06-11 00:10:39,954 - src.market_data - INFO - Buscando AVAXUSDT da Binance pública
+2025-06-11 00:10:40,317 - src.market_data - INFO - Buscando UNIUSDT da Binance pública
+2025-06-11 00:10:40,672 - src.market_data - INFO - Buscando UNIUSDT da Binance pública
+2025-06-11 00:10:41,378 - src.market_data - INFO - Buscando UNIUSDT da Binance pública
+2025-06-11 00:10:41,806 - src.market_data - INFO - Buscando UNIUSDT da Binance pública
+2025-06-11 00:10:42,168 - src.market_data - INFO - Buscando UNIUSDT da Binance pública
+2025-06-11 00:10:42,528 - src.market_data - INFO - Buscando UNIUSDT da Binance pública
+2025-06-11 00:10:43,667 - src.market_data - INFO - Buscando UNIUSDT da Binance pública
+2025-06-11 00:10:44,027 - src.market_data - INFO - Buscando ATOMUSDT da Binance pública
+2025-06-11 00:10:44,637 - src.market_data - INFO - Buscando ATOMUSDT da Binance pública
+2025-06-11 00:10:45,000 - src.market_data - INFO - Buscando ATOMUSDT da Binance pública
+2025-06-11 00:10:45,350 - src.market_data - INFO - Buscando ATOMUSDT da Binance pública
+2025-06-11 00:10:45,717 - src.market_data - INFO - Buscando ATOMUSDT da Binance pública
+2025-06-11 00:10:46,076 - src.market_data - INFO - Buscando ATOMUSDT da Binance pública
+2025-06-11 00:10:46,439 - src.market_data - INFO - Buscando ATOMUSDT da Binance pública
+2025-06-11 00:10:46,806 - src.market_data - INFO - Buscando ALGOUSDT da Binance pública
+2025-06-11 00:10:47,162 - src.market_data - INFO - Buscando ALGOUSDT da Binance pública
+2025-06-11 00:10:47,892 - src.market_data - INFO - Buscando ALGOUSDT da Binance pública
+2025-06-11 00:10:48,229 - src.market_data - INFO - Buscando ALGOUSDT da Binance pública
+2025-06-11 00:10:48,574 - src.market_data - INFO - Buscando ALGOUSDT da Binance pública
+2025-06-11 00:10:48,926 - src.market_data - INFO - Buscando ALGOUSDT da Binance pública
+2025-06-11 00:10:49,324 - src.market_data - INFO - Buscando ALGOUSDT da Binance pública
+2025-06-11 00:10:49,672 - src.market_data - INFO - Buscando FILUSDT da Binance pública
+2025-06-11 00:10:50,029 - src.market_data - INFO - Buscando FILUSDT da Binance pública
+2025-06-11 00:10:50,385 - src.market_data - INFO - Buscando FILUSDT da Binance pública
+2025-06-11 00:10:50,851 - src.market_data - INFO - Buscando FILUSDT da Binance pública
+2025-06-11 00:10:51,200 - src.market_data - INFO - Buscando FILUSDT da Binance pública
+2025-06-11 00:10:51,548 - src.market_data - INFO - Buscando FILUSDT da Binance pública
+2025-06-11 00:10:51,902 - src.market_data - INFO - Buscando FILUSDT da Binance pública
+2025-06-11 00:10:52,296 - src.market_data - INFO - Buscando AAVEUSDT da Binance pública
+2025-06-11 00:10:52,650 - src.market_data - INFO - Buscando AAVEUSDT da Binance pública
+2025-06-11 00:10:53,013 - src.market_data - INFO - Buscando AAVEUSDT da Binance pública
+2025-06-11 00:10:53,370 - src.market_data - INFO - Buscando AAVEUSDT da Binance pública
+2025-06-11 00:10:53,875 - src.market_data - INFO - Buscando AAVEUSDT da Binance pública
+2025-06-11 00:10:54,229 - src.market_data - INFO - Buscando AAVEUSDT da Binance pública
+2025-06-11 00:10:54,579 - src.market_data - INFO - Buscando AAVEUSDT da Binance pública
+2025-06-11 00:10:54,940 - src.market_data - INFO - Buscando SUSHIUSDT da Binance pública
+2025-06-11 00:10:55,319 - src.market_data - INFO - Buscando SUSHIUSDT da Binance pública
+2025-06-11 00:10:55,671 - src.market_data - INFO - Buscando SUSHIUSDT da Binance pública
+2025-06-11 00:10:56,027 - src.market_data - INFO - Buscando SUSHIUSDT da Binance pública
+2025-06-11 00:10:56,378 - src.market_data - INFO - Buscando SUSHIUSDT da Binance pública
+2025-06-11 00:10:56,873 - src.market_data - INFO - Buscando SUSHIUSDT da Binance pública
+2025-06-11 00:10:57,229 - src.market_data - INFO - Buscando SUSHIUSDT da Binance pública
+2025-06-11 00:10:57,577 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-11 00:10:57,932 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-11 00:10:58,322 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-11 00:10:58,676 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-11 00:10:59,028 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-11 00:10:59,387 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-11 00:10:59,828 - src.market_data - INFO - Buscando COMPUSDT da Binance pública

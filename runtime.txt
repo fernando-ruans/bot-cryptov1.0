@@ -1,9 +1,9 @@
 # 🥷 CryptoNinja - Runtime para Heroku
 
-python-3.9.18
+python-3.11.9
 
 # Versões suportadas pelo Heroku:
-# python-3.9.18
+# python-3.11.9 (recomendado para ML)
 # python-3.10.13  
 # python-3.11.7
 # python-3.12.1
