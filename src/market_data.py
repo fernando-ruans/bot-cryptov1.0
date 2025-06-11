@@ -31,7 +31,6 @@ class MarketData:
     
 class MarketDataManager:
     """Gerenciador de dados de mercado em tempo real"""
-    
     def __init__(self, config):
         self.config = config
         self.exchanges = {}
@@ -40,6 +39,7 @@ class MarketDataManager:
         self.update_thread = None
         self.demo_mode = False
         self.use_public_apis = True  # Usar APIs públicas por padrão
+        self.startup_mode = True  # Modo startup para otimização inicial
         
         # Inicializar exchanges e APIs públicas
         self._initialize_exchanges()
@@ -73,9 +73,8 @@ class MarketDataManager:
             # Binance público (sem chaves)
             self.exchanges['binance_public'] = ccxt.binance({
                 'enableRateLimit': True,
-                'sandbox': False,
-            })
-              # Kraken público
+                'sandbox': False,            })
+            # Kraken público
             self.exchanges['kraken'] = ccxt.kraken({
                 'enableRateLimit': True,
                 'sandbox': False,
@@ -108,25 +107,27 @@ class MarketDataManager:
         self.is_running = False
         if self.update_thread:
             self.update_thread.join()
-        
-        # Parar API de preços em tempo real
+          # Parar API de preços em tempo real
         realtime_price_api.stop()
         
         logger.info("Feed de dados parado")
     
     def _data_update_loop(self):
-        """Loop principal de atualização de dados"""
+        """Loop principal de atualização de dados - OTIMIZADO para startup rápido"""
         while self.is_running:
             try:
-                # Atualizar dados de criptomoedas
-                for symbol in self.config.CRYPTO_PAIRS:
-                    for timeframe in self.config.TIMEFRAMES:
-                        self._update_crypto_data(symbol, timeframe)
-                  # Atualizar dados de forex
-                for symbol in self.config.FOREX_PAIRS:
-                    self._update_forex_data(symbol)
+                # STARTUP RÁPIDO: Usar apenas pares e timeframes essenciais
+                startup_pairs = self.config.get_startup_pairs()  # Apenas 3 pares
+                startup_timeframes = self.config.get_startup_timeframes()  # Apenas 1h
                 
-                time.sleep(60)  # Atualizar a cada minuto
+                # Atualizar dados de criptomoedas (reduzido de 140 para 3 chamadas)
+                for symbol in startup_pairs:
+                    for timeframe in startup_timeframes:
+                        self._update_crypto_data(symbol, timeframe)
+                
+                # Não atualizar forex (já removido)
+                # time.sleep(60) - aumentar intervalo para 5 minutos durante startup
+                time.sleep(300)  # 5 minutos para reduzir carga na API
                 
             except Exception as e:
                 logger.error(f"Erro no loop de atualização: {e}")
@@ -409,8 +410,7 @@ class MarketDataManager:
                     'high': high_price,
                     'low': low_price,
                     'close': close_price,
-                    'volume': volume
-                })
+                    'volume': volume                })
                 
                 current_price = close_price
             
@@ -422,20 +422,25 @@ class MarketDataManager:
             return pd.DataFrame()
     
     def get_historical_data(self, symbol: str, timeframe: str, limit: int = 500) -> pd.DataFrame:
-        """Obter dados históricos"""
+        """Obter dados históricos com carregamento sob demanda"""
         cache_key = f"{symbol}_{timeframe}"
         
+        # Se dados estão no cache, retornar
         if cache_key in self.data_cache:
             df = self.data_cache[cache_key].copy()
             return df.tail(limit) if len(df) > limit else df
         
-        # Se não estiver no cache, buscar dados
-        if self.config.is_crypto_pair(symbol):
-            self._update_crypto_data(symbol, timeframe)
-        else:
-            self._update_forex_data(symbol)
+        # Se não estiver no cache, carregar sob demanda
+        logger.info(f"📊 Carregando dados sob demanda: {symbol} {timeframe}")
+        self.load_symbol_data_on_demand(symbol, timeframe)
         
-        return self.data_cache.get(cache_key, pd.DataFrame())
+        # Retornar dados do cache ou DataFrame vazio
+        if cache_key in self.data_cache:
+            df = self.data_cache[cache_key].copy()
+            return df.tail(limit) if len(df) > limit else df
+        
+        logger.warning(f"⚠️ Não foi possível carregar dados para {symbol} {timeframe}")
+        return pd.DataFrame()
     
     def get_current_price(self, symbol: str) -> Optional[float]:
         """Obter preço atual usando API otimizada"""
@@ -632,3 +637,42 @@ class MarketDataManager:
         except Exception as e:
             logger.error(f"Erro ao calcular correlação {symbol1}-{symbol2}: {e}")
             return 0.0
+    
+    def expand_data_coverage(self):
+        """Expandir cobertura de dados após startup inicial - carregamento sob demanda"""
+        try:
+            logger.info("🚀 Expandindo cobertura de dados após startup...")
+            self.startup_mode = False
+            
+            # Carregar todos os pares e timeframes em background
+            all_pairs = self.config.get_all_pairs()
+            all_timeframes = self.config.get_all_timeframes()
+            
+            # Carregar em lotes pequenos para não sobrecarregar
+            for i, symbol in enumerate(all_pairs):
+                for j, timeframe in enumerate(all_timeframes):
+                    if f"{symbol}_{timeframe}" not in self.data_cache:
+                        self._update_crypto_data(symbol, timeframe)
+                        
+                        # Pausa entre chamadas para não sobrecarregar API
+                        if (i * len(all_timeframes) + j) % 5 == 0:
+                            time.sleep(1)  # Pausa a cada 5 chamadas
+            
+            logger.info("✅ Cobertura de dados expandida com sucesso")
+            
+        except Exception as e:
+            logger.error(f"❌ Erro ao expandir cobertura de dados: {e}")
+
+    def load_symbol_data_on_demand(self, symbol: str, timeframe: str = None):
+        """Carregar dados de um símbolo específico sob demanda"""
+        try:
+            timeframes_to_load = [timeframe] if timeframe else self.config.get_all_timeframes()
+            
+            for tf in timeframes_to_load:
+                cache_key = f"{symbol}_{tf}"
+                if cache_key not in self.data_cache:
+                    logger.info(f"📊 Carregando dados sob demanda: {symbol} {tf}")
+                    self._update_crypto_data(symbol, tf)
+                    
+        except Exception as e:
+            logger.error(f"❌ Erro ao carregar dados sob demanda {symbol}: {e}")

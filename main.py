@@ -124,13 +124,16 @@ def init_database():
             logger.error(f"❌ Erro crítico na inicialização do banco: {e2}")
 
 # Inicializar componentes essenciais
-logger.info("🚀 Inicializando Trading Bot AI - Versão Simplificada")
+logger.info("🚀 Inicializando Trading Bot AI - Modo Startup Rápido para Heroku")
 
 # Inicializar banco de dados primeiro
 init_database()
 
 config = Config()
 db_manager = DatabaseManager()
+
+# OTIMIZAÇÃO HEROKU: Inicialização mínima para startup rápido
+logger.info("⚡ Inicialização mínima para startup rápido...")
 market_data = MarketDataManager(config)
 ai_engine = AITradingEngine(config)
 
@@ -144,6 +147,9 @@ paper_trading = PaperTradingManager(market_data, realtime_updates)
 # Configure socketio para notificações
 from src.signal_generator import set_socketio_instance
 set_socketio_instance(socketio)
+
+# DEFER: Não iniciar data feed automaticamente - apenas quando necessário
+logger.info("✅ Componentes essenciais inicializados - sem data feed automático")
 
 # Conectar RealTimePriceAPI ao sistema WebSocket
 def price_update_callback(symbol: str, price: float):
@@ -1062,6 +1068,54 @@ def api_update_trades():
         
     except Exception as e:
         logger.error(f"❌ Erro ao atualizar trades: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/expand_data', methods=['POST'])
+def api_expand_data():
+    """API para expandir cobertura de dados após startup"""
+    try:
+        # Executar em thread separada para não bloquear
+        def expand_in_background():
+            market_data.expand_data_coverage()
+        
+        thread = threading.Thread(target=expand_in_background, daemon=True)
+        thread.start()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Expansão de dados iniciada em background',
+            'status': 'expanding'
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao expandir dados: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/load_symbol_data', methods=['POST'])
+def api_load_symbol_data():
+    """API para carregar dados de símbolo específico sob demanda"""
+    try:
+        data = request.get_json()
+        symbol = data.get('symbol', 'BTCUSDT')
+        timeframe = data.get('timeframe', '1h')
+        
+        market_data.load_symbol_data_on_demand(symbol, timeframe)
+        
+        return jsonify({
+            'success': True,
+            'message': f'Dados carregados para {symbol} {timeframe}',
+            'symbol': symbol,
+            'timeframe': timeframe
+        })
+        
+    except Exception as e:
+        logger.error(f"❌ Erro ao carregar dados do símbolo: {e}")
         return jsonify({
             'success': False,
             'error': str(e)

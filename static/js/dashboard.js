@@ -101,6 +101,9 @@ class SimpleTradingDashboard {    constructor() {
             this.updateCurrentPrice();
         }, 10000);
         
+        // Expandir dados após startup (executar após 30 segundos)
+        this.expandDataAfterStartup();
+        
         console.log('✅ CryptoNinja 🥷 inicializado! Pronto para trades furtivos...');
     }
 
@@ -1772,6 +1775,44 @@ class SimpleTradingDashboard {    constructor() {
                 element.remove();
             }
         }, 5000);
+    }
+
+    // Expandir dados após startup (executar após 30 segundos)
+    expandDataAfterStartup() {
+        setTimeout(() => {
+            console.log('🚀 Expandindo cobertura de dados...');
+            fetch('/api/expand_data', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('✅ Expansão de dados iniciada em background');
+                        this.showNotification('Expandindo dados de mercado em background...', 'info');
+                    }
+                })
+                .catch(error => {
+                    console.warn('⚠️ Erro ao expandir dados:', error);
+                });
+        }, 30000); // 30 segundos após carregamento
+    }
+
+    // Carregar dados de símbolo sob demanda
+    loadSymbolDataOnDemand(symbol, timeframe = '1h') {
+        return fetch('/api/load_symbol_data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ symbol, timeframe })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log(`📊 Dados carregados: ${symbol} ${timeframe}`);
+            }
+            return data;
+        })
+        .catch(error => {
+            console.warn(`⚠️ Erro ao carregar ${symbol}:`, error);
+            return { success: false };
+        });
     }
 }
 

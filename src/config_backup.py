@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Arquivo de configuração para o Trading Bot AI - OTIMIZADO PARA HEROKU
+Arquivo de configuração para o Trading Bot AI
 """
 
 import os
@@ -9,19 +9,17 @@ from typing import Dict, List
 
 @dataclass
 class Config:
-    """Configurações do sistema de trading - OTIMIZADAS para startup rápido"""
+    """Configurações do sistema de trading"""
     
     # Configurações de API
     BINANCE_API_KEY: str = field(default_factory=lambda: os.getenv('BINANCE_API_KEY', ''))
     BINANCE_SECRET_KEY: str = field(default_factory=lambda: os.getenv('BINANCE_SECRET_KEY', ''))
-    
-    # Configurações de timeframes - OTIMIZADO para startup rápido
+      # Configurações de timeframes - OTIMIZADO para startup rápido
     TIMEFRAMES: List[str] = field(default_factory=lambda: ['1h'])  # Apenas 1 timeframe para startup
     STARTUP_TIMEFRAMES: List[str] = field(default_factory=lambda: ['1h'])  # Timeframes mínimos para startup
     ALL_TIMEFRAMES: List[str] = field(default_factory=lambda: ['1m', '5m', '15m', '30m', '1h', '4h', '1d'])  # Todos os timeframes
     DEFAULT_TIMEFRAME: str = '1h'
-    
-    # Pares de trading - OTIMIZADO para startup rápido no Heroku
+      # Pares de trading - OTIMIZADO para startup rápido no Heroku
     CRYPTO_PAIRS: List[str] = field(default_factory=lambda: [
         # Apenas pares essenciais para startup rápido (reduzido de 20 para 3)
         'BTCUSDT', 'ETHUSDT', 'COMPUSDT'
@@ -100,6 +98,84 @@ class Config:
         'weak_signal_threshold': 0.08     # Threshold para sinais fracos
     })
     
+    # Configurações de contexto de mercado
+    MARKET_CONTEXT: Dict = field(default_factory=lambda: {
+        'fear_greed_weight': 0.2,
+        'news_sentiment_weight': 0.15,
+        'market_structure_weight': 0.3,
+        'volume_profile_weight': 0.25,
+        'correlation_weight': 0.1
+    })
+    
+    # Configurações de machine learning
+    ML_CONFIG: Dict = field(default_factory=lambda: {
+        'models': ['xgboost', 'lightgbm', 'neural_network'],
+        'ensemble_method': 'voting',
+        'feature_selection': True,
+        'cross_validation_folds': 5,
+        'hyperparameter_tuning': True,
+        'lookback_periods': [50, 100, 200],
+        'prediction_horizon': 24  # horas
+    })
+    
+    # Configurações de database
+    DATABASE_CONFIG: Dict = field(default_factory=lambda: {
+        'type': 'sqlite',
+        'path': 'data/trading_bot.db',
+        'backup_interval_hours': 6
+    })
+    
+    # Configurações de logging
+    LOGGING_CONFIG: Dict = field(default_factory=lambda: {
+        'level': 'INFO',
+        'max_file_size_mb': 100,
+        'backup_count': 5,
+        'log_trades': True,
+        'log_signals': True,
+        'log_market_data': False
+    })
+    
+    # Configurações de análise de mercado com IA
+    AI_MARKET_ANALYSIS: Dict = field(default_factory=lambda: {
+        'sentiment_analysis': True,     # Análise de sentimento
+        'volume_analysis': True,        # Análise de volume
+        'volatility_analysis': True,    # Análise de volatilidade
+        'correlation_analysis': True,   # Análise de correlação
+        'momentum_analysis': True,      # Análise de momentum
+        'pattern_recognition': True,    # Reconhecimento de padrões
+        'market_regime_detection': True, # Detecção de regime de mercado
+        'liquidity_analysis': True,     # Análise de liquidez
+        'orderbook_analysis': False,    # Análise de order book (premium)
+        'news_sentiment': False,        # Sentimento de notícias (premium)
+        'social_sentiment': False,      # Sentimento social (premium)
+        'macro_indicators': True,       # Indicadores macroeconômicos
+        'fear_greed_index': True,       # Índice de medo e ganância
+        'funding_rates': True,          # Taxas de funding
+        'open_interest': True,          # Open interest
+        'whale_movements': False,       # Movimentos de baleias (premium)
+        'market_cap_analysis': True,    # Análise de market cap
+        'dominance_analysis': True,     # Análise de dominância
+        'cross_asset_correlation': True # Correlação entre ativos
+    })
+    
+    # Configurações de modelos de IA
+    AI_MODELS_CONFIG: Dict = field(default_factory=lambda: {
+        'ensemble_models': True,        # Usar ensemble de modelos
+        'deep_learning': True,          # Usar deep learning
+        'reinforcement_learning': False, # RL (experimental)
+        'transformer_models': False,    # Transformers (premium)
+        'lstm_enabled': True,           # LSTM para séries temporais
+        'cnn_enabled': True,            # CNN para padrões
+        'attention_mechanism': False,   # Mecanismo de atenção (premium)
+        'feature_importance': True,     # Importância de features
+        'model_explainability': True,   # Explicabilidade do modelo
+        'auto_hyperparameter': True,    # Auto-tuning de hiperparâmetros
+        'online_learning': False,       # Aprendizado online (experimental)
+        'federated_learning': False,    # Aprendizado federado (premium)
+        'quantum_ml': False,            # ML quântico (experimental)
+        'neuromorphic_computing': False # Computação neuromórfica (experimental)
+    })
+    
     # Configurações de notificação
     NOTIFICATION_CONFIG: Dict = field(default_factory=lambda: {
         'telegram_enabled': False,
@@ -132,8 +208,7 @@ class Config:
     def get_all_timeframes(self) -> List[str]:
         """Retorna todos os timeframes disponíveis"""
         return self.ALL_TIMEFRAMES
-    
-    def is_crypto_pair(self, symbol: str) -> bool:
+          def is_crypto_pair(self, symbol: str) -> bool:
         """Verifica se é um par de criptomoeda"""
         return symbol in self.ALL_CRYPTO_PAIRS  # Verificar na lista completa
     
