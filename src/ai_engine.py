@@ -349,3 +349,89 @@ class AITradingEngine:
             logger.error(f"Erro ao salvar modelos: {e}")
             
         return False
+    
+    def prepare_features(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Preparar features para o modelo de IA (versão simplificada)"""
+        try:
+            # Verificar se tem dados suficientes
+            if len(df) < 20:
+                logger.warning(f"Dados insuficientes: {len(df)} linhas")
+                return df
+            
+            # Features básicas de preço
+            df['price_change'] = df['close'].pct_change()
+            df['price_change_abs'] = df['price_change'].abs()
+            df['high_low_pct'] = (df['high'] - df['low']) / df['close']
+            df['open_close_pct'] = (df['close'] - df['open']) / df['open']
+            
+            # Médias móveis e ratios
+            for period in [5, 10, 20, 50]:
+                if len(df) >= period:
+                    df[f'sma_{period}'] = df['close'].rolling(period).mean()
+                    df[f'price_sma_{period}_ratio'] = df['close'] / df[f'sma_{period}']
+                    df[f'volume_sma_{period}'] = df['volume'].rolling(period).mean()
+            
+            # Features de volatilidade
+            df['volatility_5'] = df['close'].pct_change().rolling(5).std()
+            df['volatility_10'] = df['close'].pct_change().rolling(10).std()
+            df['volatility_20'] = df['close'].pct_change().rolling(20).std()
+            
+            # Features de volume
+            df['volume_change'] = df['volume'].pct_change()
+            df['volume_price_trend'] = df['volume'] * df['price_change']
+            
+            # Features de momentum
+            for period in [5, 10, 20]:
+                if len(df) >= period:
+                    df[f'momentum_{period}'] = df['close'] - df['close'].shift(period)
+                    df[f'roc_{period}'] = ((df['close'] - df['close'].shift(period)) / df['close'].shift(period)) * 100
+            
+            # RSI simplificado
+            def calculate_rsi(prices, period=14):
+                if len(prices) < period + 1:
+                    return pd.Series([50] * len(prices), index=prices.index)
+                
+                delta = prices.diff()
+                gain = (delta.where(delta > 0, 0)).rolling(window=period).mean()
+                loss = (-delta.where(delta < 0, 0)).rolling(window=period).mean()
+                
+                rs = gain / loss
+                rsi = 100 - (100 / (1 + rs))
+                return rsi.fillna(50)
+            
+            df['rsi_14'] = calculate_rsi(df['close'], 14)
+            
+            # MACD simplificado
+            if len(df) >= 26:
+                ema_12 = df['close'].ewm(span=12).mean()
+                ema_26 = df['close'].ewm(span=26).mean()
+                df['macd'] = ema_12 - ema_26
+                df['macd_signal'] = df['macd'].ewm(span=9).mean()
+                df['macd_histogram'] = df['macd'] - df['macd_signal']
+            
+            # Bollinger Bands simplificado
+            if len(df) >= 20:
+                sma_20 = df['close'].rolling(20).mean()
+                std_20 = df['close'].rolling(20).std()
+                df['bb_upper'] = sma_20 + (std_20 * 2)
+                df['bb_lower'] = sma_20 - (std_20 * 2)
+                df['bb_position'] = (df['close'] - df['bb_lower']) / (df['bb_upper'] - df['bb_lower'])
+            
+            # Features temporais
+            df['hour'] = pd.to_datetime(df.index).hour
+            df['day_of_week'] = pd.to_datetime(df.index).dayofweek
+            df['is_weekend'] = (df['day_of_week'] >= 5).astype(int)
+            
+            # Limpar NaN com forward fill, backward fill e depois zero
+            numeric_columns = df.select_dtypes(include=[np.number]).columns
+            for col in numeric_columns:
+                df[col] = df[col].fillna(method='ffill')
+                df[col] = df[col].fillna(method='bfill')
+                df[col] = df[col].fillna(0)
+            
+            logger.info(f"Features preparadas: {len(df.columns)} colunas, {len(df)} linhas")
+            return df
+            
+        except Exception as e:
+            logger.error(f"Erro ao preparar features: {e}")
+            return df
