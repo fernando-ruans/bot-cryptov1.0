@@ -272,3 +272,80 @@ class AITradingEngine:
             'trained_symbols': list(self.models.keys()),
             'deploy_ready': True
         }
+    
+    def load_models(self):
+        """Carregar modelos salvos (versão simplificada para deploy)"""
+        try:
+            import os
+            
+            # Verificar se existem modelos salvos
+            model_files = ['models/BTCUSDT_models.pkl', 'models/BTCUSDT_scaler.pkl', 'models/BTCUSDT_selector.pkl']
+            
+            models_found = 0
+            for model_file in model_files:
+                if os.path.exists(model_file):
+                    models_found += 1
+            
+            if models_found > 0:
+                logger.info(f"Encontrados {models_found}/3 arquivos de modelo")
+                
+                # Tentar carregar modelo BTCUSDT se existir
+                if os.path.exists('models/BTCUSDT_models.pkl'):
+                    try:
+                        with open('models/BTCUSDT_models.pkl', 'rb') as f:
+                            self.models['BTCUSDT'] = pickle.load(f)
+                        logger.info("Modelo BTCUSDT carregado com sucesso")
+                        self.is_trained = True
+                    except Exception as e:
+                        logger.warning(f"Erro ao carregar modelo BTCUSDT: {e}")
+                        
+                if os.path.exists('models/BTCUSDT_scaler.pkl'):
+                    try:
+                        self.scalers['BTCUSDT'] = joblib.load('models/BTCUSDT_scaler.pkl')
+                        logger.info("Scaler BTCUSDT carregado com sucesso")
+                    except Exception as e:
+                        logger.warning(f"Erro ao carregar scaler: {e}")
+                        
+                if os.path.exists('models/BTCUSDT_selector.pkl'):
+                    try:
+                        self.feature_selectors['BTCUSDT'] = joblib.load('models/BTCUSDT_selector.pkl')
+                        logger.info("Feature selector BTCUSDT carregado com sucesso")
+                    except Exception as e:
+                        logger.warning(f"Erro ao carregar selector: {e}")
+            else:
+                logger.info("Nenhum modelo pré-treinado encontrado - funcionando em modo de geração de sinais")
+                
+        except Exception as e:
+            logger.error(f"Erro ao carregar modelos: {e}")
+            # Não falha, apenas loga o erro
+        
+        logger.info("Load models concluído - sistema pronto")
+
+    def save_models(self, symbol: str):
+        """Salvar modelos treinados"""
+        try:
+            import os
+            
+            # Criar diretório se não existir
+            os.makedirs('models', exist_ok=True)
+            
+            if symbol in self.models:
+                # Salvar modelos
+                with open(f'models/{symbol}_models.pkl', 'wb') as f:
+                    pickle.dump(self.models[symbol], f)
+                    
+                # Salvar scaler
+                if symbol in self.scalers:
+                    joblib.dump(self.scalers[symbol], f'models/{symbol}_scaler.pkl')
+                    
+                # Salvar feature selector
+                if symbol in self.feature_selectors:
+                    joblib.dump(self.feature_selectors[symbol], f'models/{symbol}_selector.pkl')
+                    
+                logger.info(f"Modelos salvos para {symbol}")
+                return True
+                
+        except Exception as e:
+            logger.error(f"Erro ao salvar modelos: {e}")
+            
+        return False
