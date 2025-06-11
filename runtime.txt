@@ -1,0 +1,15 @@
+# 🥷 CryptoNinja - Runtime para Heroku
+
+python-3.9.18
+
+# Versões suportadas pelo Heroku:
+# python-3.9.18
+# python-3.10.13  
+# python-3.11.7
+# python-3.12.1
+
+# Para outras plataformas:
+# Render: Auto-detecta da requirements.txt
+# Railway: Auto-detecta
+# Fly.io: Especificar no fly.toml
+# Vercel: Auto-detecta

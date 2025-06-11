@@ -1,7 +1,7 @@
 
 
 
-c# CryptoNinja 🥷 - Requirements para Vercel
+# CryptoNinja 🥷 - Requirements para Vercel
 # Dependências otimizadas para ambiente serverless
 
 # Flask core

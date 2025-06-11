@@ -1,0 +1,47 @@
+# 🥷 CryptoNinja - Configuração Fly.io
+
+# fly.toml
+app = "cryptoninja-trading"
+primary_region = "mia"
+
+[build]
+  builder = "paketobuildpacks/builder:base"
+
+[env]
+  PORT = "5000"
+  SECRET_KEY = "cryptoninja-fly-secret-2025"
+
+[http_service]
+  internal_port = 5000
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256
+
+# Deploy Commands
+# flyctl launch
+# flyctl postgres create
+# flyctl postgres attach
+# flyctl deploy
+
+# Post-Deploy Setup
+# flyctl ssh console
+# psql $DATABASE_URL -f schema_cloud.sql
+
+# SSL/HTTPS automático
+# Custom domains suportados
+# CDN global incluído
+
+# Scaling
+# flyctl scale count 2  # Escalar para 2 instâncias
+# flyctl scale vm shared-cpu-2x  # Upgrade de CPU
+
+# Monitoramento
+# flyctl logs
+# flyctl status
+# Metrics dashboard disponível

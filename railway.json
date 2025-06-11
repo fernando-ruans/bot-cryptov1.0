@@ -1,0 +1,43 @@
+# 🥷 CryptoNinja - Configuração Railway
+
+# railway.json
+{
+  "build": {
+    "command": "pip install -r requirements.txt"
+  },
+  "start": {
+    "command": "python main.py"
+  },
+  "variables": {
+    "SECRET_KEY": "cryptoninja-railway-secret-2025"
+  }
+}
+
+# Deploy Commands
+# railway login
+# railway init
+# railway up
+# railway add postgresql
+
+# Variáveis de Ambiente (automáticas)
+# DATABASE_URL - configurado pelo PostgreSQL service
+# SECRET_KEY - definir manualmente
+
+# Configurações
+# Python Runtime: 3.9+
+# Port: 5000 (automático)
+# Health checks: /
+# SSL: automático
+
+# Monitoramento
+# CPU/RAM metrics disponíveis
+# Logs em tempo real
+# Deploy history
+
+# Backup
+# PostgreSQL backups automáticos
+# One-click restore
+
+# Scaling (se necessário)
+# Horizontal scaling disponível
+# Load balancer incluído
