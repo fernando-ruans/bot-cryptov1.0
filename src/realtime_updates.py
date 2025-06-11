@@ -243,7 +243,7 @@ class RealTimeUpdates:
         """Parar atualizações de preços"""
         self.is_active = False
         self.subscribed_symbols = {}
-        logger.info("⏹️ Atualizações de preços paradas")
+        logger.info("STOP Atualizacoes de precos paradas")
     
     @property
     def is_active(self):

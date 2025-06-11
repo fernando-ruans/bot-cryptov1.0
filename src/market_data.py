@@ -173,8 +173,7 @@ class MarketDataManager:
                 
             exchange = self.exchanges['binance_public']
             logger.info(f"Buscando {symbol} da Binance pública")
-            
-            # Buscar dados
+              # Buscar dados
             ohlcv = exchange.fetch_ohlcv(symbol, timeframe, limit=500)
             
             if not ohlcv or len(ohlcv) == 0:
@@ -184,8 +183,8 @@ class MarketDataManager:
             df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
             df.set_index('timestamp', inplace=True)
             
-            logger.info(f"✓ Dados reais da Binance obtidos: {len(df)} registros")
-            logger.info(f"✓ Último preço: ${df['close'].iloc[-1]:.2f}")
+            logger.info(f"OK Dados reais da Binance obtidos: {len(df)} registros")
+            logger.info(f"OK Ultimo preco: ${df['close'].iloc[-1]:.2f}")
             
             return df
             
@@ -213,8 +212,7 @@ class MarketDataManager:
                     continue
                 
                 logger.info(f"Buscando {adjusted_symbol} de {exchange_name}")
-                
-                # Buscar dados
+                  # Buscar dados
                 ohlcv = exchange.fetch_ohlcv(adjusted_symbol, timeframe, limit=500)
                 
                 if ohlcv and len(ohlcv) > 0:
@@ -222,7 +220,7 @@ class MarketDataManager:
                     df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
                     df.set_index('timestamp', inplace=True)
                     
-                    logger.info(f"✓ Dados obtidos de {exchange_name}: {len(df)} registros")
+                    logger.info(f"OK Dados obtidos de {exchange_name}: {len(df)} registros")
                     return df
                     
             except Exception as e:
@@ -325,7 +323,7 @@ class MarketDataManager:
         df = pd.DataFrame(df_data)
         df.set_index('timestamp', inplace=True)
         
-        logger.info(f"✓ Dados CoinGecko obtidos: {len(df)} registros")
+        logger.info(f"OK Dados CoinGecko obtidos: {len(df)} registros")
         return df
     
     def _update_forex_data(self, symbol: str):

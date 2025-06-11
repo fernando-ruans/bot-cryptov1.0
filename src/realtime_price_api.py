@@ -53,7 +53,7 @@ class RealTimePriceAPI:
     def stop(self):
         """Parar feeds de preços"""
         self.running = False
-        logger.info("⏹️ Feed de preços parado")
+        logger.info("STOP Feed de precos parado")
     
     def _start_websocket_feed(self):
         """Iniciar feed WebSocket da Binance"""
@@ -75,7 +75,7 @@ class RealTimePriceAPI:
         while self.running:
             try:
                 async with websockets.connect(url) as websocket:
-                    logger.info("✅ WebSocket conectado à Binance")
+                    logger.info("OK WebSocket conectado a Binance")
                     
                     while self.running:
                         try:

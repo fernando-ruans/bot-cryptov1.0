@@ -28,12 +28,12 @@ from src.realtime_price_api import realtime_price_api
 from src.auth.models import db, bcrypt
 from src.auth.routes import init_auth
 
-# Configurar logging
+# Configurar logging com UTF-8 para suportar emojis
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/trading_bot.log'),
+        logging.FileHandler('logs/trading_bot.log', encoding='utf-8'),
         logging.StreamHandler(sys.stdout)
     ]
 )
@@ -187,24 +187,24 @@ class SimpleTradingBot:
         market_data.start_data_feed()
         ai_engine.load_models()
         
-        # Configurar eventos do WebSocket
-        realtime_updates.setup_events()
-          # Garantir que o sistema de preços em tempo real esteja ativo
+        # Configurar eventos do WebSocket        realtime_updates.setup_events()
+        
+        # Garantir que o sistema de preços em tempo real esteja ativo
         if not realtime_price_api.running:
             realtime_price_api.start()
-            logger.info("🚀 Sistema de preços em tempo real iniciado")
+            logger.info("OK Sistema de precos em tempo real iniciado")
         
-        logger.info("✅ Trading Bot AI iniciado com sucesso!")
+        logger.info("OK Trading Bot AI iniciado com sucesso!")
         
     def stop(self):
         """Parar o bot"""
-        logger.info("⏹️ Parando Trading Bot AI...")
+        logger.info("STOP Parando Trading Bot AI...")
         self.is_running = False
         market_data.stop_data_feed()
         
         # Parar sistema de preços em tempo real
         realtime_price_api.stop()
-        logger.info("⏹️ Sistema de preços em tempo real parado")
+        logger.info("STOP Sistema de precos em tempo real parado")
         
     def get_status(self):
         """Status do bot"""
@@ -1099,7 +1099,7 @@ if __name__ == '__main__':
         )
         
     except KeyboardInterrupt:
-        logger.info("⏹️ Interrompido pelo usuário")
+        logger.info("STOP Interrompido pelo usuario")
         auto_monitor.stop()
         realtime_updates.stop_price_updates()
         trading_bot.stop()

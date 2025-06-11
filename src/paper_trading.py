@@ -228,7 +228,7 @@ class PaperTradingManager:
             self.active_trades[trade.id] = trade
             
             # Log detalhado
-            logger.info(f"✅ Trade criado: {trade.id[:8]}")
+            logger.info(f"OK Trade criado: {trade.id[:8]}")
             logger.info(f"   📊 {symbol} {signal_type.upper()} @ ${entry_price:.2f}")
             logger.info(f"   💰 Quantidade: {quantity:.6f}")
             logger.info(f"   🛑 Stop Loss: ${stop_loss:.2f}" if stop_loss else "   🛑 Stop Loss: N/A")
@@ -544,7 +544,7 @@ class AutoTradeMonitor:
         self.running = False
         if self.thread:
             self.thread.join(timeout=5)
-        logger.info("⏹️ Monitor automático de trades parado")
+        logger.info("STOP Monitor automatico de trades parado")
     
     def get_status(self) -> Dict:
         """Status do monitor"""

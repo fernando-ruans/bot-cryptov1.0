@@ -101,7 +101,7 @@ class SignalGenerator:
             if self._is_in_cooldown(symbol):
                 logger.info(f"Símbolo {symbol} em cooldown")
                 raise ValueError(f"COOLDOWN:{symbol}")
-            logger.info(f"✓ Cooldown OK para {symbol}")
+            logger.info(f"OK Cooldown OK para {symbol}")
             
             # Obter dados de mercado
             df = self.market_data.get_historical_data(symbol, timeframe, 500)
@@ -118,7 +118,7 @@ class SignalGenerator:
                 logger.error(f"Colunas faltantes no DataFrame para {symbol}")
                 raise ValueError(f"MISSING_COLUMNS:{symbol}")
             
-            logger.info(f"✓ Dados válidos para {symbol}: {len(df)} registros")
+            logger.info(f"OK Dados validos para {symbol}: {len(df)} registros")
             
             # Calcular indicadores técnicos
             logger.info(f"Calculando indicadores técnicos para {symbol}")
@@ -126,7 +126,7 @@ class SignalGenerator:
             if df is None or df.empty:
                 logger.error(f"Falha ao calcular indicadores técnicos para {symbol}")
                 raise ValueError(f"INDICATORS_FAILED:{symbol}")
-            logger.info(f"✓ Indicadores técnicos calculados para {symbol}")
+            logger.info(f"OK Indicadores tecnicos calculados para {symbol}")
             
             # Análise completa de mercado com IA
             logger.info(f"Executando análise completa de mercado com IA para {symbol}")
@@ -162,7 +162,7 @@ class SignalGenerator:
             # Calcular confiança final (combinando IA e análise de mercado)
             final_confidence = (ai_confidence * 0.6) + (market_score * 0.4)
             
-            logger.info(f"✓ Análise de mercado concluída para {symbol}:")
+            logger.info(f"OK Analise de mercado concluida para {symbol}:")
             logger.info(f"  - Sinal: {signal_type}")
             logger.info(f"  - Confiança IA: {ai_confidence:.2f}")
             logger.info(f"  - Score Mercado: {market_score:.2f}")
@@ -181,7 +181,7 @@ class SignalGenerator:
             
             # Calcular níveis de trade usando método principal com valores corretos
             levels = self._calculate_trade_levels(df, signal_type, current_price, timeframe)
-            logger.info(f"✓ Níveis calculados - SL: ${levels['stop_loss']:.2f}, TP: ${levels['take_profit']:.2f}")
+            logger.info(f"OK Niveis calculados - SL: ${levels['stop_loss']:.2f}, TP: ${levels['take_profit']:.2f}")
             
             # Criar sinal
             signal = Signal(
