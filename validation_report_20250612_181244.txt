@@ -1,0 +1,24 @@
+🤖 RELATÓRIO DE VALIDAÇÃO DA IA - CryptoNinja
+============================================================
+
+📊 RESUMO GERAL:
+   Símbolos testados: 25
+   Testes bem-sucedidos: 25
+   Taxa de sucesso: 100.0%
+   Accuracy média: 0.929
+   Predições balanceadas: 3/25
+   Taxa de balanceamento: 12.0%
+
+🏆 TOP 5 MELHORES ACCURACIES:
+   1. DOGEUSDT: 1.000
+   2. DOTUSDT: 1.000
+   3. ETCUSDT: 1.000
+   4. ICPUSDT: 1.000
+   5. VETUSDT: 0.993
+
+⚖️ MELHOR BALANCEAMENTO:
+   AVAXUSDT: BUY 38.5% / SELL 61.5%
+   FTMUSDT: BUY 38.5% / SELL 61.5%
+   ALGOUSDT: BUY 42.3% / SELL 57.7%
+
+⏰ Gerado em: 2025-06-12T18:12:44.110017

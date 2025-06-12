@@ -1,0 +1,788 @@
+{
+  "summary": {
+    "total_symbols": 25,
+    "successful_tests": 25,
+    "success_rate": 1.0,
+    "average_accuracy": 0.9437122406674753,
+    "balanced_predictions": 1,
+    "balance_rate": 0.04,
+    "timestamp": "2025-06-12T18:10:59.838813"
+  },
+  "detailed_results": {
+    "BTCUSDT": {
+      "symbol": "BTCUSDT",
+      "training_accuracy": 1.0,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9360456083462444,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 26,
+        "sell_count": 0,
+        "buy_ratio": 1.0,
+        "sell_ratio": 0.0,
+        "bias_score": 0.5,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "status": "success"
+    },
+    "ETHUSDT": {
+      "symbol": "ETHUSDT",
+      "training_accuracy": 0.9861111111111112,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9525747703400212,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 26,
+        "sell_count": 0,
+        "buy_ratio": 1.0,
+        "sell_ratio": 0.0,
+        "bias_score": 0.5,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "status": "success"
+    },
+    "ADAUSDT": {
+      "symbol": "ADAUSDT",
+      "training_accuracy": 0.8472222222222222,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9901548933849522,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 20,
+        "sell_count": 6,
+        "buy_ratio": 0.7692307692307693,
+        "sell_ratio": 0.23076923076923078,
+        "bias_score": 0.2692307692307693,
+        "bias_level": "Vi\u00e9s moderado",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0
+      ],
+      "status": "success"
+    },
+    "BNBUSDT": {
+      "symbol": "BNBUSDT",
+      "training_accuracy": 0.9652777777777778,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 1.0,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 26,
+        "sell_count": 0,
+        "buy_ratio": 1.0,
+        "sell_ratio": 0.0,
+        "bias_score": 0.5,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "status": "success"
+    },
+    "XRPUSDT": {
+      "symbol": "XRPUSDT",
+      "training_accuracy": 1.0,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 1.0,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 26,
+        "sell_count": 0,
+        "buy_ratio": 1.0,
+        "sell_ratio": 0.0,
+        "bias_score": 0.5,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "status": "success"
+    },
+    "SOLUSDT": {
+      "symbol": "SOLUSDT",
+      "training_accuracy": 0.9513888888888888,
+      "best_model": "xgboost",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9891530571729852,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 2,
+        "sell_count": 24,
+        "buy_ratio": 0.07692307692307693,
+        "sell_ratio": 0.9230769230769231,
+        "bias_score": 0.4230769230769231,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        0,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "status": "success"
+    },
+    "DOGEUSDT": {
+      "symbol": "DOGEUSDT",
+      "training_accuracy": 0.7777777777777778,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9901379619300594,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 8,
+        "sell_count": 18,
+        "buy_ratio": 0.3076923076923077,
+        "sell_ratio": 0.6923076923076923,
+        "bias_score": 0.1923076923076923,
+        "bias_level": "Leve vi\u00e9s",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "status": "success"
+    },
+    "DOTUSDT": {
+      "symbol": "DOTUSDT",
+      "training_accuracy": 0.9236111111111112,
+      "best_model": "xgboost",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.7443733603724801,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 1,
+        "sell_count": 25,
+        "buy_ratio": 0.038461538461538464,
+        "sell_ratio": 0.9615384615384616,
+        "bias_score": 0.46153846153846156,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "status": "success"
+    },
+    "AVAXUSDT": {
+      "symbol": "AVAXUSDT",
+      "training_accuracy": 0.9027777777777778,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9264122227281003,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 4,
+        "sell_count": 22,
+        "buy_ratio": 0.15384615384615385,
+        "sell_ratio": 0.8461538461538461,
+        "bias_score": 0.34615384615384615,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        0,
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "status": "success"
+    },
+    "LINKUSDT": {
+      "symbol": "LINKUSDT",
+      "training_accuracy": 0.7777777777777778,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9478019902143483,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 4,
+        "sell_count": 22,
+        "buy_ratio": 0.15384615384615385,
+        "sell_ratio": 0.8461538461538461,
+        "bias_score": 0.34615384615384615,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "status": "success"
+    },
+    "MATICUSDT": {
+      "symbol": "MATICUSDT",
+      "training_accuracy": 0.9652777777777778,
+      "best_model": "xgboost",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9813590568796894,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 0,
+        "sell_count": 26,
+        "buy_ratio": 0.0,
+        "sell_ratio": 1.0,
+        "bias_score": 0.5,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "status": "success"
+    },
+    "LTCUSDT": {
+      "symbol": "LTCUSDT",
+      "training_accuracy": 0.9583333333333334,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9229714353334388,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 25,
+        "sell_count": 1,
+        "buy_ratio": 0.9615384615384616,
+        "sell_ratio": 0.038461538461538464,
+        "bias_score": 0.46153846153846156,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1
+      ],
+      "status": "success"
+    },
+    "ATOMUSDT": {
+      "symbol": "ATOMUSDT",
+      "training_accuracy": 0.9791666666666666,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 1.0,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 25,
+        "sell_count": 1,
+        "buy_ratio": 0.9615384615384616,
+        "sell_ratio": 0.038461538461538464,
+        "bias_score": 0.46153846153846156,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "status": "success"
+    },
+    "FILUSDT": {
+      "symbol": "FILUSDT",
+      "training_accuracy": 0.7083333333333334,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9115503412015418,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 7,
+        "sell_count": 19,
+        "buy_ratio": 0.2692307692307692,
+        "sell_ratio": 0.7307692307692307,
+        "bias_score": 0.23076923076923078,
+        "bias_level": "Vi\u00e9s moderado",
+        "balanced": false
+      },
+      "sample_predictions": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "status": "success"
+    },
+    "TRXUSDT": {
+      "symbol": "TRXUSDT",
+      "training_accuracy": 0.9027777777777778,
+      "best_model": "xgboost",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9181385078146763,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 22,
+        "sell_count": 4,
+        "buy_ratio": 0.8461538461538461,
+        "sell_ratio": 0.15384615384615385,
+        "bias_score": 0.34615384615384615,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        0,
+        1,
+        1,
+        1,
+        0,
+        0,
+        1,
+        0,
+        1
+      ],
+      "status": "success"
+    },
+    "ETCUSDT": {
+      "symbol": "ETCUSDT",
+      "training_accuracy": 0.8402777777777778,
+      "best_model": "xgboost",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9317433404338956,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 4,
+        "sell_count": 22,
+        "buy_ratio": 0.15384615384615385,
+        "sell_ratio": 0.8461538461538461,
+        "bias_score": 0.34615384615384615,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "status": "success"
+    },
+    "XLMUSDT": {
+      "symbol": "XLMUSDT",
+      "training_accuracy": 0.8263888888888888,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.7977005625815777,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 8,
+        "sell_count": 18,
+        "buy_ratio": 0.3076923076923077,
+        "sell_ratio": 0.6923076923076923,
+        "bias_score": 0.1923076923076923,
+        "bias_level": "Leve vi\u00e9s",
+        "balanced": false
+      },
+      "sample_predictions": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "status": "success"
+    },
+    "VETUSDT": {
+      "symbol": "VETUSDT",
+      "training_accuracy": 0.9166666666666666,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.923025563545754,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 24,
+        "sell_count": 2,
+        "buy_ratio": 0.9230769230769231,
+        "sell_ratio": 0.07692307692307693,
+        "bias_score": 0.42307692307692313,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        0,
+        1,
+        1,
+        1,
+        1,
+        0,
+        1,
+        1,
+        1
+      ],
+      "status": "success"
+    },
+    "ICPUSDT": {
+      "symbol": "ICPUSDT",
+      "training_accuracy": 1.0,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9753124672657533,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 26,
+        "sell_count": 0,
+        "buy_ratio": 1.0,
+        "sell_ratio": 0.0,
+        "bias_score": 0.5,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "status": "success"
+    },
+    "FTMUSDT": {
+      "symbol": "FTMUSDT",
+      "training_accuracy": 0.7361111111111112,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.926893394106694,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 13,
+        "sell_count": 13,
+        "buy_ratio": 0.5,
+        "sell_ratio": 0.5,
+        "bias_score": 0.0,
+        "bias_level": "Balanceado",
+        "balanced": true
+      },
+      "sample_predictions": [
+        1,
+        0,
+        0,
+        1,
+        1,
+        0,
+        1,
+        0,
+        0,
+        1
+      ],
+      "status": "success"
+    },
+    "COMPUSDT": {
+      "symbol": "COMPUSDT",
+      "training_accuracy": 0.8263888888888888,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 1.0,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 7,
+        "sell_count": 19,
+        "buy_ratio": 0.2692307692307692,
+        "sell_ratio": 0.7307692307692307,
+        "bias_score": 0.23076923076923078,
+        "bias_level": "Vi\u00e9s moderado",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ],
+      "status": "success"
+    },
+    "AAVEUSDT": {
+      "symbol": "AAVEUSDT",
+      "training_accuracy": 0.875,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9908886587930998,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 3,
+        "sell_count": 23,
+        "buy_ratio": 0.11538461538461539,
+        "sell_ratio": 0.8846153846153846,
+        "bias_score": 0.3846153846153846,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        0,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0
+      ],
+      "status": "success"
+    },
+    "UNIUSDT": {
+      "symbol": "UNIUSDT",
+      "training_accuracy": 0.8263888888888888,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.8938189728363698,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 5,
+        "sell_count": 21,
+        "buy_ratio": 0.19230769230769232,
+        "sell_ratio": 0.8076923076923077,
+        "bias_score": 0.3076923076923077,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0
+      ],
+      "status": "success"
+    },
+    "ALGOUSDT": {
+      "symbol": "ALGOUSDT",
+      "training_accuracy": 0.7708333333333334,
+      "best_model": "xgboost",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 0.9427498514052007,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 8,
+        "sell_count": 18,
+        "buy_ratio": 0.3076923076923077,
+        "sell_ratio": 0.6923076923076923,
+        "bias_score": 0.1923076923076923,
+        "bias_level": "Leve vi\u00e9s",
+        "balanced": false
+      },
+      "sample_predictions": [
+        0,
+        0,
+        1,
+        1,
+        0,
+        0,
+        1,
+        1,
+        1,
+        0
+      ],
+      "status": "success"
+    },
+    "MANAUSDT": {
+      "symbol": "MANAUSDT",
+      "training_accuracy": 0.9583333333333334,
+      "best_model": "random_forest",
+      "models_count": 2,
+      "predictions_made": 26,
+      "simulated_accuracy": 1.0,
+      "bias_metrics": {
+        "total_predictions": 26,
+        "buy_count": 26,
+        "sell_count": 0,
+        "buy_ratio": 1.0,
+        "sell_ratio": 0.0,
+        "bias_score": 0.5,
+        "bias_level": "Vi\u00e9s forte",
+        "balanced": false
+      },
+      "sample_predictions": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "status": "success"
+    }
+  }
+}

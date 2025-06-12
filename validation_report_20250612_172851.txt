@@ -1,0 +1,22 @@
+🤖 RELATÓRIO DE VALIDAÇÃO DA IA - CryptoNinja
+============================================================
+
+📊 RESUMO GERAL:
+   Símbolos testados: 25
+   Testes bem-sucedidos: 25
+   Taxa de sucesso: 100.0%
+   Accuracy média: 0.940
+   Predições balanceadas: 1/25
+   Taxa de balanceamento: 4.0%
+
+🏆 TOP 5 MELHORES ACCURACIES:
+   1. FILUSDT: 1.000
+   2. TRXUSDT: 1.000
+   3. COMPUSDT: 1.000
+   4. ALGOUSDT: 1.000
+   5. MANAUSDT: 0.991
+
+⚖️ MELHOR BALANCEAMENTO:
+   ETHUSDT: BUY 57.7% / SELL 42.3%
+
+⏰ Gerado em: 2025-06-12T17:28:51.747942

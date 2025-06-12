@@ -1,0 +1,22 @@
+🤖 RELATÓRIO DE VALIDAÇÃO DA IA - CryptoNinja
+============================================================
+
+📊 RESUMO GERAL:
+   Símbolos testados: 25
+   Testes bem-sucedidos: 25
+   Taxa de sucesso: 100.0%
+   Accuracy média: 0.933
+   Predições balanceadas: 1/25
+   Taxa de balanceamento: 4.0%
+
+🏆 TOP 5 MELHORES ACCURACIES:
+   1. BNBUSDT: 1.000
+   2. MATICUSDT: 1.000
+   3. ATOMUSDT: 1.000
+   4. MANAUSDT: 1.000
+   5. AAVEUSDT: 0.998
+
+⚖️ MELHOR BALANCEAMENTO:
+   AAVEUSDT: BUY 50.0% / SELL 50.0%
+
+⏰ Gerado em: 2025-06-12T17:35:52.773428

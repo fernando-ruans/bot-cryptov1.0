@@ -831,15 +831,15 @@ class MarketAnalyzer:
                 return {
                     "symbol": symbol,
                     "timeframe": timeframe,
-                    "recommendation": "hold",
-                    "confidence": 0.0,
+                    "recommendation": "sell",  # Default para SELL quando score insuficiente
+                    "confidence": 0.3,
                     "market_score": market_score,
                     "ai_score": 0.0,
                     "entry_price": 0.0,
                     "stop_loss": 0.0,
                     "take_profit": 0.0,
                     "risk_reward": 0.0,
-                    "reasons": ["Score de mercado insuficiente"]
+                    "reasons": ["Score de mercado insuficiente - default SELL"]
                 }
             
             # Obter dados históricos
@@ -857,26 +857,28 @@ class MarketAnalyzer:
             # Extrair sinal e confiança do modelo de IA
             signal_value = ai_prediction.get('signal', 0)
             confidence = ai_prediction.get('confidence', 0.0)
-            
-            # Converter valor numérico para recomendação
+              # Converter valor numérico para recomendação - APENAS BUY/SELL
             if signal_value == 1:  # Sinal de compra
                 recommendation = "buy"
             elif signal_value == -1:  # Sinal de venda
                 recommendation = "sell"
-            else:  # Sinal neutro (0)
-                recommendation = "hold"
-            
-            # Verificar confiança mínima
-            if confidence < self.config.SIGNAL_CONFIG.get('min_confidence', 0.0) and recommendation != "hold":
-                recommendation = "hold"
-                confidence = 0.5
+            else:  # Sinal neutro (0) - forçar decisão baseada na confiança
+                if confidence > 0.5:
+                    recommendation = "buy"  # Se confiança é alta, default para buy
+                else:
+                    recommendation = "sell"  # Se confiança é baixa, default para sell
+              # Verificar confiança mínima - Se muito baixa, default para SELL
+            min_confidence = self.config.SIGNAL_CONFIG.get('min_confidence', 0.0)
+            if confidence < min_confidence:
+                recommendation = "sell"
+                confidence = max(confidence, 0.3)  # Mínimo de 30% confiança
             
             # Verificar confiança mínima da IA
             min_ai_confidence = self.config.SIGNAL_CONFIG.get('min_ai_confidence', 0.0)
-            if confidence < min_ai_confidence and recommendation != "hold":
+            if confidence < min_ai_confidence:
                 logger.info(f"Confiança da IA {confidence:.2f} abaixo do mínimo {min_ai_confidence:.2f} para {symbol} {timeframe}")
-                recommendation = "hold"
-                confidence = max(confidence, 0.5)
+                recommendation = "sell"  # Default para SELL quando confiança é baixa
+                confidence = max(confidence, 0.3)
             
             # Calcular preço atual
             current_price = df['close'].iloc[-1]
@@ -907,10 +909,9 @@ class MarketAnalyzer:
             else:
                 stop_loss = 0.0
                 take_profit = 0.0
-            
-            # Calcular risk/reward ratio
+              # Calcular risk/reward ratio
             risk_reward = 1.0  # 1:1 por padrão
-            if recommendation != "hold" and abs(current_price - stop_loss) > 0:
+            if abs(current_price - stop_loss) > 0:  # Sempre há recomendação válida agora
                 risk_reward = abs(take_profit - current_price) / abs(current_price - stop_loss)
             
             # Gerar razões para a recomendação
@@ -940,16 +941,13 @@ class MarketAnalyzer:
         """Gera razões para a recomendação de trade"""
         reasons = []
         
-        try:
-            # Razões baseadas no tipo de recomendação
+        try:            # Razões baseadas no tipo de recomendação
             confidence_pct = ai_prediction.get('confidence', 0) * 100  # Converter para porcentagem
             
             if recommendation == "buy":
                 reasons.append(f"IA prevê movimento de alta com {confidence_pct:.1f}% de confiança")
             elif recommendation == "sell":
                 reasons.append(f"IA prevê movimento de baixa com {confidence_pct:.1f}% de confiança")
-            elif recommendation == "hold":
-                reasons.append(f"IA recomenda aguardar com {confidence_pct:.1f}% de confiança")
             
             # Razões baseadas no regime de mercado
             if 'market_regime' in market_context:

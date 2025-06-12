@@ -1,0 +1,23 @@
+🤖 RELATÓRIO DE VALIDAÇÃO DA IA - CryptoNinja
+============================================================
+
+📊 RESUMO GERAL:
+   Símbolos testados: 25
+   Testes bem-sucedidos: 25
+   Taxa de sucesso: 100.0%
+   Accuracy média: 0.948
+   Predições balanceadas: 2/25
+   Taxa de balanceamento: 8.0%
+
+🏆 TOP 5 MELHORES ACCURACIES:
+   1. BNBUSDT: 1.000
+   2. DOGEUSDT: 1.000
+   3. MATICUSDT: 1.000
+   4. XLMUSDT: 1.000
+   5. ICPUSDT: 1.000
+
+⚖️ MELHOR BALANCEAMENTO:
+   MATICUSDT: BUY 38.5% / SELL 61.5%
+   FTMUSDT: BUY 61.5% / SELL 38.5%
+
+⏰ Gerado em: 2025-06-12T17:40:23.832357

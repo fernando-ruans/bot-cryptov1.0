@@ -85,11 +85,8 @@ class AITradingEngine:
             
             # Momentum
             df['momentum_5'] = df['close'] - df['close'].shift(5)
-            df['momentum_10'] = df['close'] - df['close'].shift(10)
-            
-            # Limpar NaN
-            df = df.fillna(method='ffill').fillna(method='bfill').fillna(0)
-            
+            df['momentum_10'] = df['close'] - df['close'].shift(10)            # Limpar NaN (usando método atualizado)
+            df = df.ffill().bfill().fillna(0)            
             logger.info(f"Features criadas: {len(df.columns)} colunas")
             return df
             
@@ -98,16 +95,20 @@ class AITradingEngine:
             return df
     
     def create_simple_labels(self, df: pd.DataFrame) -> pd.Series:
-        """Criar labels simples"""
+        """Criar labels simples - APENAS BUY/SELL (sem HOLD)"""
         try:
             # Retorno futuro em 12 períodos
             future_return = df['close'].shift(-12) / df['close'] - 1
             
-            # Labels simples: BUY (1), SELL (-1), HOLD (0)
+            # Labels binários: BUY (1), SELL (0) - SEM HOLD
             labels = pd.Series(index=df.index, dtype=int)
-            labels[future_return > 0.015] = 1   # BUY se >1.5%
-            labels[future_return < -0.015] = -1 # SELL se <-1.5%
-            labels[(future_return >= -0.015) & (future_return <= 0.015)] = 0  # HOLD
+            
+            # Threshold mais agressivo para forçar decisões
+            threshold = 0.005  # 0.5% em vez de 1.5%
+            
+            # BUY se retorno positivo, SELL se negativo
+            labels[future_return > threshold] = 1   # BUY
+            labels[future_return <= threshold] = 0  # SELL
             
             return labels.fillna(0)
             
@@ -161,20 +162,25 @@ class AITradingEngine:
             rf_model.fit(X_train_selected, y_train)
             rf_pred = rf_model.predict(X_test_selected)
             rf_acc = accuracy_score(y_test, rf_pred)
-            models['random_forest'] = {'model': rf_model, 'accuracy': rf_acc}
-            
-            # XGBoost (se disponível)
+            models['random_forest'] = {'model': rf_model, 'accuracy': rf_acc}            # XGBoost (se disponível) - VERSÃO BINÁRIA
             if XGBOOST_AVAILABLE:
                 try:
-                    xgb_model = xgb.XGBClassifier(n_estimators=50, random_state=42)
+                    # Agora as labels já são binárias (0, 1), não precisa converter
+                    xgb_model = xgb.XGBClassifier(
+                        n_estimators=50, 
+                        random_state=42,
+                        eval_metric='logloss',
+                        verbosity=0
+                    )
                     xgb_model.fit(X_train_selected, y_train)
                     xgb_pred = xgb_model.predict(X_test_selected)
                     xgb_acc = accuracy_score(y_test, xgb_pred)
+                    
                     models['xgboost'] = {'model': xgb_model, 'accuracy': xgb_acc}
-                except:
-                    logger.warning("Erro no XGBoost, usando apenas Random Forest")
-            
-            # Salvar
+                    logger.info(f"XGBoost treinado com accuracy: {xgb_acc:.3f}")
+                except Exception as e:
+                    logger.warning(f"XGBoost falhou: {str(e)[:50]}...")
+              # Salvar
             self.models[symbol] = models
             self.scalers[symbol] = scaler
             self.feature_selectors[symbol] = selector
@@ -182,7 +188,6 @@ class AITradingEngine:
             
             best_model = max(models.keys(), key=lambda k: models[k]['accuracy'])
             logger.info(f"Melhor modelo para {symbol}: {best_model} (acc: {models[best_model]['accuracy']:.3f})")
-            
             return {
                 'success': True,
                 'best_model': best_model,
@@ -195,66 +200,84 @@ class AITradingEngine:
             return {'success': False, 'error': str(e)}
     
     def predict_signal(self, df: pd.DataFrame, symbol: str) -> Dict:
-        """Predição de sinal simplificada"""
+        """Predição de sinal com IA real - MODO PRODUÇÃO ATIVADO"""
         
-        # MODO TESTE: gerar sinais balanceados para demonstração
-        import hashlib
-        hash_input = f"{symbol}{datetime.now().strftime('%Y%m%d%H')}"
-        hash_value = int(hashlib.md5(hash_input.encode()).hexdigest()[:8], 16)
-        
-        # Apenas BUY ou SELL (sem HOLD para mais ação)
-        signal_value = 1 if hash_value % 2 == 0 else -1
-        confidence = 0.65 + (hash_value % 20) / 100  # 0.65-0.84
-        
-        signal_names = {-1: 'SELL', 1: 'BUY'}
-        
-        return {
-            'signal': signal_value,
-            'confidence': confidence,
-            'signal_type': signal_names[signal_value],
-            'model_used': 'test_balanced',
-            'timestamp': datetime.now().isoformat(),
-            'test_mode': True
-        }
-        
-        # Código de produção (comentado para teste)
-        """
+        # MODO PRODUÇÃO: IA Real ativada!
         try:
+            # Se modelo não está treinado, treinar automaticamente
             if symbol not in self.models:
-                return {'signal': 0, 'confidence': 0, 'error': 'Modelo não treinado'}
+                logger.info(f"🧠 Modelo não encontrado para {symbol}. Treinando automaticamente...")
+                training_result = self.train_simple_model(df, symbol)
+                if not training_result.get('success', False):
+                    logger.warning(f"⚠️ Falha no treinamento para {symbol}. Usando análise técnica.")
+                    return self._fallback_technical_prediction(df, symbol)
             
-            # Preparar features
+            # Preparar features para predição
             df_features = self.create_simple_features(df)
             
-            # Última linha
+            # Usar última linha para predição
             X = df_features.select_dtypes(include=[np.number]).iloc[-1:].fillna(0)
             
-            # Transformar
+            # Transformar dados
             X_scaled = self.scalers[symbol].transform(X)
             X_selected = self.feature_selectors[symbol].transform(X_scaled)
             
-            # Predizer com melhor modelo
+            # Fazer predição com todos os modelos disponíveis
             predictions = {}
-            for name, model_data in self.models[symbol].items():
-                pred = model_data['model'].predict(X_selected)[0]
-                predictions[name] = pred
+            confidences = {}
             
-            # Usar melhor modelo
-            best_model = max(self.models[symbol].keys(), 
-                           key=lambda k: self.models[symbol][k]['accuracy'])
-            final_signal = predictions[best_model]
+            for model_name, model_data in self.models[symbol].items():
+                try:
+                    pred = model_data['model'].predict(X_selected)[0]
+                    
+                    # Calcular confiança baseada na accuracy do modelo
+                    if hasattr(model_data['model'], 'predict_proba'):
+                        pred_proba = model_data['model'].predict_proba(X_selected)[0]
+                        confidence = np.max(pred_proba)
+                    else:
+                        confidence = model_data.get('accuracy', 0.6)
+                    
+                    predictions[model_name] = pred
+                    confidences[model_name] = confidence
+                    
+                except Exception as e:
+                    logger.warning(f"Erro na predição {model_name}: {e}")
+                    continue
+            
+            if not predictions:
+                logger.warning(f"Nenhuma predição válida para {symbol}")
+                return self._fallback_technical_prediction(df, symbol)
+            
+            # Usar melhor modelo ou fazer ensemble
+            if len(predictions) == 1:
+                model_name = list(predictions.keys())[0]
+                final_signal = predictions[model_name]
+                final_confidence = confidences[model_name]
+                best_model = model_name
+            else:
+                # Ensemble voting: usar modelo com maior accuracy
+                best_model = max(self.models[symbol].keys(), 
+                               key=lambda k: self.models[symbol][k].get('accuracy', 0))
+                final_signal = predictions[best_model]
+                final_confidence = confidences[best_model]
+              # Mapear sinais binários
+            signal_names = {0: 'SELL', 1: 'BUY'}
+            
+            logger.info(f"🤖 IA REAL: {signal_names[final_signal]} para {symbol} "
+                       f"(confiança: {final_confidence:.3f}, modelo: {best_model})")
             
             return {
                 'signal': int(final_signal),
-                'confidence': self.models[symbol][best_model]['accuracy'],
+                'confidence': float(final_confidence),
+                'signal_type': signal_names[final_signal],
                 'model_used': best_model,
-                'timestamp': datetime.now().isoformat()
-            }
+                'timestamp': datetime.now().isoformat(),
+                'test_mode': False,  # IA REAL ATIVADA!
+                'individual_predictions': predictions            }
             
         except Exception as e:
-            logger.error(f"Erro na predição: {e}")
-            return {'signal': 0, 'confidence': 0, 'error': str(e)}
-        """
+            logger.error(f"Erro na IA real para {symbol}: {e}")
+            return self._fallback_technical_prediction(df, symbol)
     
     def get_model_status(self) -> Dict:
         """Status dos modelos"""
@@ -270,56 +293,56 @@ class AITradingEngine:
             'is_trained': self.is_trained,
             'available_models': available_models,
             'trained_symbols': list(self.models.keys()),
-            'deploy_ready': True
-        }
+            'deploy_ready': True        }
     
     def load_models(self):
-        """Carregar modelos salvos (versão simplificada para deploy)"""
+        """Carregar modelos salvos e treinar automaticamente se necessário"""
         try:
             import os
             
             # Verificar se existem modelos salvos
-            model_files = ['models/BTCUSDT_models.pkl', 'models/BTCUSDT_scaler.pkl', 'models/BTCUSDT_selector.pkl']
+            startup_symbols = ['BTCUSDT', 'ETHUSDT', 'COMPUSDT']
+            models_to_train = []
             
-            models_found = 0
-            for model_file in model_files:
-                if os.path.exists(model_file):
-                    models_found += 1
-            
-            if models_found > 0:
-                logger.info(f"Encontrados {models_found}/3 arquivos de modelo")
+            for symbol in startup_symbols:
+                model_files = [
+                    f'models/{symbol}_models.pkl',
+                    f'models/{symbol}_scaler.pkl', 
+                    f'models/{symbol}_selector.pkl'
+                ]
                 
-                # Tentar carregar modelo BTCUSDT se existir
-                if os.path.exists('models/BTCUSDT_models.pkl'):
+                models_exist = all(os.path.exists(f) for f in model_files)
+                
+                if models_exist:
                     try:
-                        with open('models/BTCUSDT_models.pkl', 'rb') as f:
-                            self.models['BTCUSDT'] = pickle.load(f)
-                        logger.info("Modelo BTCUSDT carregado com sucesso")
+                        # Tentar carregar modelo existente
+                        with open(f'models/{symbol}_models.pkl', 'rb') as f:
+                            self.models[symbol] = pickle.load(f)
+                        
+                        self.scalers[symbol] = joblib.load(f'models/{symbol}_scaler.pkl')
+                        self.feature_selectors[symbol] = joblib.load(f'models/{symbol}_selector.pkl')
+                        
+                        logger.info(f"✅ Modelo {symbol} carregado com sucesso")
                         self.is_trained = True
-                    except Exception as e:
-                        logger.warning(f"Erro ao carregar modelo BTCUSDT: {e}")
                         
-                if os.path.exists('models/BTCUSDT_scaler.pkl'):
-                    try:
-                        self.scalers['BTCUSDT'] = joblib.load('models/BTCUSDT_scaler.pkl')
-                        logger.info("Scaler BTCUSDT carregado com sucesso")
                     except Exception as e:
-                        logger.warning(f"Erro ao carregar scaler: {e}")
-                        
-                if os.path.exists('models/BTCUSDT_selector.pkl'):
-                    try:
-                        self.feature_selectors['BTCUSDT'] = joblib.load('models/BTCUSDT_selector.pkl')
-                        logger.info("Feature selector BTCUSDT carregado com sucesso")
-                    except Exception as e:
-                        logger.warning(f"Erro ao carregar selector: {e}")
-            else:
-                logger.info("Nenhum modelo pré-treinado encontrado - funcionando em modo de geração de sinais")
+                        logger.warning(f"⚠️ Erro ao carregar modelo {symbol}: {e}")
+                        models_to_train.append(symbol)
+                else:
+                    logger.info(f"📝 Modelo {symbol} não encontrado - será treinado")
+                    models_to_train.append(symbol)
+            
+            # Treinar modelos faltantes em background se houver
+            if models_to_train:
+                logger.info(f"🧠 Iniciando treinamento automático para: {models_to_train}")
+                self._train_missing_models_background(models_to_train)
+            
+            logger.info(f"🤖 IA Engine pronto - {len(self.models)} modelos carregados")
                 
         except Exception as e:
             logger.error(f"Erro ao carregar modelos: {e}")
-            # Não falha, apenas loga o erro
         
-        logger.info("Load models concluído - sistema pronto")
+        logger.info("IA load models concluído - sistema pronto")
 
     def save_models(self, symbol: str):
         """Salvar modelos treinados"""
@@ -425,9 +448,7 @@ class AITradingEngine:
             # Limpar NaN com forward fill, backward fill e depois zero
             numeric_columns = df.select_dtypes(include=[np.number]).columns
             for col in numeric_columns:
-                df[col] = df[col].fillna(method='ffill')
-                df[col] = df[col].fillna(method='bfill')
-                df[col] = df[col].fillna(0)
+                df[col] = df[col].ffill().bfill().fillna(0)
             
             logger.info(f"Features preparadas: {len(df.columns)} colunas, {len(df)} linhas")
             return df
@@ -435,3 +456,112 @@ class AITradingEngine:
         except Exception as e:
             logger.error(f"Erro ao preparar features: {e}")
             return df
+    
+    def _fallback_technical_prediction(self, df: pd.DataFrame, symbol: str) -> Dict:
+        """Fallback usando análise técnica - APENAS BUY/SELL"""
+        try:
+            logger.info(f"📊 Usando fallback técnico para {symbol}")
+            
+            # Calcular indicadores simples
+            latest = df.iloc[-1]
+            prev = df.iloc[-2] if len(df) > 1 else latest
+            
+            # RSI
+            if 'rsi' in df.columns and not pd.isna(latest['rsi']):
+                rsi = latest['rsi']
+                if rsi < 45:  # Threshold mais agressivo
+                    signal = 1  # BUY
+                    confidence = 0.7
+                    reason = f"RSI baixo: {rsi:.1f}"
+                else:
+                    signal = 0  # SELL
+                    confidence = 0.7
+                    reason = f"RSI alto: {rsi:.1f}"
+            else:
+                # Análise de preço simples
+                price_change = (latest['close'] - prev['close']) / prev['close']
+                if price_change > 0:  # Qualquer subida = BUY
+                    signal = 1
+                    confidence = 0.6
+                    reason = "Price momentum up"
+                else:  # Qualquer descida = SELL
+                    signal = 0
+                    confidence = 0.6
+                    reason = "Price momentum down"
+            
+            signal_names = {0: 'SELL', 1: 'BUY'}
+            
+            return {
+                'signal': signal,
+                'confidence': confidence,
+                'signal_type': signal_names[signal],
+                'model_used': 'technical_fallback',
+                'timestamp': datetime.now().isoformat(),
+                'test_mode': False,
+                'reason': reason            }
+            
+        except Exception as e:
+            logger.error(f"Erro no fallback técnico: {e}")
+            return {
+                'signal': 0,
+                'confidence': 0.5,
+                'signal_type': 'SELL',
+                'model_used': 'error_fallback',
+                'timestamp': datetime.now().isoformat(),
+                'test_mode': False,
+                'error': str(e)
+            }
+    
+    def _train_missing_models_background(self, symbols: List[str]):
+        """Treinar modelos faltantes em background thread"""
+        def train_worker():
+            # Importar MarketDataManager dentro da thread
+            from .market_data import MarketDataManager
+            
+            # Criar instância temporária para obter dados
+            temp_market_data = MarketDataManager(self.config)
+            
+            for symbol in symbols:
+                try:
+                    logger.info(f"🧠 Treinando modelo para {symbol}...")
+                    
+                    # Obter dados históricos para treinamento
+                    df = temp_market_data.get_historical_data(symbol, '1h', 1000)
+                    
+                    if df is not None and len(df) >= 200:
+                        result = self.train_simple_model(df, symbol)
+                        if result.get('success'):
+                            self.save_models(symbol)
+                            logger.info(f"✅ Modelo {symbol} treinado e salvo!")
+                        else:
+                            logger.warning(f"⚠️ Falha no treinamento de {symbol}")
+                    else:
+                        logger.warning(f"⚠️ Dados insuficientes para treinar {symbol}")
+                        
+                except Exception as e:
+                    logger.error(f"❌ Erro no treinamento de {symbol}: {e}")
+            
+            logger.info("🧠 Treinamento em background concluído")
+        
+        # Executar em thread separada para não bloquear startup
+        import threading
+        thread = threading.Thread(target=train_worker, daemon=True)
+        thread.start()
+
+    def retrain_models_if_needed(self):
+        """Retreinar modelos se necessário (chamado periodicamente)"""
+        try:
+            # Verificar se é hora de retreinar (a cada 24h)
+            last_retrain = getattr(self, '_last_retrain', None)
+            now = datetime.now()
+            
+            if last_retrain is None or (now - last_retrain).total_seconds() > 86400:  # 24h
+                logger.info("🔄 Iniciando retreinamento periódico...")
+                self._last_retrain = now
+                
+                symbols_to_retrain = list(self.models.keys())
+                if symbols_to_retrain:
+                    self._train_missing_models_background(symbols_to_retrain)
+                    
+        except Exception as e:
+            logger.error(f"Erro no retreinamento: {e}")

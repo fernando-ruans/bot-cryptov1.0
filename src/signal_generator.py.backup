@@ -441,8 +441,7 @@ class SignalGenerator:
                         confidence = min(buy_strength / 2.2, 0.6)  # Divisor mais baixo para empates
                     else:
                         signal_type = 'sell'
-                        confidence = min(sell_strength / 2.2, 0.6)
-                elif buy_signals:
+                        confidence = min(sell_strength / 2.2, 0.6)                elif buy_signals:
                     signal_type = 'buy'
                     confidence = min(buy_strength / 2.2, 0.6)
                 elif sell_signals:
