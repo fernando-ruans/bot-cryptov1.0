@@ -4332,3 +4332,33 @@
 2025-06-11 16:49:46,002 - src.market_data - INFO - Buscando SOLUSDT da Binance pública
 2025-06-11 16:49:46,314 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
 2025-06-11 16:49:46,315 - src.market_data - INFO - OK Ultimo preco: $162.88
+2025-06-11 16:49:47,316 - src.market_data - INFO - Buscando SOLUSDT da Binance pública
+2025-06-11 16:49:47,653 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-11 16:49:47,654 - src.market_data - INFO - OK Ultimo preco: $162.88
+2025-06-11 16:49:47,656 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 16:49:47,978 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-11 16:49:47,980 - src.market_data - INFO - OK Ultimo preco: $0.38
+2025-06-11 16:49:47,982 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 16:49:48,297 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-11 16:49:48,298 - src.market_data - INFO - OK Ultimo preco: $0.38
+2025-06-11 16:49:48,299 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 16:49:48,608 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-11 16:49:48,609 - src.market_data - INFO - OK Ultimo preco: $0.38
+2025-06-11 16:49:48,610 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 16:49:48,925 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-11 16:49:48,929 - src.market_data - INFO - OK Ultimo preco: $0.38
+2025-06-11 16:49:49,930 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 16:49:50,250 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-11 16:49:50,252 - src.market_data - INFO - OK Ultimo preco: $0.38
+2025-06-11 16:49:50,253 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 16:49:50,564 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-11 16:49:50,564 - src.market_data - INFO - OK Ultimo preco: $0.38
+2025-06-11 16:49:50,564 - src.market_data - INFO - Buscando MATICUSDT da Binance pública
+2025-06-11 16:49:50,882 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-11 16:49:50,883 - src.market_data - INFO - OK Ultimo preco: $0.38
+2025-06-11 16:49:50,883 - src.market_data - INFO - Buscando AVAXUSDT da Binance pública
+2025-06-11 16:49:51,207 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-11 16:49:51,208 - src.market_data - INFO - OK Ultimo preco: $21.75
+2025-06-11 16:49:51,208 - src.market_data - INFO - Buscando AVAXUSDT da Binance pública
+2025-06-11 16:49:51,515 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-11 16:49:51,515 - src.market_data - INFO - OK Ultimo preco: $21.75
