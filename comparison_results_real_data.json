@@ -1,0 +1,58 @@
+{
+  "timestamp": "2025-06-13T00:23:06.058140",
+  "api_signal": {
+    "confidence": 0.5261540634805089,
+    "entry_price": 104315.54,
+    "id": "BTCUSDT_20250613_002301",
+    "reasons": [
+      "IA prevê movimento de alta com 55.0% de confiança",
+      "Tendência de baixa forte (força: 87.7%)",
+      "Mercado sobrevendido (RSI: 22.9)",
+      "Padrões detectados: bullish_engulfing",
+      "EMA 12 abaixo da EMA 26 (diferença: 1.04%)"
+    ],
+    "signal_type": "buy",
+    "status": "active",
+    "stop_loss": 103063.75352,
+    "symbol": "BTCUSDT",
+    "take_profit": 106193.21972,
+    "timeframe": "1h",
+    "timestamp": "2025-06-13T00:23:01.374606"
+  },
+  "script_signal": {
+    "signal_type": "buy",
+    "confidence": 0.95,
+    "entry_price": 104315.55,
+    "symbol": "BTCUSDT",
+    "timeframe": "1h",
+    "timestamp": "2025-06-13T00:23:06.056848",
+    "reasons": [
+      "Consenso bullish (2/2)"
+    ],
+    "script_details": {
+      "signal": "buy",
+      "confidence": 0.95,
+      "reason": "Consenso bullish (2/2)",
+      "ai_features": 235,
+      "signals_breakdown": {
+        "momentum": [
+          1,
+          1
+        ],
+        "patterns": [
+          0
+        ],
+        "regime": [
+          0
+        ],
+        "correlation": [
+          0
+        ],
+        "volatility": [
+          0
+        ]
+      }
+    }
+  },
+  "test_type": "real_data_comparison"
+}

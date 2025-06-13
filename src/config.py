@@ -110,6 +110,29 @@ class Config:
         'webhook_url': os.getenv('WEBHOOK_URL', '')
     })
     
+    # Configurações de análise de mercado com IA - NOVA INTEGRAÇÃO
+    AI_MARKET_ANALYSIS: Dict = field(default_factory=lambda: {
+        'sentiment_analysis': True,     # Análise de sentimento
+        'volume_analysis': True,        # Análise de volume
+        'volatility_analysis': True,    # Análise de volatilidade
+        'correlation_analysis': True,   # Análise de correlação
+        'momentum_analysis': True,      # Análise de momentum
+        'pattern_recognition': True,    # Reconhecimento de padrões
+        'market_regime_detection': True, # Detecção de regime de mercado
+        'liquidity_analysis': True,     # Análise de liquidez
+        'orderbook_analysis': False,    # Análise de order book (premium)
+        'news_sentiment': False,        # Sentimento de notícias (premium)
+        'social_sentiment': False,      # Sentimento social (premium)
+        'macro_indicators': True,       # Indicadores macroeconômicos
+        'fear_greed_index': True,       # Índice de medo e ganância
+        'funding_rates': True,          # Taxas de funding
+        'open_interest': True,          # Open interest
+        'whale_movements': False,       # Movimentos de baleias (premium)
+        'market_cap_analysis': True,    # Análise de market cap
+        'dominance_analysis': True,     # Análise de dominância
+        'cross_asset_correlation': True # Correlação entre ativos
+    })
+    
     def __post_init__(self):
         """Validações pós-inicialização"""
         # Criar diretórios necessários

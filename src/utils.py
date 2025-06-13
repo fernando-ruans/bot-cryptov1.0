@@ -492,13 +492,13 @@ class ConfigValidator:
         errors = []
         
         if not config.BINANCE_API_KEY:
-            errors.append("BINANCE_API_KEY não configurada")
-        
+            errors.append("BINANCE_API_KEY não configurada")        
         if not config.BINANCE_SECRET_KEY:
             errors.append("BINANCE_SECRET_KEY não configurada")
         
         return errors
-      @staticmethod
+    
+    @staticmethod
     def validate_trading_pairs(config) -> List[str]:
         """Validar pares de trading - apenas crypto suportado"""
         errors = []

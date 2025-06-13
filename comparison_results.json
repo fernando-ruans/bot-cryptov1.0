@@ -1,0 +1,39 @@
+{
+  "timestamp": "2025-06-13T00:18:52.342097",
+  "api_signal": {
+    "confidence": 0.5261540634805089,
+    "entry_price": 104145.75,
+    "id": "BTCUSDT_20250613_001852",
+    "reasons": [
+      "IA prevê movimento de alta com 55.0% de confiança",
+      "Tendência de baixa forte (força: 87.7%)",
+      "Mercado sobrevendido (RSI: 22.9)",
+      "Padrões detectados: bullish_engulfing",
+      "EMA 12 abaixo da EMA 26 (diferença: 1.06%)"
+    ],
+    "signal_type": "buy",
+    "status": "active",
+    "stop_loss": 102896.001,
+    "symbol": "BTCUSDT",
+    "take_profit": 106020.3735,
+    "timeframe": "1h",
+    "timestamp": "2025-06-13T00:18:52.331543"
+  },
+  "script_signal": {
+    "signal_type": "hold",
+    "confidence": 0.5,
+    "entry_price": 37724.223620270146,
+    "symbol": "BTCUSDT",
+    "timeframe": "1h",
+    "timestamp": "2025-06-13T00:18:52.340119",
+    "reasons": [
+      "Erro: The truth value of a DataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all()."
+    ],
+    "script_details": {
+      "signal": "hold",
+      "confidence": 0.5,
+      "reason": "Erro: The truth value of a DataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().",
+      "ai_features": 0
+    }
+  }
+}

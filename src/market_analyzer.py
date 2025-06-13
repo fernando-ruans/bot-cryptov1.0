@@ -847,11 +847,10 @@ class MarketAnalyzer:
             if df.empty:
                 logger.error(f"Sem dados para recomendação de trade: {symbol} {timeframe}")
                 return {}
-            
-            # Preparar features para o modelo de IA
+              # Preparar features para o modelo de IA
             df = self.ai_engine.prepare_features(df)
             
-            # Obter previsão do modelo de IA
+            # Obter previsão do modelo de IA (sem timeframe - não usado pelo método)
             ai_prediction = self.ai_engine.predict_signal(df, symbol)
             
             # Extrair sinal e confiança do modelo de IA

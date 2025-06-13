@@ -7131,3 +7131,677 @@ Feature names unseen at fit time:
 2025-06-12 18:27:43,539 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
 2025-06-12 18:27:43,562 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
 2025-06-12 18:27:43,581 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:34:57,112 - __main__ - INFO - 🚀 Inicializando Trading Bot AI - Modo Startup Rápido para Heroku
+2025-06-12 18:34:57,208 - __main__ - INFO - 🗄️ Banco PostgreSQL inicializado com sucesso
+2025-06-12 18:34:57,219 - __main__ - INFO - 🥷 Usuário admin já existe
+2025-06-12 18:34:57,221 - __main__ - INFO - ⚡ Inicialização mínima para startup rápido...
+2025-06-12 18:34:57,222 - src.market_data - INFO - Usando APIs públicas para dados de mercado
+2025-06-12 18:34:57,233 - src.market_data - INFO - APIs públicas inicializadas: Binance, Kraken
+2025-06-12 18:34:57,233 - src.ai_engine - INFO - AI Engine inicializado com: Random Forest + XGBoost, LightGBM
+2025-06-12 18:34:57,235 - src.realtime_updates - INFO - 🔗 Sistema de WebSocket inicializado
+2025-06-12 18:34:57,236 - src.paper_trading - INFO - 📊 Paper Trading Manager inicializado com $10000.00
+2025-06-12 18:34:57,236 - __main__ - INFO - ✅ Componentes essenciais inicializados - sem data feed automático
+2025-06-12 18:34:57,239 - src.realtime_price_api - INFO - 🚀 Feed de preços em tempo real iniciado
+2025-06-12 18:34:57,242 - __main__ - INFO - 🔗 Sistema de preços conectado ao WebSocket
+2025-06-12 18:34:57,253 - __main__ - INFO - 🔄 Inicializando sistema...
+2025-06-12 18:34:57,258 - src.database - INFO - Banco de dados inicializado com sucesso
+2025-06-12 18:34:57,258 - __main__ - INFO - ✅ Sistema inicializado com sucesso!
+2025-06-12 18:34:57,259 - __main__ - INFO - ▶️ Iniciando Trading Bot AI...
+2025-06-12 18:34:57,262 - src.database - INFO - Banco de dados inicializado com sucesso
+2025-06-12 18:34:57,263 - src.market_data - INFO - 🚀 API de preços em tempo real iniciada
+2025-06-12 18:34:57,265 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 18:34:57,266 - src.market_data - INFO - Feed de dados iniciado
+2025-06-12 18:34:57,278 - src.ai_engine - INFO - ✅ Modelo BTCUSDT carregado com sucesso
+2025-06-12 18:34:57,287 - src.ai_engine - INFO - ✅ Modelo ETHUSDT carregado com sucesso
+2025-06-12 18:34:57,292 - src.ai_engine - INFO - ✅ Modelo COMPUSDT carregado com sucesso
+2025-06-12 18:34:57,297 - src.ai_engine - INFO - 🤖 IA Engine pronto - 3 modelos carregados
+2025-06-12 18:34:57,297 - src.ai_engine - INFO - IA load models concluído - sistema pronto
+2025-06-12 18:34:57,297 - __main__ - INFO - OK Trading Bot AI iniciado com sucesso!
+2025-06-12 18:34:57,299 - src.paper_trading - INFO - 🔄 Monitor automático de trades iniciado (intervalo: 30s)
+2025-06-12 18:34:57,300 - src.realtime_updates - INFO - 🔄 Atualizações de preços iniciadas para: ['BTCUSDT', 'ETHUSDT', 'ADAUSDT']
+2025-06-12 18:34:57,300 - __main__ - INFO - 🚀 Iniciando servidor Flask...
+2025-06-12 18:34:57,300 - __main__ - INFO - 📊 Dashboard disponível em: http://localhost:5000
+2025-06-12 18:34:57,301 - __main__ - INFO - 🔄 Monitor automático ativo
+2025-06-12 18:34:57,301 - __main__ - INFO - 📡 Notificações em tempo real ativas
+2025-06-12 18:34:57,594 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:34:58,670 - src.realtime_price_api - INFO - OK WebSocket conectado a Binance
+2025-06-12 18:34:59,608 - __main__ - INFO - 🔗 Cliente WebSocket conectado
+2025-06-12 18:35:00,413 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:35:00,413 - src.market_data - INFO - OK Ultimo preco: $106372.19
+2025-06-12 18:35:00,414 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 18:35:00,738 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:35:00,739 - src.market_data - INFO - OK Ultimo preco: $2651.19
+2025-06-12 18:35:00,739 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 18:35:01,067 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:35:01,068 - src.market_data - INFO - OK Ultimo preco: $55.20
+2025-06-12 18:35:01,552 - __main__ - INFO - 🔗 Cliente WebSocket conectado
+2025-06-12 18:35:51,519 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:35:51,535 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:35:51,553 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:35:51,569 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:36:51,521 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:36:51,534 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:36:51,547 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:36:51,561 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:37:51,535 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:37:51,553 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:37:51,569 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:37:51,591 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:38:51,524 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:38:51,539 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:38:51,554 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:38:51,570 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:39:51,512 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:39:51,527 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:39:51,541 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:39:51,559 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:40:01,069 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 18:40:01,493 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:40:01,493 - src.market_data - INFO - OK Ultimo preco: $106116.60
+2025-06-12 18:40:01,494 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 18:40:01,816 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:40:01,816 - src.market_data - INFO - OK Ultimo preco: $2644.00
+2025-06-12 18:40:01,817 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 18:40:02,130 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:40:02,130 - src.market_data - INFO - OK Ultimo preco: $54.90
+2025-06-12 18:40:51,530 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:40:51,545 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:40:51,560 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:40:51,583 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:41:51,531 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:41:51,548 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:41:51,562 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:41:51,576 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:42:51,530 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:42:51,548 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:42:51,569 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:42:51,581 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:43:51,528 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:43:51,541 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:43:51,557 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:43:51,569 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:44:51,582 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:44:51,616 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:44:51,627 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:44:51,638 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:45:02,131 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 18:45:02,535 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:45:02,536 - src.market_data - INFO - OK Ultimo preco: $106069.16
+2025-06-12 18:45:02,537 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 18:45:02,862 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:45:02,863 - src.market_data - INFO - OK Ultimo preco: $2644.50
+2025-06-12 18:45:02,864 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 18:45:03,182 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:45:03,185 - src.market_data - INFO - OK Ultimo preco: $55.13
+2025-06-12 18:45:51,528 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:45:51,544 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:45:51,560 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:45:51,575 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:46:51,549 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:46:51,579 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:46:51,605 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:46:51,630 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:47:51,538 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:47:51,560 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:47:51,584 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:47:51,604 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:48:49,622 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:48:49,653 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:48:49,685 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:48:49,715 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:49:13,532 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:49:13,549 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:49:13,570 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:49:13,586 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:49:43,514 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:49:43,526 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:49:43,538 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:49:43,551 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:50:03,186 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 18:50:03,603 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:50:03,604 - src.market_data - INFO - OK Ultimo preco: $106144.35
+2025-06-12 18:50:03,605 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 18:50:03,935 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:50:03,936 - src.market_data - INFO - OK Ultimo preco: $2651.64
+2025-06-12 18:50:03,937 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 18:50:04,266 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:50:04,268 - src.market_data - INFO - OK Ultimo preco: $55.10
+2025-06-12 18:50:51,542 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:50:51,573 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:50:51,598 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:50:51,621 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:51:51,528 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:51:51,587 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:51:51,596 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:51:51,606 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:52:51,520 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:52:51,534 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:52:51,546 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:52:51,558 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:53:51,519 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:53:51,531 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:53:51,545 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:53:51,567 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:54:51,526 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:54:51,535 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:54:51,544 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:54:51,553 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:55:04,270 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 18:55:04,705 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:55:04,707 - src.market_data - INFO - OK Ultimo preco: $106140.16
+2025-06-12 18:55:04,708 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 18:55:05,029 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:55:05,030 - src.market_data - INFO - OK Ultimo preco: $2649.85
+2025-06-12 18:55:05,030 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 18:55:05,360 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 18:55:05,361 - src.market_data - INFO - OK Ultimo preco: $55.17
+2025-06-12 18:55:50,699 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:55:50,708 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:55:50,720 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:55:50,729 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:55:50,741 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:55:50,752 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:56:12,869 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:56:12,890 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:56:12,909 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:56:12,921 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:56:42,862 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:56:42,870 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:56:42,881 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:56:42,891 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:57:12,888 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:57:13,000 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:57:13,053 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:57:13,063 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:57:42,912 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:57:42,952 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:57:42,960 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:57:42,968 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:58:14,505 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:58:14,517 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:58:14,530 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:58:14,551 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:58:44,506 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:58:44,523 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:58:44,541 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:58:44,554 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:59:14,506 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:59:14,523 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:59:14,540 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:59:14,557 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:59:44,508 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:59:44,527 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:59:44,544 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 18:59:44,559 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:00:07,002 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:00:07,411 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:00:07,411 - src.market_data - INFO - OK Ultimo preco: $105891.33
+2025-06-12 19:00:07,412 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:00:07,732 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:00:07,732 - src.market_data - INFO - OK Ultimo preco: $2634.21
+2025-06-12 19:00:07,732 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:00:08,132 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:00:08,134 - src.market_data - INFO - OK Ultimo preco: $55.04
+2025-06-12 19:00:15,450 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:00:15,458 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:00:15,469 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:00:15,478 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:00:45,148 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:00:45,157 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:00:45,168 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:00:45,182 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:01:53,191 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:01:53,207 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:01:53,221 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:01:53,232 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:02:53,204 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:02:53,224 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:02:53,241 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:02:53,258 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:03:53,238 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:03:53,253 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:03:53,266 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:03:53,276 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:04:53,162 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:04:53,174 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:04:53,187 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:04:53,198 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:05:08,135 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:05:08,570 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:05:08,572 - src.market_data - INFO - OK Ultimo preco: $106095.40
+2025-06-12 19:05:08,572 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:05:08,906 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:05:08,907 - src.market_data - INFO - OK Ultimo preco: $2643.21
+2025-06-12 19:05:08,907 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:05:09,225 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:05:09,226 - src.market_data - INFO - OK Ultimo preco: $55.28
+2025-06-12 19:05:53,187 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:05:53,206 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:05:53,223 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:05:53,237 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:06:53,176 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:06:53,194 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:06:53,211 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:06:53,236 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:07:53,192 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:07:53,215 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:07:53,231 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:07:53,249 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:08:53,172 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:08:53,193 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:08:53,208 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:08:53,227 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:09:53,167 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:09:53,178 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:09:53,195 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:09:53,211 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:10:09,227 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:10:09,666 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:10:09,666 - src.market_data - INFO - OK Ultimo preco: $106078.26
+2025-06-12 19:10:09,667 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:10:09,984 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:10:09,984 - src.market_data - INFO - OK Ultimo preco: $2641.13
+2025-06-12 19:10:09,985 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:10:10,306 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:10:10,306 - src.market_data - INFO - OK Ultimo preco: $55.02
+2025-06-12 19:10:53,164 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:10:53,173 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:10:53,183 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:10:53,193 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:11:53,152 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:11:53,161 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:11:53,168 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:11:53,179 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:12:53,150 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:12:53,157 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:12:53,164 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:12:53,173 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:13:53,166 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:13:53,181 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:13:53,191 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:13:53,204 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:14:53,159 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:14:53,169 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:14:53,181 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:14:53,195 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:15:10,307 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:15:10,699 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:15:10,700 - src.market_data - INFO - OK Ultimo preco: $106150.56
+2025-06-12 19:15:10,701 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:15:11,017 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:15:11,018 - src.market_data - INFO - OK Ultimo preco: $2645.43
+2025-06-12 19:15:11,018 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:15:11,335 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:15:11,336 - src.market_data - INFO - OK Ultimo preco: $54.76
+2025-06-12 19:15:53,181 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:15:53,190 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:15:53,199 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:15:53,209 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:16:53,154 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:16:53,163 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:16:53,175 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:16:53,190 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:17:53,154 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:17:53,162 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:17:53,171 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:17:53,185 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:18:53,173 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:18:53,192 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:18:53,209 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:18:53,225 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:19:53,155 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:19:53,163 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:19:53,170 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:19:53,179 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:20:11,337 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:20:11,758 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:20:11,758 - src.market_data - INFO - OK Ultimo preco: $105788.71
+2025-06-12 19:20:11,759 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:20:12,089 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:20:12,090 - src.market_data - INFO - OK Ultimo preco: $2639.69
+2025-06-12 19:20:12,090 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:20:12,413 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:20:12,413 - src.market_data - INFO - OK Ultimo preco: $54.67
+2025-06-12 19:20:53,175 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:20:53,191 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:20:53,205 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:20:53,218 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:21:53,186 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:21:53,206 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:21:53,227 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:21:53,251 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:22:53,182 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:22:53,203 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:22:53,223 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:22:53,240 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:23:53,165 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:23:53,172 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:23:53,181 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:23:53,191 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:24:53,192 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:24:53,207 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:24:53,226 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:24:53,245 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:25:12,415 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:25:12,830 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:25:12,831 - src.market_data - INFO - OK Ultimo preco: $106018.76
+2025-06-12 19:25:12,831 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:25:13,151 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:25:13,153 - src.market_data - INFO - OK Ultimo preco: $2645.95
+2025-06-12 19:25:13,153 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:25:13,473 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:25:13,474 - src.market_data - INFO - OK Ultimo preco: $54.70
+2025-06-12 19:25:53,159 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:25:53,192 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:25:53,207 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:25:53,221 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:26:53,162 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:26:53,172 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:26:53,181 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:26:53,193 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:27:53,162 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:27:53,172 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:27:53,180 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:27:53,188 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:28:53,185 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:28:53,193 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:28:53,208 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:28:53,228 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:29:53,492 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:29:53,512 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:29:53,534 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:29:53,549 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:30:13,475 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:30:13,886 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:30:13,886 - src.market_data - INFO - OK Ultimo preco: $105859.76
+2025-06-12 19:30:13,887 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:30:14,249 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:30:14,250 - src.market_data - INFO - OK Ultimo preco: $2639.77
+2025-06-12 19:30:14,251 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:30:14,568 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:30:14,569 - src.market_data - INFO - OK Ultimo preco: $54.57
+2025-06-12 19:30:53,165 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:30:53,173 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:30:53,182 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:30:53,191 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:31:53,189 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:31:53,205 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:31:53,220 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:31:53,235 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:32:53,478 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:32:53,489 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:32:53,499 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:32:53,510 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:33:53,169 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:33:53,180 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:33:53,193 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:33:53,213 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:34:53,163 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:34:53,174 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:34:53,186 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:34:53,200 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:35:14,570 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:35:14,988 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:35:14,989 - src.market_data - INFO - OK Ultimo preco: $105782.09
+2025-06-12 19:35:14,990 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:35:15,313 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:35:15,314 - src.market_data - INFO - OK Ultimo preco: $2639.69
+2025-06-12 19:35:15,314 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:35:15,630 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:35:15,631 - src.market_data - INFO - OK Ultimo preco: $54.76
+2025-06-12 19:35:53,163 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:35:53,170 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:35:53,178 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:35:53,191 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:36:53,173 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:36:53,190 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:36:53,203 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:36:53,214 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:37:53,167 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:37:53,177 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:37:53,187 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:37:53,198 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:38:53,193 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:38:53,225 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:38:53,234 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:38:53,243 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:39:53,184 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:39:53,197 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:39:53,210 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:39:53,223 - __main__ - INFO - 📊 Portfolio: 0 trades, 0.0% win rate
+2025-06-12 19:40:15,632 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:40:16,043 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:40:16,044 - src.market_data - INFO - OK Ultimo preco: $105823.21
+2025-06-12 19:40:16,044 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:40:16,364 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:40:16,365 - src.market_data - INFO - OK Ultimo preco: $2641.13
+2025-06-12 19:40:16,365 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:40:16,693 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:40:16,694 - src.market_data - INFO - OK Ultimo preco: $54.60
+2025-06-12 19:40:22,941 - __main__ - INFO - 🔌 Cliente WebSocket desconectado
+2025-06-12 19:40:22,944 - __main__ - INFO - 🔌 Cliente WebSocket desconectado
+2025-06-12 19:45:16,696 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:45:17,364 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:45:17,365 - src.market_data - INFO - OK Ultimo preco: $105822.46
+2025-06-12 19:45:17,366 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:45:17,696 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:45:17,697 - src.market_data - INFO - OK Ultimo preco: $2637.50
+2025-06-12 19:45:17,698 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:45:18,020 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:45:18,021 - src.market_data - INFO - OK Ultimo preco: $54.54
+2025-06-12 19:50:18,039 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:50:18,449 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:50:18,450 - src.market_data - INFO - OK Ultimo preco: $105852.14
+2025-06-12 19:50:18,450 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:50:18,769 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:50:18,770 - src.market_data - INFO - OK Ultimo preco: $2638.00
+2025-06-12 19:50:18,770 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:50:19,088 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:50:19,089 - src.market_data - INFO - OK Ultimo preco: $54.76
+2025-06-12 19:55:19,090 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 19:55:19,480 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:55:19,480 - src.market_data - INFO - OK Ultimo preco: $105760.59
+2025-06-12 19:55:19,480 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 19:55:19,793 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:55:19,793 - src.market_data - INFO - OK Ultimo preco: $2634.81
+2025-06-12 19:55:19,794 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 19:55:20,109 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 19:55:20,109 - src.market_data - INFO - OK Ultimo preco: $54.67
+2025-06-12 20:00:20,110 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:00:20,520 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:00:20,521 - src.market_data - INFO - OK Ultimo preco: $105896.62
+2025-06-12 20:00:20,521 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:00:20,840 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:00:20,841 - src.market_data - INFO - OK Ultimo preco: $2640.62
+2025-06-12 20:00:20,842 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:00:21,172 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:00:21,172 - src.market_data - INFO - OK Ultimo preco: $54.71
+2025-06-12 20:05:21,174 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:05:21,578 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:05:21,579 - src.market_data - INFO - OK Ultimo preco: $106069.06
+2025-06-12 20:05:21,580 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:05:21,900 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:05:21,900 - src.market_data - INFO - OK Ultimo preco: $2643.60
+2025-06-12 20:05:21,901 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:05:22,214 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:05:22,214 - src.market_data - INFO - OK Ultimo preco: $54.90
+2025-06-12 20:10:22,215 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:10:22,637 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:10:22,637 - src.market_data - INFO - OK Ultimo preco: $106019.40
+2025-06-12 20:10:22,637 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:10:22,964 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:10:22,965 - src.market_data - INFO - OK Ultimo preco: $2646.99
+2025-06-12 20:10:22,965 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:10:23,286 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:10:23,287 - src.market_data - INFO - OK Ultimo preco: $54.69
+2025-06-12 20:15:23,287 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:15:23,684 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:15:23,685 - src.market_data - INFO - OK Ultimo preco: $105869.92
+2025-06-12 20:15:23,685 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:15:24,003 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:15:24,004 - src.market_data - INFO - OK Ultimo preco: $2645.89
+2025-06-12 20:15:24,004 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:15:24,314 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:15:24,315 - src.market_data - INFO - OK Ultimo preco: $54.70
+2025-06-12 20:20:24,315 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:20:24,722 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:20:24,722 - src.market_data - INFO - OK Ultimo preco: $105977.98
+2025-06-12 20:20:24,722 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:20:25,161 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:20:25,162 - src.market_data - INFO - OK Ultimo preco: $2652.10
+2025-06-12 20:20:25,162 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:20:25,477 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:20:25,478 - src.market_data - INFO - OK Ultimo preco: $54.78
+2025-06-12 20:25:25,479 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:25:25,899 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:25:25,899 - src.market_data - INFO - OK Ultimo preco: $106097.11
+2025-06-12 20:25:25,900 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:25:26,224 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:25:26,225 - src.market_data - INFO - OK Ultimo preco: $2656.31
+2025-06-12 20:25:26,226 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:25:26,548 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:25:26,548 - src.market_data - INFO - OK Ultimo preco: $54.67
+2025-06-12 20:30:26,549 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:30:26,952 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:30:26,953 - src.market_data - INFO - OK Ultimo preco: $106077.45
+2025-06-12 20:30:26,954 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:30:27,283 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:30:27,284 - src.market_data - INFO - OK Ultimo preco: $2657.35
+2025-06-12 20:30:27,285 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:30:27,603 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:30:27,604 - src.market_data - INFO - OK Ultimo preco: $54.72
+2025-06-12 20:35:27,605 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:35:28,080 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:35:28,081 - src.market_data - INFO - OK Ultimo preco: $105921.44
+2025-06-12 20:35:28,082 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:35:28,524 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:35:28,525 - src.market_data - INFO - OK Ultimo preco: $2650.98
+2025-06-12 20:35:28,525 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:35:28,849 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:35:28,849 - src.market_data - INFO - OK Ultimo preco: $54.76
+2025-06-12 20:40:28,850 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:40:29,250 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:40:29,250 - src.market_data - INFO - OK Ultimo preco: $106016.59
+2025-06-12 20:40:29,251 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:40:29,571 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:40:29,572 - src.market_data - INFO - OK Ultimo preco: $2653.29
+2025-06-12 20:40:29,572 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:40:29,891 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:40:29,892 - src.market_data - INFO - OK Ultimo preco: $54.65
+2025-06-12 20:45:29,893 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:45:30,336 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:45:30,336 - src.market_data - INFO - OK Ultimo preco: $105974.85
+2025-06-12 20:45:30,337 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:45:30,659 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:45:30,660 - src.market_data - INFO - OK Ultimo preco: $2652.99
+2025-06-12 20:45:30,660 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:45:30,986 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:45:30,987 - src.market_data - INFO - OK Ultimo preco: $54.63
+2025-06-12 20:50:30,987 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:50:31,388 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:50:31,388 - src.market_data - INFO - OK Ultimo preco: $105999.01
+2025-06-12 20:50:31,389 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:50:31,718 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:50:31,718 - src.market_data - INFO - OK Ultimo preco: $2655.09
+2025-06-12 20:50:31,718 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:50:32,049 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:50:32,049 - src.market_data - INFO - OK Ultimo preco: $54.67
+2025-06-12 20:55:32,050 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 20:55:32,454 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:55:32,454 - src.market_data - INFO - OK Ultimo preco: $105882.59
+2025-06-12 20:55:32,455 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 20:55:32,860 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:55:32,861 - src.market_data - INFO - OK Ultimo preco: $2648.89
+2025-06-12 20:55:32,862 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 20:55:33,440 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 20:55:33,441 - src.market_data - INFO - OK Ultimo preco: $54.59
+2025-06-12 21:00:33,442 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 21:00:33,929 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:00:33,929 - src.market_data - INFO - OK Ultimo preco: $105637.06
+2025-06-12 21:00:33,930 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 21:00:34,251 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:00:34,251 - src.market_data - INFO - OK Ultimo preco: $2642.70
+2025-06-12 21:00:34,252 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 21:00:34,584 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:00:34,585 - src.market_data - INFO - OK Ultimo preco: $54.27
+2025-06-12 21:05:34,586 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 21:05:35,022 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:05:35,022 - src.market_data - INFO - OK Ultimo preco: $104761.61
+2025-06-12 21:05:35,023 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 21:05:35,344 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:05:35,345 - src.market_data - INFO - OK Ultimo preco: $2606.30
+2025-06-12 21:05:35,345 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 21:05:35,673 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:05:35,673 - src.market_data - INFO - OK Ultimo preco: $53.67
+2025-06-12 21:10:35,674 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 21:10:36,075 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:10:36,076 - src.market_data - INFO - OK Ultimo preco: $104361.74
+2025-06-12 21:10:36,076 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 21:10:36,445 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:10:36,446 - src.market_data - INFO - OK Ultimo preco: $2582.93
+2025-06-12 21:10:36,446 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 21:10:36,767 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:10:36,767 - src.market_data - INFO - OK Ultimo preco: $53.28
+2025-06-12 21:15:36,768 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 21:15:37,176 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:15:37,177 - src.market_data - INFO - OK Ultimo preco: $104339.67
+2025-06-12 21:15:37,177 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 21:15:37,498 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:15:37,499 - src.market_data - INFO - OK Ultimo preco: $2565.20
+2025-06-12 21:15:37,500 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 21:15:37,914 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:15:37,914 - src.market_data - INFO - OK Ultimo preco: $53.23
+2025-06-12 21:20:37,916 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 21:20:38,317 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:20:38,318 - src.market_data - INFO - OK Ultimo preco: $104506.73
+2025-06-12 21:20:38,319 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 21:20:38,646 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:20:38,647 - src.market_data - INFO - OK Ultimo preco: $2567.06
+2025-06-12 21:20:38,647 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 21:20:38,972 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:20:38,973 - src.market_data - INFO - OK Ultimo preco: $53.42
+2025-06-12 21:25:38,974 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 21:25:39,376 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:25:39,377 - src.market_data - INFO - OK Ultimo preco: $103632.00
+2025-06-12 21:25:39,378 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 21:25:39,699 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:25:39,700 - src.market_data - INFO - OK Ultimo preco: $2544.16
+2025-06-12 21:25:39,701 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 21:25:40,017 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:25:40,018 - src.market_data - INFO - OK Ultimo preco: $53.15
+2025-06-12 21:30:40,019 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 21:30:40,425 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:30:40,425 - src.market_data - INFO - OK Ultimo preco: $103893.40
+2025-06-12 21:30:40,426 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 21:30:40,754 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:30:40,755 - src.market_data - INFO - OK Ultimo preco: $2556.57
+2025-06-12 21:30:40,755 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 21:30:41,080 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:30:41,081 - src.market_data - INFO - OK Ultimo preco: $53.26
+2025-06-12 21:35:41,082 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 21:35:41,527 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:35:41,528 - src.market_data - INFO - OK Ultimo preco: $103513.43
+2025-06-12 21:35:41,529 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 21:35:41,851 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:35:41,852 - src.market_data - INFO - OK Ultimo preco: $2522.00
+2025-06-12 21:35:41,853 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 21:35:42,176 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:35:42,177 - src.market_data - INFO - OK Ultimo preco: $52.67
+2025-06-12 21:40:42,178 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 21:40:42,626 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:40:42,627 - src.market_data - INFO - OK Ultimo preco: $103723.58
+2025-06-12 21:40:42,628 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 21:40:42,957 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:40:42,958 - src.market_data - INFO - OK Ultimo preco: $2522.81
+2025-06-12 21:40:42,958 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 21:40:43,281 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:40:43,282 - src.market_data - INFO - OK Ultimo preco: $52.51
+2025-06-12 21:45:43,283 - src.market_data - INFO - Buscando BTCUSDT da Binance pública
+2025-06-12 21:45:43,711 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:45:43,712 - src.market_data - INFO - OK Ultimo preco: $104072.51
+2025-06-12 21:45:43,713 - src.market_data - INFO - Buscando ETHUSDT da Binance pública
+2025-06-12 21:45:44,037 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:45:44,038 - src.market_data - INFO - OK Ultimo preco: $2543.59
+2025-06-12 21:45:44,038 - src.market_data - INFO - Buscando COMPUSDT da Binance pública
+2025-06-12 21:45:44,361 - src.market_data - INFO - OK Dados reais da Binance obtidos: 500 registros
+2025-06-12 21:45:44,361 - src.market_data - INFO - OK Ultimo preco: $52.92
