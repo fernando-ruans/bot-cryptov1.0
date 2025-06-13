@@ -81,29 +81,27 @@ class SimpleTradingDashboard {    constructor() {
         this.loadTradesHistory();
         
         // Carregar dados de mercado inicial
-        this.updateCurrentPrice();        // Auto-refresh a cada 30 segundos
+        this.updateCurrentPrice();
+          // Auto-refresh a cada 30 segundos
         setInterval(() => {
             this.loadPortfolio();
             this.loadActiveTradesStatus();
             this.updateCurrentPrice();
         }, 30000);
         
-        // Atualizar preços a cada 5 segundos (mais frequente)
+        // Atualizar preço a cada 10 segundos
         setInterval(() => {
             this.updateCurrentPrice();
-        }, 5000);
-        
-        // Atualizar trades ativos a cada 10 segundos
-        setInterval(() => {
-            this.loadActiveTradesStatus();
         }, 10000);
         
         // Expandir dados após startup (executar após 30 segundos)
         this.expandDataAfterStartup();
         
-        }
+        console.log('✅ CryptoNinja 🥷 inicializado! Pronto para trades furtivos...');
+    }
 
     initTradingView() {
+        console.log('📈 Inicializando TradingView...');
         this.tradingViewWidget = new TradingView.widget({
             "width": "100%",
             "height": "500",
@@ -128,6 +126,8 @@ class SimpleTradingDashboard {    constructor() {
     }
 
     initEventListeners() {
+        console.log('🎯 Configurando event listeners...');
+        
         // Remover event listeners existentes para evitar duplicação
         const generateBtn = document.getElementById('generateSignalBtn');
         const confirmBtn = document.getElementById('confirmSignalBtn');
@@ -169,6 +169,7 @@ class SimpleTradingDashboard {    constructor() {
 
         // Seletor de timeframe
         document.getElementById('timeframeSelector').addEventListener('change', (e) => {
+            console.log(`🔄 Timeframe selecionado: ${e.target.value}`);
             this.changeTimeframe(e.target.value);
         });        // Iniciar atualização automática de preços
         this.startPriceUpdates();
@@ -213,33 +214,39 @@ class SimpleTradingDashboard {    constructor() {
             this.updateCurrentPrice();
         }, 1000);
         
-        }
+        console.log('🔄 Atualização automática de preços iniciada (1s)');
+    }
       stopPriceUpdates() {
         if (this.priceUpdateInterval) {
             clearInterval(this.priceUpdateInterval);
             this.priceUpdateInterval = null;
-            }
+            console.log('⏹️ Atualização automática de preços parada');
+        }
         
         // Parar também o intervalo de captura do gráfico
         if (this.chartPriceInterval) {
             clearInterval(this.chartPriceInterval);
             this.chartPriceInterval = null;
-            }
+            console.log('⏹️ Captura de preços do gráfico interrompida');
+        }
         
         // Parar monitoramento multi-símbolos
         this.stopMultiSymbolPriceMonitoring();
     }
 
     initWebSocket() {
+        console.log('🔗 Conectando WebSocket...');
         this.socket = io();
         
         this.socket.on('connect', () => {
+            console.log('✅ WebSocket conectado');
             this.isConnected = true;
             this.updateBotStatus(true);
             this.showNotification('Conectado ao servidor em tempo real', 'success');
         });
 
         this.socket.on('disconnect', () => {
+            console.log('❌ WebSocket desconectado');
             this.isConnected = false;
             this.updateBotStatus(false);
             this.showNotification('Conexão perdida - tentando reconectar...', 'warning');
@@ -285,6 +292,7 @@ class SimpleTradingDashboard {    constructor() {
     }
 
     async generateSignal() {
+        console.log('🎰 Gerando novo sinal...');
         const btn = document.getElementById('generateSignalBtn');
         const originalText = btn.innerHTML;
         
@@ -304,7 +312,9 @@ class SimpleTradingDashboard {    constructor() {
             });
 
             const data = await response.json();
-              if (data.success && data.signal) {this.currentSignal = data.signal;
+              if (data.success && data.signal) {
+                console.log('✅ Sinal gerado:', data.signal);
+                this.currentSignal = data.signal;
                 this.displayCurrentSignal(data.signal);
                 // Removido: notificação duplicada - será exibida via WebSocket
             } else {
@@ -320,7 +330,9 @@ class SimpleTradingDashboard {    constructor() {
         }
     }
 
-    displayCurrentSignal(signal) {const card = document.getElementById('currentSignalCard');
+    displayCurrentSignal(signal) {
+        console.log('📊 Exibindo sinal:', signal);
+        const card = document.getElementById('currentSignalCard');
         const actionElement = document.getElementById('signalAction');
         const priceElement = document.getElementById('signalPrice');
         const symbolElement = document.getElementById('signalSymbol');
@@ -364,7 +376,11 @@ class SimpleTradingDashboard {    constructor() {
         if (!this.currentSignal) {
             this.showAlert('Nenhum sinal para confirmar', 'warning');
             return;
-        }try {
+        }
+
+        console.log('✅ Confirmando sinal:', this.currentSignal);
+
+        try {
             const response = await fetch('/api/paper_trading/confirm_signal', {
                 method: 'POST',
                 headers: {
@@ -379,6 +395,7 @@ class SimpleTradingDashboard {    constructor() {
             const data = await response.json();
             
             if (data.success) {
+                console.log('✅ Trade confirmado com sucesso!');
                 this.showAlert('✅ Trade confirmado com sucesso!', 'success');
                 this.hideCurrentSignal();
                 this.loadPortfolio();
@@ -395,6 +412,7 @@ class SimpleTradingDashboard {    constructor() {
     }
 
     rejectSignal() {
+        console.log('❌ Sinal rejeitado pelo usuário');
         this.showAlert('Sinal rejeitado', 'info');
         this.hideCurrentSignal();
     }
@@ -412,7 +430,9 @@ class SimpleTradingDashboard {    constructor() {
             
             if (data.success) {
                 this.portfolio = data.portfolio;
-                this.updateStatsDisplay();}
+                this.updateStatsDisplay();
+                console.log('📊 Portfolio atualizado:', this.portfolio);
+            }
         } catch (error) {
             console.error('❌ Erro ao carregar portfolio:', error);
         }
@@ -461,6 +481,8 @@ class SimpleTradingDashboard {    constructor() {
         // Extrair símbolos únicos dos trades ativos
         const activeSymbols = [...new Set(activeTrades.map(trade => trade.symbol))];
         
+        console.log(`🔍 Iniciando monitoramento multi-símbolos: ${activeSymbols.join(', ')}`);
+        
         // Armazenar símbolos ativos para referência
         this.activeTradeSymbols = activeSymbols;
         
@@ -483,8 +505,11 @@ class SimpleTradingDashboard {    constructor() {
                 });
             }, 5000); // Atualizar a cada 5 segundos
             
-            }
-    }    async updatePriceForSymbol(symbol) {
+            console.log(`⏰ Monitoramento automático configurado para ${activeSymbols.length} símbolos`);
+        }
+    }
+
+    async updatePriceForSymbol(symbol) {
         try {
             // Usar endpoint de tempo real primeiro
             let response = await fetch(`/api/price/realtime/${symbol}`);
@@ -505,7 +530,7 @@ class SimpleTradingDashboard {    constructor() {
                 });
             }
         } catch (error) {
-            // Silencioso - erro de rede não é crítico para funcionamento
+            console.warn(`⚠️ Erro ao atualizar preço para ${symbol}:`, error);
         }
     }
 
@@ -513,7 +538,8 @@ class SimpleTradingDashboard {    constructor() {
         if (this.multiSymbolPriceInterval) {
             clearInterval(this.multiSymbolPriceInterval);
             this.multiSymbolPriceInterval = null;
-            }
+            console.log('⏹️ Monitoramento multi-símbolos interrompido');
+        }
     }    displayActiveTrades(activeTrades) {
         const container = document.getElementById('activeTradesList');
         
@@ -531,10 +557,11 @@ class SimpleTradingDashboard {    constructor() {
             return;
         }
         
-        container.innerHTML = activeTrades.map(trade => {            const currentPrice = parseFloat(trade.current_price || trade.entry_price);
+        container.innerHTML = activeTrades.map(trade => {
+            const currentPrice = parseFloat(trade.current_price || trade.entry_price);
             const entryPrice = parseFloat(trade.entry_price);
             const pnlPercent = ((currentPrice - entryPrice) / entryPrice * 100).toFixed(2);
-            const pnlValue = this.formatPrice(Math.abs(currentPrice - entryPrice), trade.symbol);
+        const pnlValue = this.formatPrice(currentPrice - entryPrice, this.currentSymbol);
             const isProfit = currentPrice >= entryPrice;
               return `
                 <div class="card mb-3 shadow-sm border-0 trade-card">
@@ -608,7 +635,10 @@ class SimpleTradingDashboard {    constructor() {
                 </div>
             `;
         }).join('');
-    }    async closeTrade(tradeId) {if (!confirm('Tem certeza que deseja fechar este trade?')) {
+    }    async closeTrade(tradeId) {
+        console.log('🔒 Fechando trade:', tradeId);
+        
+        if (!confirm('Tem certeza que deseja fechar este trade?')) {
             return;
         }
         
@@ -626,6 +656,7 @@ class SimpleTradingDashboard {    constructor() {
             const data = await response.json();
             
             if (data.success) {
+                console.log('✅ Trade fechado com sucesso!');
                 this.showAlert('Trade fechado com sucesso!', 'success');
                 
                 // Forçar atualização imediata de todas as seções
@@ -633,7 +664,8 @@ class SimpleTradingDashboard {    constructor() {
                     this.loadPortfolio();
                     this.loadActiveTradesStatus();
                     this.loadTradesHistory();
-                    }, 300);
+                    console.log('📊 Interface atualizada após fechamento manual');
+                }, 300);
                 
             } else {
                 console.error('❌ Erro ao fechar trade:', data.error);
@@ -646,13 +678,16 @@ class SimpleTradingDashboard {    constructor() {
     }
 
     async loadTradesHistory() {
+        console.log('📜 Carregando histórico de trades...');
+        
         try {
             const response = await fetch('/api/paper_trading/history');
             const data = await response.json();
             
             if (data.success) {
                 this.displayTradesHistory(data.trades);
-                }
+                console.log(`📊 Histórico carregado: ${data.trades.length} trades`);
+            }
         } catch (error) {
             console.error('❌ Erro ao carregar histórico:', error);
         }
@@ -698,7 +733,10 @@ class SimpleTradingDashboard {    constructor() {
             </tr>
         `).join('');
     }    handlePriceUpdate(data) {
-        // Atualizar preços em tempo real// Sempre armazenar o preço atualizado
+        // Atualizar preços em tempo real
+        console.log('💰 Atualização de preço:', data);
+        
+        // Sempre armazenar o preço atualizado
         this.lastPrices[data.symbol] = data.price;
         
         // Atualizar display se for o ativo atualmente selecionado no gráfico
@@ -712,7 +750,9 @@ class SimpleTradingDashboard {    constructor() {
     }
 
     handleTradeUpdate(data) {
-        // Atualizar trades em tempo realthis.loadPortfolio();
+        // Atualizar trades em tempo real
+        console.log('📈 Atualização de trade:', data);
+        this.loadPortfolio();
         this.loadActiveTradesStatus();
         
         // Mostrar notificação de atualização
@@ -722,7 +762,10 @@ class SimpleTradingDashboard {    constructor() {
             this.showNotification(`🎯 Take Profit atingido para ${data.symbol}`, 'success');
         }
     }    // Novas funções para notificações em tempo real
-    handleNewSignal(data) {// Só mostrar notificação se for para o ativo atual
+    handleNewSignal(data) {
+        console.log('🎯 Novo sinal recebido:', data);
+        
+        // Só mostrar notificação se for para o ativo atual
         if (data.symbol === this.currentSymbol) {
             const confidence = (data.confidence * 100).toFixed(1);
             const signalType = data.signal_type.toUpperCase();
@@ -738,15 +781,22 @@ class SimpleTradingDashboard {    constructor() {
                 this.loadPortfolio();
             }, 1000);
         } else {
-            }
-    }handleTradeOpened(data) {this.showNotification(
+            console.log(`📊 Sinal recebido para ${data.symbol}, mas ativo atual é ${this.currentSymbol} - notificação suprimida`);
+        }
+    }handleTradeOpened(data) {
+        console.log('📊 Trade aberto:', data);
+        
+        this.showNotification(
             `📊 Trade ${data.trade_type} aberto para ${data.symbol} por $${data.entry_price}`,
             'success'
         );
         
         this.loadPortfolio();
         this.loadActiveTradesStatus(); // Isso reiniciará o monitoramento multi-símbolos
-    }    handleTradeClosed(data) {const pnlText = data.pnl >= 0 ? `+$${this.formatPrice(data.pnl, this.currentSymbol)}` : `-$${this.formatPrice(Math.abs(data.pnl), this.currentSymbol)}`;
+    }    handleTradeClosed(data) {
+        console.log('🔒 Trade fechado:', data);
+        
+        const pnlText = data.pnl >= 0 ? `+$${this.formatPrice(data.pnl, this.currentSymbol)}` : `-$${this.formatPrice(Math.abs(data.pnl), this.currentSymbol)}`;
         const icon = data.pnl >= 0 ? '💰' : '📉';
         const type = data.pnl >= 0 ? 'success' : 'danger';
         
@@ -765,10 +815,14 @@ class SimpleTradingDashboard {    constructor() {
             this.loadPortfolio();
             this.loadActiveTradesStatus(); // Isso reiniciará o monitoramento multi-símbolos com a lista atualizada
             this.loadTradesHistory(); // Atualizar histórico imediatamente
-            }, 500); // Aguardar 500ms para garantir que o servidor processou
+            console.log('📊 Interface atualizada após fechamento de trade');
+        }, 500); // Aguardar 500ms para garantir que o servidor processou
     }
 
-    handlePortfolioUpdate(data) {// Atualizar dados do portfolio sem fazer nova requisição
+    handlePortfolioUpdate(data) {
+        console.log('💼 Portfolio atualizado:', data);
+        
+        // Atualizar dados do portfolio sem fazer nova requisição
         this.portfolio = data.portfolio;
         this.updateStatsDisplay();
         
@@ -792,8 +846,12 @@ class SimpleTradingDashboard {    constructor() {
             // sem recarregar toda a lista
             this.loadActiveTradesStatus();
         }
-    }    updateActiveTradesPricesForSymbol(symbol, newPrice) {
+    }
+
+    updateActiveTradesPricesForSymbol(symbol, newPrice) {
         // Atualizar preços de trades ativos para um símbolo específico
+        console.log(`💰 Atualizando preços para ${symbol}: $${this.formatPrice(newPrice, symbol)}`);
+        
         const activeTradesContainer = document.getElementById('activeTradesList');
         if (!activeTradesContainer) return;
         
@@ -801,7 +859,7 @@ class SimpleTradingDashboard {    constructor() {
         const tradeCards = activeTradesContainer.querySelectorAll('.trade-card');
         
         tradeCards.forEach(card => {
-            const symbolElement = card.querySelector('.trade-symbol');
+            const symbolElement = card.querySelector('.text-primary');
             if (symbolElement && symbolElement.textContent.trim() === symbol) {
                 // Encontrar e atualizar elementos de preço atual
                 const currentPriceElements = card.querySelectorAll('strong');
@@ -830,6 +888,9 @@ class SimpleTradingDashboard {    constructor() {
                 this.updateTradeCardPnL(card, symbol, newPrice);
             }
         });
+        
+        // Executar animação visual geral
+        this.updateActiveTradesPricesVisual(newPrice);
     }
 
     updateTradeCardPnL(card, symbol, currentPrice) {
@@ -1013,7 +1074,8 @@ class SimpleTradingDashboard {    constructor() {
             
             if (marketData) {
                 this.updateMarketDisplay(marketData);
-                } else {
+                console.log(`💰 Dados de mercado atualizados: ${this.currentSymbol}`);
+            } else {
                 // Fallback para endpoints locais
                 let response = await fetch(`/api/price/realtime/${this.currentSymbol}`);
                 let data = await response.json();
@@ -1025,7 +1087,8 @@ class SimpleTradingDashboard {    constructor() {
                 
                 if (data.success) {
                     this.displayCurrentPrice(data.price);
-                    }
+                    console.log(`💰 Preço ${data.source || 'local'}: ${this.currentSymbol} = $${this.formatPrice(data.price, this.currentSymbol)}`);
+                }
             }
         } catch (error) {
             console.error('❌ Erro ao atualizar preço:', error);
@@ -1061,7 +1124,10 @@ class SimpleTradingDashboard {    constructor() {
             console.error(`❌ Erro ao buscar dados Binance para ${symbol}:`, error);
             return null;
         }
-    }    updateMarketDisplay(marketData) {const lastPrice = this.lastPrices[marketData.symbol] || marketData.price;
+    }    updateMarketDisplay(marketData) {
+        console.log('📊 Atualizando display de mercado:', marketData);
+        
+        const lastPrice = this.lastPrices[marketData.symbol] || marketData.price;
         const priceChanged = lastPrice !== marketData.price;
         const isUpward = marketData.price > lastPrice;
         
@@ -1077,7 +1143,8 @@ class SimpleTradingDashboard {    constructor() {
         // Salvar último preço
         this.lastPrices[marketData.symbol] = marketData.price;
         
-        }
+        console.log(`💰 Display atualizado - ${marketData.symbol}: $${this.formatPrice(marketData.price, marketData.symbol)} (${marketData.changePercent24h >= 0 ? '+' : ''}${marketData.changePercent24h.toFixed(2)}%)`);
+    }
 
     updatePriceElement(elementId, price, priceChanged, isUpward, symbol) {
         const element = document.getElementById(elementId);
@@ -1173,7 +1240,8 @@ class SimpleTradingDashboard {    constructor() {
         const chartTitle = document.querySelector('.card-header h5');
         if (chartTitle) {
             chartTitle.innerHTML = `<i class="fas fa-chart-candlestick me-2"></i>Análise Técnica - ${this.currentSymbol}`;
-        }        }
+        }        console.log(`🔄 Interface atualizada para ativo: ${this.currentSymbol}`);
+    }
 
     updateActiveTradesCounter(count) {
         const counterElement = document.getElementById('activeTradesCount');
@@ -1281,14 +1349,19 @@ class SimpleTradingDashboard {    constructor() {
                     element.classList.remove('price-up', 'price-down');
                 }, 600);
             }
-        });        
+        });
+        
+        // Atualizar preços em trades ativos com indicações visuais
+        this.updateActiveTradesPricesVisual(price);
+        
         // Chamar método de melhoramento de exibição de preços
         this.enhancePriceDisplay();
         
         // Armazenar preço anterior
         this.lastPrices[this.currentSymbol] = price;
         
-        }
+        console.log(`💰 Preço atualizado: ${this.currentSymbol} = ${formattedPrice} ${priceChanged ? (isUpward ? '📈' : '📉') : ''}`);
+    }
 
     // Mapeamento de símbolos para TradingView
     getSymbolMapping() {
@@ -1313,8 +1386,11 @@ class SimpleTradingDashboard {    constructor() {
             // Forex e Índices removidos - sistema agora suporta apenas crypto
         };
     }    changeAsset(newSymbol) {
+        console.log(`🔄 Mudando ativo para: ${newSymbol}`);
+        
         // Validar se o símbolo é diferente do atual
         if (this.currentSymbol === newSymbol) {
+            console.log('⚠️ Ativo já selecionado, ignorando mudança');
             return;
         }
         
@@ -1380,9 +1456,12 @@ class SimpleTradingDashboard {    constructor() {
         this.showNotification(`📈 Ativo alterado para ${newSymbol}`, 'success');
         
         // Log para debugging
-        }
+        console.log(`✅ Ativo alterado com sucesso para: ${newSymbol}`);
+    }
 
     changeTimeframe(newTimeframe) {
+        console.log(`⏰ Mudando timeframe para: ${newTimeframe}`);
+        
         this.currentTimeframe = newTimeframe;
         
         // Atualizar gráfico TradingView com novo timeframe
@@ -1408,6 +1487,8 @@ class SimpleTradingDashboard {    constructor() {
         const symbolMapping = this.getSymbolMapping();
         const tradingViewSymbol = symbolMapping[symbol] || `BINANCE:${symbol}`;
         const tradingViewTimeframe = this.convertTimeframeForTradingView(this.currentTimeframe);
+        
+        console.log(`📈 Atualizando gráfico: ${symbol} -> ${tradingViewSymbol}, timeframe: ${this.currentTimeframe} -> ${tradingViewTimeframe}`);
         
         // Remover widget existente com transição suave
         if (this.tradingViewWidget) {
@@ -1448,6 +1529,7 @@ class SimpleTradingDashboard {    constructor() {
                 "MASimple@tv-basicstudies"
             ],
             "onChartReady": () => {
+                console.log(`📈 TradingView carregado para ${tradingViewSymbol} - configurando captura de preços`);
                 this.setupTradingViewPriceCapture();
                 
                 // Restaurar opacidade do container
@@ -1461,7 +1543,8 @@ class SimpleTradingDashboard {    constructor() {
             }
         });
         
-        }
+        console.log(`✅ Widget TradingView criado para: ${tradingViewSymbol}`);
+    }
 
     setupTradingViewPriceCapture() {
         try {
@@ -1473,7 +1556,8 @@ class SimpleTradingDashboard {    constructor() {
                 // Configurar intervalo para tentar capturar preço do DOM
                 this.setupDOMPriceCapture();
                 
-                }, 3000);
+                console.log('✅ Captura de preços do TradingView configurada');
+            }, 3000);
         } catch (error) {
             console.error('❌ Erro ao configurar captura de preços:', error);
             // Fallback para o método anterior
@@ -1551,6 +1635,8 @@ class SimpleTradingDashboard {    constructor() {
         }
     }
 
+
+
     updatePriceDisplay(price) {
         if (price && !isNaN(price)) {
             // Atualizar elementos de preço diretamente
@@ -1599,7 +1685,8 @@ class SimpleTradingDashboard {    constructor() {
                 element.textContent = formattedPrice;
             });
             
-            }
+            console.log(`💰 Preço atualizado do gráfico: ${formattedPrice}`);
+        }
     }
 
     clearCurrentSignal() {
@@ -1686,10 +1773,13 @@ class SimpleTradingDashboard {    constructor() {
     // Expandir dados após startup (executar após 30 segundos)
     expandDataAfterStartup() {
         setTimeout(() => {
+            console.log('🚀 Expandindo cobertura de dados...');
             fetch('/api/expand_data', { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
-                    if (data.success) {this.showNotification('Expandindo dados de mercado em background...', 'info');
+                    if (data.success) {
+                        console.log('✅ Expansão de dados iniciada em background');
+                        this.showNotification('Expandindo dados de mercado em background...', 'info');
                     }
                 })
                 .catch(error => {
@@ -1708,7 +1798,8 @@ class SimpleTradingDashboard {    constructor() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                }
+                console.log(`📊 Dados carregados: ${symbol} ${timeframe}`);
+            }
             return data;
         })
         .catch(error => {
@@ -1727,7 +1818,7 @@ window.closeTrade = function(tradeId) {
 
 // Inicializar dashboard quando a página carregar
 document.addEventListener('DOMContentLoaded', function() {
-    // Dashboard inicializado
+    console.log('🎯 DOM carregado, inicializando dashboard...');
     window.dashboard = new SimpleTradingDashboard();
 });
 
