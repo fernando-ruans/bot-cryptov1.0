@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#2c3e50">
+    <title>CryptoNinja Bot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #f8f9fa;
+        }
+
+        body {
+            background-color: var(--light-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Mobile Layout */
+        .mobile-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .mobile-top-bar {
+            background: var(--primary-color);
+            padding: 12px;
+            color: white;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .mobile-content {
+            flex: 1;
+            padding: 10px;
+            padding-bottom: 80px; /* Espaço para a bottom bar */
+        }
+
+        .mobile-bottom-bar {
+            background: var(--primary-color);
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .price-widget {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 8px;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-widget {
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            text-align: center;
+        }
+
+        /* Cards */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Utilitários */
+        .text-center { text-align: center; }
+        .mb-2 { margin-bottom: 0.5rem; }
+    </style>
+    
+    <title>🥷 CryptoNinja - Trading Bot AI</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="/static/css/mobile-responsive.css" as="style">
+    <link rel="preload" href="/static/js/dashboard-mobile.js" as="script">
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/mobile-responsive.css" rel="stylesheet">
+    
+    <!-- PWA Icons -->
+    <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+    <link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg">
+    <link rel="manifest" href="/static/manifest.json">
+    
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+</head>
+<body>
+    <!-- Header Mobile -->
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-robot"></i>
+                <span class="d-none d-sm-inline">CryptoNinja AI</span>
+                <span class="d-sm-none">🥷 CryptoNinja</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-light me-2">
+                    <i class="fas fa-circle text-success" id="connection-status"></i>
+                    <span class="d-none d-sm-inline">Online</span>
+                </span>
+                <button class="btn btn-sm btn-outline-light" id="refresh-btn">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container-fluid">
+        
+        <!-- Estatísticas Resumidas -->
+        <div class="stats-grid animate-slide-up">
+            <div class="stat-card">
+                <h4>Balance</h4>
+                <p class="stat-positive" id="stat-balance">$0.00</p>
+            </div>
+            <div class="stat-card">
+                <h4>P&L Hoje</h4>
+                <p id="stat-daily-pnl">$0.00</p>
+            </div>
+            <div class="stat-card">
+                <h4>Win Rate</h4>
+                <p id="stat-win-rate">0%</p>
+            </div>
+            <div class="stat-card">
+                <h4>Trades</h4>
+                <p id="stat-total-trades">0</p>
+            </div>
+            <div class="stat-card d-none d-md-block">
+                <h4>Ativos</h4>
+                <p id="stat-active-trades">0</p>
+            </div>
+        </div>
+
+        <!-- Preços em Tempo Real -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <i class="fas fa-chart-line me-2"></i>
+                Preços em Tempo Real
+                <span class="float-end">
+                    <small class="text-muted" id="price-update-time">Atualizando...</small>
+                </span>
+            </div>
+            <div class="card-body p-2">
+                <div class="price-grid" id="price-grid">
+                    <!-- Preços serão carregados via JavaScript -->
+                    <div class="price-card loading-shimmer">
+                        <div class="price-symbol">BTCUSDT</div>
+                        <div class="price-value">Carregando...</div>
+                        <div class="price-change">--</div>
+                    </div>
+                    <div class="price-card loading-shimmer">
+                        <div class="price-symbol">ETHUSDT</div>
+                        <div class="price-value">Carregando...</div>
+                        <div class="price-change">--</div>
+                    </div>
+                    <div class="price-card loading-shimmer">
+                        <div class="price-symbol">XRPUSDT</div>
+                        <div class="price-value">Carregando...</div>
+                        <div class="price-change">--</div>
+                    </div>
+                    <div class="price-card loading-shimmer d-none d-md-block">
+                        <div class="price-symbol">ADAUSDT</div>
+                        <div class="price-value">Carregando...</div>
+                        <div class="price-change">--</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sinais de Trading -->
+        <div class="card animate-slide-up">
+            <div class="card-header">
+                <i class="fas fa-brain me-2"></i>
+                Sinais AI
+                <span class="float-end">
+                    <button class="btn btn-sm btn-primary" id="generate-signals-btn">
+                        <i class="fas fa-magic"></i>
+                        <span class="d-none d-sm-inline">Gerar</span>
+                    </button>
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="signals-container" id="signals-container">
+                    <!-- Sinais serão carregados via JavaScript -->
+                    <div class="signal-card loading-shimmer">
+                        <h6>Carregando sinais...</h6>
+                        <p class="mb-0">Analisando mercado...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gráfico Simplificado -->
+        <div class="card animate-slide-up d-none d-md-block">
+            <div class="card-header">
+                <i class="fas fa-chart-line me-2"></i>
+                Análise Técnica - BTCUSDT
+                <span class="float-end">
+                    <select class="form-select form-select-sm" style="width: auto;">
+                        <option value="5m">5 Minutos</option>
+                        <option value="15m">15 Minutos</option>
+                        <option value="1h">1 Hora</option>
+                        <option value="4h">4 Horas</option>
+                    </select>
+                </span>
+            </div>
+            <div class="card-body p-2">
+                <div class="chart-container" style="height: 300px; background: #f8f9fa; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                    <div class="text-center text-muted">
+                        <i class="fas fa-chart-line fa-3x mb-3"></i>
+                        <p>Gráfico em tempo real será carregado aqui</p>
+                        <small>Integração com TradingView disponível</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trades Ativos -->
+        <div class="card animate-slide-right">
+            <div class="card-header">
+                <i class="fas fa-chart-bar me-2"></i>
+                Trades Ativos
+                <span class="badge bg-primary ms-2" id="active-trades-count">0</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Par</th>
+                                <th>Tipo</th>
+                                <th class="d-none d-sm-table-cell">Entrada</th>
+                                <th>Atual</th>
+                                <th>P&L</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody id="active-trades-table">
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-3">
+                                    <i class="fas fa-chart-line fa-2x mb-2"></i>
+                                    <br>Nenhum trade ativo
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico Compacto -->
+        <div class="card animate-slide-right">
+            <div class="card-header">
+                <i class="fas fa-history me-2"></i>
+                Últimos Trades
+                <span class="float-end">
+                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleHistory()">
+                        <i class="fas fa-eye" id="history-toggle-icon"></i>
+                    </button>
+                </span>
+            </div>
+            <div class="card-body p-0 collapse" id="history-section">
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Par</th>
+                                <th>Tipo</th>
+                                <th class="d-none d-sm-table-cell">P&L</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trade-history-table">
+                            <!-- Histórico será carregado via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ações Rápidas Mobile -->
+        <div class="card animate-slide-up d-sm-none">
+            <div class="card-body text-center">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button class="btn btn-success-custom w-100" onclick="quickAction('buy')">
+                            <i class="fas fa-arrow-up"></i><br>
+                            <small>Comprar</small>
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-danger-custom w-100" onclick="quickAction('sell')">
+                            <i class="fas fa-arrow-down"></i><br>
+                            <small>Vender</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="position-fixed top-0 start-0 w-100 h-100 d-none" 
+         style="background: rgba(0,0,0,0.5); z-index: 9999;">
+        <div class="d-flex justify-content-center align-items-center h-100">
+            <div class="text-center text-white">
+                <div class="spinner-border mb-3" role="status"></div>
+                <div>Carregando...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toast-container">
+        <!-- Toasts serão criados via JavaScript -->
+    </div>
+
+    <!-- FAB Buttons Mobile -->
+    <div class="mobile-fab-container d-md-none">
+        <button class="mobile-fab success" onclick="quickAction('buy')" title="Comprar">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="mobile-fab danger" onclick="quickAction('sell')" title="Vender">
+            <i class="fas fa-minus"></i>
+        </button>
+        <button class="mobile-fab primary" onclick="mobileDashboard.generateSignals()" title="Gerar Sinais">
+            <i class="fas fa-magic"></i>
+        </button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/js/dashboard-mobile.js"></script>
+    
+    <!-- Service Worker para PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/sw.js')
+                .then(registration => console.log('SW registrado'))
+                .catch(error => console.log('SW falhou'));
+        }
+    </script>
+</body>
+</html>

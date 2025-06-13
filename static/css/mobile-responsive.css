@@ -1,0 +1,643 @@
+/* 📱 CryptoNinja - Mobile-First Responsive Design */
+
+/* ========== RESET E VARIÁVEIS ========== */
+:root {
+    --primary-color: #2c3e50;
+    --secondary-color: #3498db;
+    --success-color: #27ae60;
+    --danger-color: #e74c3c;
+    --warning-color: #f39c12;
+    --light-color: #f8f9fa;
+    --dark-color: #2c3e50;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    --transition: all 0.3s ease;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* ========== LAYOUT PRINCIPAL ========== */
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    line-height: 1.6;
+    color: var(--dark-color);
+    overflow-x: hidden;
+    padding-bottom: 60px; /* Espaço para botões mobile */
+}
+
+/* ========== HEADER MOBILE ========== */
+.navbar {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    box-shadow: var(--box-shadow);
+    padding: 0.75rem 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+}
+
+.navbar-brand {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: white !important;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-brand i {
+    margin-right: 0.5rem;
+    font-size: 1.5rem;
+}
+
+/* ========== CONTAINER RESPONSIVO ========== */
+.container-fluid {
+    padding: 0.75rem;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+/* Mobile First - Tablet e Desktop */
+@media (min-width: 768px) {
+    .container-fluid {
+        padding: 1.5rem;
+        max-width: 1200px;
+    }
+}
+
+/* ========== CARDS MOBILE-FIRST ========== */
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-bottom: 2px solid var(--secondary-color);
+    border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
+    padding: 1rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+/* Mobile: Padding reduzido */
+@media (max-width: 576px) {
+    .card-header {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    .card-body {
+        padding: 0.75rem;
+    }
+}
+
+/* ========== ESTATÍSTICAS MOBILE ========== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+@media (min-width: 576px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .stats-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+    border-left: 4px solid var(--secondary-color);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+}
+
+.stat-card h4 {
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-card p {
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+@media (min-width: 576px) {
+    .stat-card h4 {
+        font-size: 0.9rem;
+    }
+    
+    .stat-card p {
+        font-size: 1.2rem;
+    }
+}
+
+.stat-positive {
+    color: var(--success-color);
+}
+
+.stat-negative {
+    color: var(--danger-color);
+}
+
+/* ========== PREÇOS MOBILE ========== */
+.price-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 576px) {
+    .price-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    .price-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.price-card {
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-radius: var(--border-radius);
+    padding: 0.75rem;
+    text-align: center;
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+    border-top: 3px solid var(--secondary-color);
+}
+
+.price-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.price-symbol {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0.25rem;
+}
+
+.price-value {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 0.25rem;
+}
+
+.price-change {
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+@media (min-width: 576px) {
+    .price-card {
+        padding: 1rem;
+    }
+    
+    .price-symbol {
+        font-size: 1rem;
+    }
+    
+    .price-value {
+        font-size: 1.2rem;
+    }
+    
+    .price-change {
+        font-size: 0.9rem;
+    }
+}
+
+/* ========== SINAIS MOBILE ========== */
+.signals-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+}
+
+@media (min-width: 768px) {
+    .signals-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 992px) {
+    .signals-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.signal-card {
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    border-left: 5px solid var(--secondary-color);
+    background: rgba(255, 255, 255, 0.9);
+    transition: var(--transition);
+}
+
+.signal-card.buy {
+    border-left-color: var(--success-color);
+    background: linear-gradient(135deg, rgba(39, 174, 96, 0.05), rgba(255, 255, 255, 0.9));
+}
+
+.signal-card.sell {
+    border-left-color: var(--danger-color);
+    background: linear-gradient(135deg, rgba(231, 76, 60, 0.05), rgba(255, 255, 255, 0.9));
+}
+
+.signal-card.hold {
+    border-left-color: var(--warning-color);
+    background: linear-gradient(135deg, rgba(243, 156, 18, 0.05), rgba(255, 255, 255, 0.9));
+}
+
+/* ========== BOTÕES MOBILE ========== */
+.btn {
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border: none;
+    transition: var(--transition);
+    font-size: 0.9rem;
+    min-height: 44px; /* Tamanho mínimo para touch */
+}
+
+@media (max-width: 576px) {
+    .btn {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+    }
+}
+
+.btn-success-custom {
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
+    color: white;
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.btn-success-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+}
+
+.btn-danger-custom {
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
+    color: white;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.btn-danger-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+}
+
+/* ========== TABELAS MOBILE ========== */
+.table-responsive {
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+}
+
+.table {
+    margin-bottom: 0;
+    font-size: 0.85rem;
+}
+
+@media (min-width: 576px) {
+    .table {
+        font-size: 0.9rem;
+    }
+}
+
+.table th {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    color: var(--primary-color);
+    font-weight: 600;
+    border: none;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.table td {
+    padding: 0.75rem 0.5rem;
+    border: none;
+    vertical-align: middle;
+}
+
+@media (min-width: 576px) {
+    .table th,
+    .table td {
+        padding: 0.75rem;
+    }
+    
+    .table th {
+        font-size: 0.85rem;
+    }
+}
+
+.table tbody tr:hover {
+    background-color: rgba(52, 152, 219, 0.05);
+}
+
+/* ========== GRÁFICOS MOBILE ========== */
+.chart-container {
+    height: 250px;
+    border-radius: var(--border-radius);
+    background: #f8f9fa;
+    position: relative;
+    overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .chart-container {
+        height: 350px;
+    }
+}
+
+@media (min-width: 992px) {
+    .chart-container {
+        height: 400px;
+    }
+}
+
+/* ========== TOASTS MOBILE ========== */
+.toast-container {
+    z-index: 1050;
+    max-width: calc(100vw - 1rem);
+}
+
+.toast {
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    border: none;
+    max-width: 350px;
+}
+
+@media (max-width: 576px) {
+    .toast {
+        font-size: 0.85rem;
+        max-width: calc(100vw - 2rem);
+    }
+}
+
+/* ========== LOADING ESTADOS ========== */
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* ========== ANIMAÇÕES MOBILE ========== */
+.animate-slide-up {
+    animation: slideUp 0.5s ease-out;
+}
+
+.animate-slide-right {
+    animation: slideRight 0.5s ease-out 0.2s both;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideRight {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ========== BOTÕES FLUTUANTES MOBILE ========== */
+.mobile-fab-container {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .mobile-fab-container {
+        display: none;
+    }
+}
+
+.mobile-fab {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: white;
+    transition: var(--transition);
+}
+
+.mobile-fab:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+}
+
+.mobile-fab.primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.mobile-fab.success {
+    background: linear-gradient(135deg, var(--success-color), #2ecc71);
+}
+
+.mobile-fab.danger {
+    background: linear-gradient(135deg, var(--danger-color), #c0392b);
+}
+
+/* ========== ESTADOS DE CONEXÃO ========== */
+.connection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.connection-status.online {
+    background: rgba(39, 174, 96, 0.1);
+    color: var(--success-color);
+}
+
+.connection-status.offline {
+    background: rgba(231, 76, 60, 0.1);
+    color: var(--danger-color);
+}
+
+/* ========== SCROLL CUSTOMIZADO ========== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* ========== OTIMIZAÇÕES DE PERFORMANCE ========== */
+.card,
+.stat-card,
+.price-card,
+.signal-card {
+    will-change: transform;
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* ========== MODO ESCURO ========== */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --light-color: #1a1a1a;
+        --dark-color: #ffffff;
+    }
+    
+    body {
+        background: linear-gradient(135deg, #2c3e50 0%, #1a1a1a 100%);
+        color: var(--dark-color);
+    }
+    
+    .card,
+    .stat-card,
+    .price-card,
+    .signal-card {
+        background: rgba(44, 62, 80, 0.9);
+        color: var(--dark-color);
+    }
+    
+    .card-header {
+        background: linear-gradient(135deg, #34495e, #2c3e50);
+        color: var(--dark-color);
+    }
+    
+    .table th {
+        background: linear-gradient(135deg, #34495e, #2c3e50);
+        color: var(--dark-color);
+    }
+}
+
+/* ========== ACCESSIBILITY ========== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus visible para navegação por teclado */
+.btn:focus-visible,
+.card:focus-visible {
+    outline: 2px solid var(--secondary-color);
+    outline-offset: 2px;
+}
+
+/* ========== UTILITIES MOBILE ========== */
+.text-truncate-mobile {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+    .d-mobile-none {
+        display: none !important;
+    }
+    
+    .d-mobile-block {
+        display: block !important;
+    }
+    
+    .text-mobile-center {
+        text-align: center !important;
+    }
+}
+
+/* ========== PWA SPECIFIC ========== */
+@media (display-mode: standalone) {
+    body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+    
+    .navbar {
+        padding-top: calc(0.75rem + env(safe-area-inset-top));
+    }
+}

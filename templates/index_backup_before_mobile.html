@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CryptoNinja Bot</title>
+    <title>Trading Bot AI - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js"></script>
     <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
     <style>
-        /* Reset e variáveis */
         :root {
             --primary-color: #2c3e50;
             --secondary-color: #3498db;
@@ -22,77 +21,8 @@
         body {
             background-color: var(--light-color);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
         }
 
-        /* Layout Mobile */
-        @media (max-width: 576px) {
-            .desktop-header {
-                display: none !important;
-            }
-
-            .mobile-navbar {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                height: 56px;
-                background: var(--primary-color);
-                display: flex;
-                align-items: center;
-                padding: 0 1rem;
-                z-index: 1030;
-                color: white;
-            }
-
-            .mobile-footer {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                background: var(--primary-color);
-                padding: 0.5rem;
-                z-index: 1030;
-            }
-
-            .mobile-price-widget {
-                background: rgba(255,255,255,0.1);
-                border-radius: 8px;
-                padding: 0.5rem;
-                margin-bottom: 0.5rem;
-                color: white;
-            }
-
-            .mobile-status-widget {
-                background: rgba(255,255,255,0.1);
-                border-radius: 8px;
-                padding: 0.5rem;
-                color: white;
-                text-align: center;
-            }
-
-            .main-content {
-                margin-top: 56px;
-                margin-bottom: 130px;
-                padding: 1rem 0.5rem;
-            }
-
-            .stat-card {
-                margin-bottom: 0.5rem;
-                padding: 0.75rem;
-            }
-        }
-
-        /* Layout Desktop */
-        @media (min-width: 577px) {
-            .mobile-navbar,
-            .mobile-footer {
-                display: none !important;
-            }
-        }
-
-        /* Estilos existentes */
         .navbar {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -570,32 +500,31 @@
         }    </style>
 </head>
 <body>
-    <!-- Mobile Navbar -->
-    <div class="mobile-navbar d-sm-none">
-        <span class="h5 mb-0">
-            <i class="fas fa-robot"></i>
-            CryptoNinja
-        </span>
+    <!-- Mobile Header (simplificado) -->
+    <div class="mobile-header">
+        <h1 class="logo">
+            <i class="fas fa-robot"></i> CryptoNinja
+        </h1>
     </div>
 
-    <!-- Mobile Footer -->
-    <div class="mobile-footer d-sm-none">
-        <div class="mobile-price-widget d-flex justify-content-between align-items-center">
+    <!-- Mobile Status Bar (fixo na parte inferior) -->
+    <div class="mobile-status-bar">
+        <div class="mobile-price-box">
             <div>
                 <i class="fas fa-chart-line"></i>
-                <strong id="mobileAsset">BTCUSDT</strong>
-                <span id="mobilePrice">$0.000000</span>
+                <strong id="navCurrentAssetMobile">BTCUSDT</strong>
+                <span id="currentPriceMobile">$0.000000</span>
             </div>
             <span class="badge bg-danger">-0.40%</span>
         </div>
-        <div class="mobile-status-widget">
-            <span class="status-indicator" id="mobileStatus"></span>
-            <span class="ms-2">Status:</span>
-            <span id="mobileStatusText" class="ms-1">Online</span>
+        <div class="mobile-status-box">
+            <span class="status-indicator" id="botStatusMobile"></span>
+            <span style="margin-left: 8px;">Status:</span>
+            <span id="botStatusTextMobile" style="margin-left: 5px;">Online</span>
         </div>
     </div>
 
-    <!-- Desktop Header -->
+    <!-- Desktop Header (original) -->
     <nav class="navbar navbar-expand-lg navbar-dark mb-4 desktop-header">
         <div class="container">
             <a class="navbar-brand" href="#">
@@ -616,210 +545,207 @@
             </div>
         </div>
     </nav>
-    <!-- Conteúdo Principal -->
-    <div class="main-content">
-        <div class="container">
-            <!-- Stats Cards -->
-            <div class="row mb-4">
-                <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card stat-card">
-                        <h4 id="totalTrades">0</h4>
-                        <h6 class="text-muted">Total de Trades</h6>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card stat-card">
-                        <h4 id="winRate">0%</h4>
-                        <h6 class="text-muted">Taxa de Acerto</h6>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card stat-card">
-                        <h4 id="totalPnL">R$ 0,00</h4>
-                        <h6 class="text-muted">P&L Total</h6>
-                    </div>
-                </div>
-                <div class="col-md-3 col-sm-6 mb-3">
-                    <div class="card stat-card">
-                        <h4 id="activeTrades">0</h4>
-                        <h6 class="text-muted">Trades Ativos</h6>
-                    </div>
+    <div class="container">
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card stat-card">
+                    <h4 id="totalTrades">0</h4>
+                    <h6 class="text-muted">Total de Trades</h6>
                 </div>
             </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card stat-card">
+                    <h4 id="winRate">0%</h4>
+                    <h6 class="text-muted">Taxa de Acerto</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card stat-card">
+                    <h4 id="totalPnL">R$ 0,00</h4>
+                    <h6 class="text-muted">P&L Total</h6>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card stat-card">
+                    <h4 id="activeTrades">0</h4>
+                    <h6 class="text-muted">Trades Ativos</h6>
+                </div>
+            </div>
+        </div>
 
-            <div class="row">
-                <!-- Gráfico TradingView -->
-                <div class="col-lg-8 mb-4">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Gráfico - <span id="currentSymbol">BTCUSDT</span></h5>                        <div class="d-flex gap-2 align-items-center">
-                                <div class="asset-selector d-flex align-items-center gap-2">
-                                    <i class="fas fa-coins text-warning" style="font-size: 1.1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);"></i>
-                                    <select id="assetSelector" class="form-select form-select-sm asset-select">
-                                    <optgroup label="🪙 Crypto Major">
-                                        <option value="BTCUSDT" selected>BTC/USDT</option>
-                                        <option value="ETHUSDT">ETH/USDT</option>
-                                        <option value="ADAUSDT">ADA/USDT</option>
-                                        <option value="BNBUSDT">BNB/USDT</option>
-                                        <option value="SOLUSDT">SOL/USDT</option>
-                                        <option value="XRPUSDT">XRP/USDT</option>
-                                        <option value="DOTUSDT">DOT/USDT</option>
-                                        <option value="LINKUSDT">LINK/USDT</option>
-                                    </optgroup>
-                                    <optgroup label="🚀 Crypto Alt">
-                                        <option value="MATICUSDT">MATIC/USDT</option>
-                                        <option value="AVAXUSDT">AVAX/USDT</option>
-                                        <option value="LTCUSDT">LTC/USDT</option>
-                                        <option value="UNIUSDT">UNI/USDT</option>                                    <option value="ATOMUSDT">ATOM/USDT</option>
-                                        <option value="ALGOUSDT">ALGO/USDT</option>
-                                    </optgroup>
-                                </select></div>
-                                <div class="timeframe-selector d-flex align-items-center gap-2">
-                                    <i class="fas fa-clock text-info" style="font-size: 1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);"></i>
-                                    <select id="timeframeSelector" class="form-select form-select-sm timeframe-select">
-                                        <option value="1m">1m</option>
-                                        <option value="5m" selected>5m</option>
-                                        <option value="15m">15m</option>
-                                        <option value="30m">30m</option>
-                                        <option value="1h">1h</option>
-                                        <option value="4h">4h</option>
-                                        <option value="1d">1d</option>
-                                        <option value="1w">1w</option>
-                                    </select>
-                                </div>
+        <div class="row">
+            <!-- Gráfico TradingView -->
+            <div class="col-lg-8 mb-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Gráfico - <span id="currentSymbol">BTCUSDT</span></h5>                        <div class="d-flex gap-2 align-items-center">
+                            <div class="asset-selector d-flex align-items-center gap-2">
+                                <i class="fas fa-coins text-warning" style="font-size: 1.1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);"></i>
+                                <select id="assetSelector" class="form-select form-select-sm asset-select">
+                                <optgroup label="🪙 Crypto Major">
+                                    <option value="BTCUSDT" selected>BTC/USDT</option>
+                                    <option value="ETHUSDT">ETH/USDT</option>
+                                    <option value="ADAUSDT">ADA/USDT</option>
+                                    <option value="BNBUSDT">BNB/USDT</option>
+                                    <option value="SOLUSDT">SOL/USDT</option>
+                                    <option value="XRPUSDT">XRP/USDT</option>
+                                    <option value="DOTUSDT">DOT/USDT</option>
+                                    <option value="LINKUSDT">LINK/USDT</option>
+                                </optgroup>
+                                <optgroup label="🚀 Crypto Alt">
+                                    <option value="MATICUSDT">MATIC/USDT</option>
+                                    <option value="AVAXUSDT">AVAX/USDT</option>
+                                    <option value="LTCUSDT">LTC/USDT</option>
+                                    <option value="UNIUSDT">UNI/USDT</option>                                    <option value="ATOMUSDT">ATOM/USDT</option>
+                                    <option value="ALGOUSDT">ALGO/USDT</option>
+                                </optgroup>
+                            </select></div>
+                            <div class="timeframe-selector d-flex align-items-center gap-2">
+                                <i class="fas fa-clock text-info" style="font-size: 1rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);"></i>
+                                <select id="timeframeSelector" class="form-select form-select-sm timeframe-select">
+                                    <option value="1m">1m</option>
+                                    <option value="5m" selected>5m</option>
+                                    <option value="15m">15m</option>
+                                    <option value="30m">30m</option>
+                                    <option value="1h">1h</option>
+                                    <option value="4h">4h</option>
+                                    <option value="1d">1d</option>
+                                    <option value="1w">1w</option>
+                                </select>
                             </div>
-                        </div>
-                        <div class="card-body p-0">
-                            <div id="tradingview_chart" class="chart-container"></div>
                         </div>
                     </div>
-                    
+                    <div class="card-body p-0">
+                        <div id="tradingview_chart" class="chart-container"></div>
+                    </div>
+                </div>
+                
+            </div>
+
+            <!-- Painel de Controle -->
+            <div class="col-lg-4">
+                <!-- Geração de Sinal -->
+                <div class="card mb-4">
+                    <div class="card-header bg-secondary text-white">
+                        <h5><i class="fas fa-signal me-2"></i>Gerador de Sinais</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <div class="mb-3">
+                            <small class="text-muted">Ativo Selecionado:</small><br>
+                            <span class="badge bg-primary fs-6" id="selectedAssetBadge">BTCUSDT</span>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted">Preço Atual:</small><br>
+                            <span class="fw-bold fs-5" id="sidebarCurrentPrice">$0.000000</span>
+                            <span class="badge ms-2" id="priceChange">+1.2%</span>
+                        </div>
+                        <button id="generateSignalBtn" class="btn btn-warning-custom btn-lg w-100 mb-3">
+                            <i class="fas fa-magic me-2"></i>Gerar Sinal
+                        </button>
+                        <small class="text-muted">Clique para gerar um novo sinal para o ativo selecionado</small>
+                    </div>
                 </div>
 
-                <!-- Painel de Controle -->
-                <div class="col-lg-4">
-                    <!-- Geração de Sinal -->
-                    <div class="card mb-4">
-                        <div class="card-header bg-secondary text-white">
-                            <h5><i class="fas fa-signal me-2"></i>Gerador de Sinais</h5>
+                <!-- Sinal Atual -->
+                <div id="currentSignalCard" class="card signal-card mb-4" style="display: none;">
+                    <div class="card-header">
+                        <h5><i class="fas fa-bell me-2"></i>Sinal Detectado</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <strong>Ação:</strong><br>
+                                <span id="signalAction" class="badge fs-6">-</span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Preço:</strong><br>
+                                <span id="signalPrice" class="fw-bold">-</span>
+                            </div>
                         </div>
-                        <div class="card-body text-center">
-                            <div class="mb-3">
-                                <small class="text-muted">Ativo Selecionado:</small><br>
-                                <span class="badge bg-primary fs-6" id="selectedAssetBadge">BTCUSDT</span>
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <strong>Símbolo:</strong><br>
+                                <span id="signalSymbol" class="fw-bold">-</span>
                             </div>
-                            <div class="mb-3">
-                                <small class="text-muted">Preço Atual:</small><br>
-                                <span class="fw-bold fs-5" id="sidebarCurrentPrice">$0.000000</span>
-                                <span class="badge ms-2" id="priceChange">+1.2%</span>
+                            <div class="col-6">
+                                <strong>Confiança:</strong><br>
+                                <span id="signalConfidence" class="badge bg-info fs-6">-</span>
                             </div>
-                            <button id="generateSignalBtn" class="btn btn-warning-custom btn-lg w-100 mb-3">
-                                <i class="fas fa-magic me-2"></i>Gerar Sinal
+                        </div>
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <strong>Stop Loss:</strong><br>
+                                <span id="signalStopLoss" class="text-danger fw-bold">-</span>
+                            </div>
+                            <div class="col-6">
+                                <strong>Take Profit:</strong><br>
+                                <span id="signalTakeProfit" class="text-success fw-bold">-</span>
+                            </div>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button id="confirmSignalBtn" class="btn btn-success-custom">
+                                <i class="fas fa-check me-2"></i>Confirmar Trade
                             </button>
-                            <small class="text-muted">Clique para gerar um novo sinal para o ativo selecionado</small>
-                        </div>
-                    </div>
-
-                    <!-- Sinal Atual -->
-                    <div id="currentSignalCard" class="card signal-card mb-4" style="display: none;">
-                        <div class="card-header">
-                            <h5><i class="fas fa-bell me-2"></i>Sinal Detectado</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row text-center mb-3">
-                                <div class="col-6">
-                                    <strong>Ação:</strong><br>
-                                    <span id="signalAction" class="badge fs-6">-</span>
-                                </div>
-                                <div class="col-6">
-                                    <strong>Preço:</strong><br>
-                                    <span id="signalPrice" class="fw-bold">-</span>
-                                </div>
-                            </div>
-                            <div class="row text-center mb-3">
-                                <div class="col-6">
-                                    <strong>Símbolo:</strong><br>
-                                    <span id="signalSymbol" class="fw-bold">-</span>
-                                </div>
-                                <div class="col-6">
-                                    <strong>Confiança:</strong><br>
-                                    <span id="signalConfidence" class="badge bg-info fs-6">-</span>
-                                </div>
-                            </div>
-                            <div class="row text-center mb-3">
-                                <div class="col-6">
-                                    <strong>Stop Loss:</strong><br>
-                                    <span id="signalStopLoss" class="text-danger fw-bold">-</span>
-                                </div>
-                                <div class="col-6">
-                                    <strong>Take Profit:</strong><br>
-                                    <span id="signalTakeProfit" class="text-success fw-bold">-</span>
-                                </div>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button id="confirmSignalBtn" class="btn btn-success-custom">
-                                    <i class="fas fa-check me-2"></i>Confirmar Trade
-                                </button>
-                                <button id="rejectSignalBtn" class="btn btn-danger-custom">
-                                    <i class="fas fa-times me-2"></i>Rejeitar Sinal
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Trades Ativos -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-info text-white">
-                            <h5><i class="fas fa-chart-area me-2"></i>Trades Ativos</h5>
-                        </div>
-                        <div class="card-body">
-                            <div id="activeTradesList">
-                                <p class="text-muted text-center">Nenhum trade ativo</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Histórico de Trades -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                            <h5><i class="fas fa-history me-2"></i>Histórico de Trades</h5>
-                            <button id="refreshHistoryBtn" class="btn btn-outline-light btn-sm">
-                                <i class="fas fa-sync-alt me-1"></i>Atualizar
+                            <button id="rejectSignalBtn" class="btn btn-danger-custom">
+                                <i class="fas fa-times me-2"></i>Rejeitar Sinal
                             </button>
                         </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table id="tradesHistoryTable" class="table table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Símbolo</th>
-                                            <th>Ação</th>
-                                            <th>Preço Entrada</th>
-                                            <th>Stop Loss</th>
-                                            <th>Take Profit</th>
-                                            <th>Preço Saída</th>
-                                            <th>P&L</th>
-                                            <th>Confiança</th>
-                                            <th>Motivo Saída</th>
-                                            <th>Data/Hora</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td colspan="11" class="text-center text-muted">Nenhum trade realizado ainda</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trades Ativos -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5><i class="fas fa-chart-area me-2"></i>Trades Ativos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="activeTradesList">
+                            <p class="text-muted text-center">Nenhum trade ativo</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico de Trades -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h5><i class="fas fa-history me-2"></i>Histórico de Trades</h5>
+                        <button id="refreshHistoryBtn" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-sync-alt me-1"></i>Atualizar
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table id="tradesHistoryTable" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Símbolo</th>
+                                        <th>Ação</th>
+                                        <th>Preço Entrada</th>
+                                        <th>Stop Loss</th>
+                                        <th>Take Profit</th>
+                                        <th>Preço Saída</th>
+                                        <th>P&L</th>
+                                        <th>Confiança</th>
+                                        <th>Motivo Saída</th>
+                                        <th>Data/Hora</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="11" class="text-center text-muted">Nenhum trade realizado ainda</td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -870,18 +796,6 @@
         document.getElementById('botStatusMobile').className = document.getElementById('botStatus').className;
     }
     setInterval(syncHeaderMobile, 500); // Atualiza a cada meio segundo
-    </script>
-    <script>
-    // Sincronizar dados entre desktop e mobile
-    function updateMobileData() {
-        document.getElementById('mobileAsset').textContent = document.getElementById('navCurrentAsset').textContent;
-        document.getElementById('mobilePrice').textContent = document.getElementById('currentPrice').textContent;
-        document.getElementById('mobileStatusText').textContent = document.getElementById('botStatusText').textContent;
-        document.getElementById('mobileStatus').className = document.getElementById('botStatus').className;
-    }
-    
-    // Atualizar a cada 500ms
-    setInterval(updateMobileData, 500);
     </script>
 </body>
 </html>
