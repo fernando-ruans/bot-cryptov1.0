@@ -1136,10 +1136,10 @@ if __name__ == '__main__':
         
         # Inicializar sistema de notificações em tempo real para símbolos principais
         principal_symbols = ['BTCUSDT', 'ETHUSDT', 'ADAUSDT']
-        realtime_updates.start_price_updates(principal_symbols)
-        
+        realtime_updates.start_price_updates(principal_symbols)        
         logger.info("🚀 Iniciando servidor Flask...")
-        logger.info("📊 Dashboard disponível em: http://localhost:5000")
+        port = int(os.getenv('PORT', 5000))
+        logger.info(f"📊 Dashboard disponível em: http://localhost:{port}")
         logger.info("🔄 Monitor automático ativo")
         logger.info("📡 Notificações em tempo real ativas")
         
@@ -1147,7 +1147,7 @@ if __name__ == '__main__':
         socketio.run(
             app,
             host='0.0.0.0',
-            port=5000,
+            port=port,
             debug=False,
             allow_unsafe_werkzeug=True
         )

@@ -1,53 +1,34 @@
-# 🥷 CryptoNinja - Configuração Vercel
-
-# vercel.json
 {
   "version": 2,
   "builds": [
     {
-      "src": "main.py",
-      "use": "@vercel/python"
+      "src": "vercel_app.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
     }
   ],
   "routes": [
     {
+      "src": "/static/(.*)",
+      "dest": "/static/$1"
+    },
+    {
       "src": "/(.*)",
-      "dest": "main.py"
+      "dest": "vercel_app.py"
     }
   ],
   "env": {
-    "SECRET_KEY": "cryptoninja-vercel-secret-2025"
+    "FLASK_ENV": "production",
+    "SECRET_KEY": "cryptoninja-vercel-prod-2025",
+    "PYTHONPATH": "."
   },
   "functions": {
-    "main.py": {
-      "maxDuration": 30
+    "vercel_app.py": {
+      "maxDuration": 60,
+      "memory": 1024
     }
-  }
+  },
+  "regions": ["iad1"]
 }
-
-# Requirements para Vercel
-# pip install -r requirements.txt (automático)
-
-# Deploy Commands
-# vercel --prod
-# vercel env add DATABASE_URL
-# vercel env add SECRET_KEY
-
-# Banco de Dados
-# Usar Supabase como PostgreSQL
-# 1. Criar projeto em supabase.com
-# 2. Executar schema_supabase.sql no SQL Editor
-# 3. Copiar DATABASE_URL para Vercel
-
-# Variáveis de Ambiente Vercel
-# DATABASE_URL=postgresql://...supabase...
-# SECRET_KEY=cryptoninja-vercel-secret-2025
-# SUPABASE_URL=https://projeto.supabase.co
-# SUPABASE_ANON_KEY=eyJ...
-
-# Vantagens Vercel
-# ✅ Tier gratuito generoso
-# ✅ CDN global automático
-# ✅ SSL automático
-# ✅ Deploy Git automático
-# ✅ Preview environments
