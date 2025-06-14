@@ -2,7 +2,11 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
     <title>CryptoNinja 🥷 - Stealth Trading AI</title>    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -539,221 +543,168 @@
             }
         }
 
-        .form-select:hover {
-            border-color: var(--accent-light);
-            background: linear-gradient(135deg, #ffffff, #f1f5f9);
-            transform: translateY(-1px);
-        }        .form-select option {
-            padding: 0.875rem;
-            font-weight: 700;
-            background-color: white;
-            color: var(--primary-color);
-            font-size: 1.1rem;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
+        /* Mobile Header - Compact Layout */
+@media (max-width: 768px) {
+    /* Hide desktop navbar on mobile */
+    .navbar.navbar-expand-lg {
+        display: none !important;
+    }
+    
+    /* Mobile Header Container */
+    .mobile-header-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1040;
+        background: var(--gradient-primary);
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    /* Main Header Row */
+    .mobile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 12px;
+        height: 50px;
+    }
+    
+    /* Logo Section - Compact */
+    .mobile-logo {
+        display: flex;
+        align-items: center;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+    
+    .mobile-logo img {
+        width: 28px;
+        height: 28px;
+        margin-right: 6px;
+        border-radius: 6px;
+    }
+    
+    /* Price Section - Ultra Compact */
+    .mobile-price {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        color: white;
+        font-size: 0.7rem;
+        line-height: 1.1;
+        text-align: center;
+        min-width: 70px;
+    }
+    
+    .mobile-price-value {
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+    
+    .mobile-price-symbol {
+        opacity: 0.8;
+        font-size: 0.65rem;
+    }
+    
+    /* Status Section - Compact */
+    .mobile-status {
+        display: flex;
+        align-items: center;
+        color: white;
+        font-size: 0.7rem;
+        min-width: 50px;
+    }
+    
+    .mobile-status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--success-color);
+        margin-right: 4px;
+        animation: pulse 2s infinite;
+    }
+    
+    /* Hamburger Menu */
+    .mobile-menu-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 1.2rem;
+        padding: 6px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: background 0.2s;
+    }
+    
+    .mobile-menu-btn:hover {
+        background: rgba(255,255,255,0.1);
+    }
+    
+    /* Dropdown Menu */
+    .mobile-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 12px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        min-width: 200px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+    }
+    
+    .mobile-dropdown.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    .mobile-dropdown-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 16px;
+        color: var(--text-primary);
+        text-decoration: none;
+        border-bottom: 1px solid var(--border-color);
+        transition: background 0.2s;
+    }
+    
+    .mobile-dropdown-item:hover {
+        background: var(--light-color);
+    }
+    
+    .mobile-dropdown-item:last-child {
+        border-bottom: none;
+        border-radius: 0 0 8px 8px;
+    }
+    
+    .mobile-dropdown-item:first-child {
+        border-radius: 8px 8px 0 0;
+    }
+    
+    .mobile-dropdown-item i {
+        margin-right: 8px;
+        width: 16px;
+        text-align: center;
+    }
+    
+    /* Body padding adjustment */
+    body {
+        padding-top: 50px !important;
+    }
+}
 
-        .form-select optgroup {
-            font-weight: 800;
-            color: var(--accent-color);
-            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
-            font-size: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 0.5rem;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Estilo especial para labels dos seletores */
-        .asset-selector-container .form-label {
-            font-size: 0.9rem;
-            margin-bottom: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 700;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-        }
-
-        /* Melhorar contraste do texto selecionado */
-        .form-select:focus option:checked,
-        .form-select option:checked {
-            background: var(--gradient-primary) !important;
-            color: white !important;
-            font-weight: 800 !important;
-        }
-
-        /* Adicionar ícone personalizado ao select */
-        .form-select {
-            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%234f46e5' d='m2 0-2 2h4zm0 5 2-2h-4z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 1rem center;
-            background-size: 16px 12px;
-        }
-
-        /* Signal Card */
-        .signal-card {
-            background: linear-gradient(135deg, #fef3c7, #fed7aa);
-            border: 2px solid var(--warning-color);
-            border-radius: 20px;
-            animation: signalPulse 2s infinite;
-        }
-
-        @keyframes signalPulse {
-            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
-            70% { box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
-        }
-
-        .signal-card.buy {
-            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-            border-color: var(--success-color);
-        }
-
-        .signal-card.sell {
-            background: linear-gradient(135deg, #fee2e2, #fecaca);
-            border-color: var(--danger-color);
-        }
-
-        /* Enhanced Table */
-        .table {
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .table thead th {
-            background: var(--gradient-primary);
-            color: white;
-            border: none;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-size: 0.85rem;
-            padding: 1rem;
-        }
-
-        .table tbody tr {
-            transition: all 0.2s ease;
-        }
-
-        .table tbody tr:hover {
-            background-color: rgba(79, 70, 229, 0.05);
-            transform: scale(1.01);
-        }
-
-        .table td {
-            padding: 1rem;
-            border-color: var(--border-color);
-            vertical-align: middle;
-        }
-
-        /* Enhanced Badges */
-        .badge {
-            padding: 0.5rem 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            border-radius: 50px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .badge.bg-success {
-            background: var(--gradient-success) !important;
-        }
-
-        .badge.bg-danger {
-            background: var(--gradient-danger) !important;
-        }
-
-        /* Status Indicator */
-        .status-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
-            position: relative;
-        }
-
-        .status-running {
-            background: var(--success-color);
-            animation: pulse 2s infinite;
-        }
-
-        .status-stopped {
-            background: var(--danger-color);
-        }
-
-        @keyframes pulse {
-            0% { 
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            }
-            70% { 
-                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
-            }
-            100% { 
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }
-        }
-
-        /* Trade Cards */
-        .trade-card {
-            background: var(--gradient-surface);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-
-        .trade-card:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .trade-card .profit-indicator {
-            border-left: 4px solid var(--success-color);
-        }
-
-        .trade-card .loss-indicator {
-            border-left: 4px solid var(--danger-color);
-        }
-
-        /* Price Display */
-        .price-display {
-            font-family: 'JetBrains Mono', 'Fira Code', monospace;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-
-        .price-up {
-            color: var(--success-color);
-            animation: priceFlash 0.6s ease-in-out;
-        }
-
-        .price-down {
-            color: var(--danger-color);
-            animation: priceFlashRed 0.6s ease-in-out;
-        }
-
-        @keyframes priceFlash {
-            0% { background-color: rgba(16, 185, 129, 0.2); transform: scale(1); }
-            50% { background-color: rgba(16, 185, 129, 0.4); transform: scale(1.02); }
-            100% { background-color: transparent; transform: scale(1); }
-        }
-
-        @keyframes priceFlashRed {
-            0% { background-color: rgba(239, 68, 68, 0.2); transform: scale(1); }
-            50% { background-color: rgba(239, 68, 68, 0.4); transform: scale(1.02); }
-            100% { background-color: transparent; transform: scale(1); }
-        }
-
-        /* Notifications */
-        .notification {
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow-lg);
-            margin-bottom: 1rem;
-        }
-
+/* Desktop - Hide mobile elements */
+@media (min-width: 769px) {
+    .mobile-header-container {
+        display: none !important;
+    }
+}
         /* Dark Mode Support */
         @media (prefers-color-scheme: dark) {
             :root {
@@ -897,11 +848,70 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--accent-light);
         }
+
+        @keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
     </style>
 </head>
 <body>
-    <!-- Enhanced Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <!-- Mobile Header -->
+    <div class="mobile-header-container">
+        <div class="mobile-header">
+            <!-- Logo -->
+            <a href="#" class="mobile-logo">
+                <img src="{{ url_for('static', filename='images/cryptoninja-logo.png') }}" 
+                     alt="CryptoNinja"
+                     onerror="this.style.display='none';">
+                CryptoNinja
+            </a>
+            
+            <!-- Price Display -->
+            <div class="mobile-price">
+                <div class="mobile-price-symbol">BTCUSDT</div>
+                <div class="mobile-price-value" id="mobilePriceValue">$0.00</div>
+            </div>
+            
+            <!-- Status -->
+            <div class="mobile-status">
+                <div class="mobile-status-dot"></div>
+                <span>Online</span>
+            </div>
+            
+            <!-- Hamburger Menu -->
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <!-- Dropdown Menu -->
+            <div class="mobile-dropdown" id="mobileDropdown">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.profile') }}" class="mobile-dropdown-item">
+                        <i class="fas fa-user"></i>
+                        Meu Perfil
+                    </a>
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('auth.admin_users') }}" class="mobile-dropdown-item">
+                        <i class="fas fa-users-cog"></i>
+                        Painel Admin
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('auth.logout') }}" class="mobile-dropdown-item">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="mobile-dropdown-item">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>    <!-- Enhanced Navigation (Desktop Only) -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top d-none d-md-flex">
         <div class="container">            <a class="navbar-brand" href="#">
                 <img src="{{ url_for('static', filename='images/cryptoninja-logo.png') }}" 
                      alt="CryptoNinja" 
@@ -1273,6 +1283,50 @@
             }
         `;
         document.head.appendChild(style);
+
+        // Mobile Menu Functions
+function toggleMobileMenu() {
+    const dropdown = document.getElementById('mobileDropdown');
+    dropdown.classList.toggle('show');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('mobileDropdown');
+    const menuBtn = document.querySelector('.mobile-menu-btn');
+    
+    if (!dropdown.contains(event.target) && !menuBtn.contains(event.target)) {
+        dropdown.classList.remove('show');
+    }
+});
+
+// Update mobile price display
+function updateMobilePrice(price, symbol = 'BTCUSDT') {
+    const priceElement = document.getElementById('mobilePriceValue');
+    if (priceElement) {
+        priceElement.textContent = price;
+    }
+}
+
+// Sync with main price updates
+document.addEventListener('DOMContentLoaded', function() {
+    // Listen for price updates and sync with mobile header
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.target.id === 'navCurrentPrice') {
+                const price = mutation.target.textContent;
+                updateMobilePrice(price);
+            }
+        });
+    });
+    
+    const priceElement = document.getElementById('navCurrentPrice');
+    if (priceElement) {
+        observer.observe(priceElement, { childList: true, subtree: true });
+        // Initial sync
+        updateMobilePrice(priceElement.textContent);
+    }
+});
     </script>
 </body>
 </html>
