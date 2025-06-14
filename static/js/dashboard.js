@@ -543,7 +543,7 @@ class SimpleTradingDashboard {    constructor() {
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <div class="d-flex align-items-center">
                                 <h6 class="mb-0 fw-bold trade-symbol">${trade.symbol}</h6>
-                                <span class="badge ${trade.trade_type === 'BUY' ? 'bg-success' : 'bg-danger'} ms-2">
+                                <span class="trade-type-value ${trade.trade_type === 'BUY' ? 'buy' : 'sell'} ms-2">
                                     <i class="fas ${trade.trade_type === 'BUY' ? 'fa-arrow-up' : 'fa-arrow-down'}"></i> ${trade.trade_type}
                                 </span>
                             </div>
@@ -600,7 +600,7 @@ class SimpleTradingDashboard {    constructor() {
                         <!-- Confiança -->
                         <div class="text-center">
                             <small class="text-muted d-block mb-1">Confiança do Sinal</small>
-                            <span class="badge bg-info fs-6">
+                            <span class="signal-confidence-value fs-6">
                                 ${trade.signal_confidence ? (trade.signal_confidence * 100).toFixed(1) + '%' : 'N/A'}
                             </span>
                         </div>
