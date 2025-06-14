@@ -1,0 +1,100 @@
+{
+  "timestamp": "2025-06-14T01:28:38.303313",
+  "total_testes": 10,
+  "sucessos": 10,
+  "distribuicao": {
+    "BUY": 10
+  },
+  "resultados_detalhados": [
+    {
+      "teste": 1,
+      "ativo": "BTCUSDT",
+      "timeframe": "5m",
+      "signal_type": "BUY",
+      "confidence": 0.7383900213632565,
+      "timestamp": "2025-06-14T01:27:28.131753",
+      "sucesso": true
+    },
+    {
+      "teste": 2,
+      "ativo": "ETHUSDT",
+      "timeframe": "15m",
+      "signal_type": "BUY",
+      "confidence": 0.49805731453897567,
+      "timestamp": "2025-06-14T01:27:35.718795",
+      "sucesso": true
+    },
+    {
+      "teste": 3,
+      "ativo": "BNBUSDT",
+      "timeframe": "1h",
+      "signal_type": "BUY",
+      "confidence": 0.7497682949099169,
+      "timestamp": "2025-06-14T01:27:43.297605",
+      "sucesso": true
+    },
+    {
+      "teste": 4,
+      "ativo": "ADAUSDT",
+      "timeframe": "4h",
+      "signal_type": "BUY",
+      "confidence": 0.7000717661922675,
+      "timestamp": "2025-06-14T01:27:50.878590",
+      "sucesso": true
+    },
+    {
+      "teste": 5,
+      "ativo": "XRPUSDT",
+      "timeframe": "5m",
+      "signal_type": "BUY",
+      "confidence": 0.7700008346470045,
+      "timestamp": "2025-06-14T01:27:58.465319",
+      "sucesso": true
+    },
+    {
+      "teste": 6,
+      "ativo": "SOLUSDT",
+      "timeframe": "15m",
+      "signal_type": "BUY",
+      "confidence": 0.7346617130369104,
+      "timestamp": "2025-06-14T01:28:06.065834",
+      "sucesso": true
+    },
+    {
+      "teste": 7,
+      "ativo": "DOTUSDT",
+      "timeframe": "1h",
+      "signal_type": "BUY",
+      "confidence": 0.6972069708314608,
+      "timestamp": "2025-06-14T01:28:13.588292",
+      "sucesso": true
+    },
+    {
+      "teste": 8,
+      "ativo": "LINKUSDT",
+      "timeframe": "4h",
+      "signal_type": "BUY",
+      "confidence": 0.7003159964862942,
+      "timestamp": "2025-06-14T01:28:21.198538",
+      "sucesso": true
+    },
+    {
+      "teste": 9,
+      "ativo": "MATICUSDT",
+      "timeframe": "5m",
+      "signal_type": "BUY",
+      "confidence": 0.7146346853615895,
+      "timestamp": "2025-06-14T01:28:28.715816",
+      "sucesso": true
+    },
+    {
+      "teste": 10,
+      "ativo": "AVAXUSDT",
+      "timeframe": "15m",
+      "signal_type": "BUY",
+      "confidence": 0.7257968495911776,
+      "timestamp": "2025-06-14T01:28:36.299559",
+      "sucesso": true
+    }
+  ]
+}

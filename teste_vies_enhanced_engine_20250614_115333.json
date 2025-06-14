@@ -1,0 +1,739 @@
+{
+  "timestamp": "20250614_115333",
+  "engine_type": "EnhancedAIEngine",
+  "total_signals": 87,
+  "total_symbols": 29,
+  "total_timeframes": 3,
+  "distribution": {
+    "buy": 44,
+    "sell": 41,
+    "hold": 2
+  },
+  "percentages": {
+    "buy": 50.57471264367817,
+    "sell": 47.12643678160919,
+    "hold": 2.2988505747126435
+  },
+  "confidence_stats": {
+    "average": 0.47426000325734247,
+    "min": 0.29821154732136435,
+    "max": 0.7289827501074575
+  },
+  "bias_detected": true,
+  "bias_messages": [
+    "\u26a0\ufe0f  DISTRIBUI\u00c7\u00c3O MUITO DESIGUAL!"
+  ],
+  "distribution_by_timeframe": {
+    "1h": {
+      "buy": 17,
+      "sell": 10,
+      "hold": 2
+    },
+    "4h": {
+      "sell": 7,
+      "buy": 22
+    },
+    "1d": {
+      "sell": 24,
+      "buy": 5
+    }
+  },
+  "all_results": [
+    {
+      "symbol": "BTCUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.5131224462322963,
+      "timestamp": "2025-06-14T11:38:15.346318",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "BTCUSDT",
+      "timeframe": "4h",
+      "signal": "sell",
+      "confidence": 0.4918724462322963,
+      "timestamp": "2025-06-14T11:38:26.171082",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "BTCUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.4918724462322963,
+      "timestamp": "2025-06-14T11:38:37.332541",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ETHUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.4218087757641049,
+      "timestamp": "2025-06-14T11:38:48.251686",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ETHUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.4126639670527539,
+      "timestamp": "2025-06-14T11:38:58.742002",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ETHUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.4528515053974135,
+      "timestamp": "2025-06-14T11:39:08.301935",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "BNBUSDT",
+      "timeframe": "1h",
+      "signal": "sell",
+      "confidence": 0.5426077351328926,
+      "timestamp": "2025-06-14T11:39:20.446935",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "BNBUSDT",
+      "timeframe": "4h",
+      "signal": "sell",
+      "confidence": 0.39789560583172523,
+      "timestamp": "2025-06-14T11:39:31.346430",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "BNBUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.4758220208471784,
+      "timestamp": "2025-06-14T11:39:40.736416",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "XRPUSDT",
+      "timeframe": "1h",
+      "signal": "sell",
+      "confidence": 0.5949250429682692,
+      "timestamp": "2025-06-14T11:39:52.646546",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "XRPUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.40403141649952523,
+      "timestamp": "2025-06-14T11:40:03.931764",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "XRPUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.3712073448148876,
+      "timestamp": "2025-06-14T11:40:15.131052",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ADAUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.4014092753856438,
+      "timestamp": "2025-06-14T11:40:25.580129",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ADAUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.3906019193125545,
+      "timestamp": "2025-06-14T11:40:35.536751",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ADAUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.3362738951055889,
+      "timestamp": "2025-06-14T11:40:45.870166",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "SOLUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.42422467729787616,
+      "timestamp": "2025-06-14T11:40:56.336083",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "SOLUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.40949797516706743,
+      "timestamp": "2025-06-14T11:41:07.030873",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "SOLUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.4981939066779172,
+      "timestamp": "2025-06-14T11:41:16.748447",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "DOTUSDT",
+      "timeframe": "1h",
+      "signal": "sell",
+      "confidence": 0.6495186290990284,
+      "timestamp": "2025-06-14T11:41:27.038425",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "DOTUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.37005449731623463,
+      "timestamp": "2025-06-14T11:41:37.020139",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "DOTUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.35949444671169967,
+      "timestamp": "2025-06-14T11:41:47.146963",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "LINKUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.4074846235236217,
+      "timestamp": "2025-06-14T11:41:57.513938",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "LINKUSDT",
+      "timeframe": "4h",
+      "signal": "sell",
+      "confidence": 0.39460953785064745,
+      "timestamp": "2025-06-14T11:42:07.459663",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "LINKUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.37155311717308925,
+      "timestamp": "2025-06-14T11:42:17.519254",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "LTCUSDT",
+      "timeframe": "1h",
+      "signal": "sell",
+      "confidence": 0.6248828273130491,
+      "timestamp": "2025-06-14T11:42:27.759307",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "LTCUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.3894550885771259,
+      "timestamp": "2025-06-14T11:42:39.254900",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "LTCUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.430597113027335,
+      "timestamp": "2025-06-14T11:42:49.222515",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "BCHUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.6336025646669695,
+      "timestamp": "2025-06-14T11:43:00.065734",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "BCHUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.6570154533035798,
+      "timestamp": "2025-06-14T11:43:10.459374",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "BCHUSDT",
+      "timeframe": "1d",
+      "signal": "buy",
+      "confidence": 0.5811225961607226,
+      "timestamp": "2025-06-14T11:43:20.421652",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "timeframe": "1h",
+      "signal": "sell",
+      "confidence": 0.546304420391609,
+      "timestamp": "2025-06-14T11:43:30.044455",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.396704785068811,
+      "timestamp": "2025-06-14T11:43:39.345085",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "AVAXUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.37116950594356934,
+      "timestamp": "2025-06-14T11:43:48.625140",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "MATICUSDT",
+      "timeframe": "1h",
+      "signal": "hold",
+      "confidence": 0.3963350478439691,
+      "timestamp": "2025-06-14T11:43:58.229586",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "MATICUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.47203213075426775,
+      "timestamp": "2025-06-14T11:44:07.544829",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "MATICUSDT",
+      "timeframe": "1d",
+      "signal": "buy",
+      "confidence": 0.3213851802442428,
+      "timestamp": "2025-06-14T11:44:16.841096",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "UNIUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.4033992837978549,
+      "timestamp": "2025-06-14T11:44:26.366682",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "UNIUSDT",
+      "timeframe": "4h",
+      "signal": "sell",
+      "confidence": 0.6237238573089392,
+      "timestamp": "2025-06-14T11:44:36.742711",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "UNIUSDT",
+      "timeframe": "1d",
+      "signal": "buy",
+      "confidence": 0.7289827501074575,
+      "timestamp": "2025-06-14T11:44:46.087207",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "XLMUSDT",
+      "timeframe": "1h",
+      "signal": "sell",
+      "confidence": 0.5766935372460199,
+      "timestamp": "2025-06-14T11:44:56.185316",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "XLMUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.3775881687107246,
+      "timestamp": "2025-06-14T11:45:06.046767",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "XLMUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.3244940995899386,
+      "timestamp": "2025-06-14T11:45:16.780567",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ATOMUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.5773253210137507,
+      "timestamp": "2025-06-14T11:45:26.879697",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ATOMUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.34550251073860727,
+      "timestamp": "2025-06-14T11:45:36.742689",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ATOMUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.36000505279857675,
+      "timestamp": "2025-06-14T11:45:46.680354",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "FILUSDT",
+      "timeframe": "1h",
+      "signal": "sell",
+      "confidence": 0.5303522070246024,
+      "timestamp": "2025-06-14T11:45:57.153300",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "FILUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.3839671355139569,
+      "timestamp": "2025-06-14T11:46:07.065355",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "FILUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.3588994387678648,
+      "timestamp": "2025-06-14T11:46:17.013645",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "TRXUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.5470616438774304,
+      "timestamp": "2025-06-14T11:46:27.074553",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "TRXUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.29821154732136435,
+      "timestamp": "2025-06-14T11:46:36.933935",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "TRXUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.6308331646462024,
+      "timestamp": "2025-06-14T11:46:47.100733",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ETCUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.5315431879130195,
+      "timestamp": "2025-06-14T11:46:57.129301",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ETCUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.3548234096528329,
+      "timestamp": "2025-06-14T11:47:06.970046",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ETCUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.3598155132441555,
+      "timestamp": "2025-06-14T11:47:17.527725",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ALGOUSDT",
+      "timeframe": "1h",
+      "signal": "sell",
+      "confidence": 0.5304446919020299,
+      "timestamp": "2025-06-14T11:47:27.251121",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ALGOUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.3707929275982784,
+      "timestamp": "2025-06-14T11:47:36.472046",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "ALGOUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.46669469190202995,
+      "timestamp": "2025-06-14T11:47:45.743643",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "VETUSDT",
+      "timeframe": "1h",
+      "signal": "sell",
+      "confidence": 0.5298303601027381,
+      "timestamp": "2025-06-14T11:47:55.514089",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "VETUSDT",
+      "timeframe": "4h",
+      "signal": "sell",
+      "confidence": 0.37404867497362443,
+      "timestamp": "2025-06-14T11:48:04.584062",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "VETUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.35849804639431787,
+      "timestamp": "2025-06-14T11:48:14.166430",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "AAVEUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.4682964396980488,
+      "timestamp": "2025-06-14T11:48:24.218097",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "AAVEUSDT",
+      "timeframe": "4h",
+      "signal": "sell",
+      "confidence": 0.6262641794782612,
+      "timestamp": "2025-06-14T11:48:33.973949",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "AAVEUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.7230265546147321,
+      "timestamp": "2025-06-14T11:48:44.536662",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "COMPUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.5126922790497591,
+      "timestamp": "2025-06-14T11:48:56.035863",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "COMPUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.6263171100340584,
+      "timestamp": "2025-06-14T11:49:06.031432",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "COMPUSDT",
+      "timeframe": "1d",
+      "signal": "buy",
+      "confidence": 0.7258739887905681,
+      "timestamp": "2025-06-14T11:49:16.258581",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "MKRUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.6152704348064513,
+      "timestamp": "2025-06-14T11:49:26.721024",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "MKRUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.7079848145242125,
+      "timestamp": "2025-06-14T11:49:36.636549",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "MKRUSDT",
+      "timeframe": "1d",
+      "signal": "buy",
+      "confidence": 0.7048215024784531,
+      "timestamp": "2025-06-14T11:49:47.055681",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "SUSHIUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.5775785153217177,
+      "timestamp": "2025-06-14T11:49:57.412228",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "SUSHIUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.3871479904757954,
+      "timestamp": "2025-06-14T11:50:08.170901",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "SUSHIUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.36019980390275186,
+      "timestamp": "2025-06-14T11:50:18.718064",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "CRVUSDT",
+      "timeframe": "1h",
+      "signal": "sell",
+      "confidence": 0.4817115689296196,
+      "timestamp": "2025-06-14T11:50:29.031844",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "CRVUSDT",
+      "timeframe": "4h",
+      "signal": "sell",
+      "confidence": 0.46653299750104815,
+      "timestamp": "2025-06-14T11:50:38.933914",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "CRVUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.46653299750104815,
+      "timestamp": "2025-06-14T11:50:49.284837",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.547973017621589,
+      "timestamp": "2025-06-14T11:50:59.504323",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.5145801604787319,
+      "timestamp": "2025-06-14T11:51:09.969188",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "DOGEUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.33742795167175876,
+      "timestamp": "2025-06-14T11:51:20.516748",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "SHIBUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.6261627705305517,
+      "timestamp": "2025-06-14T11:51:30.846932",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "SHIBUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.38864367646866493,
+      "timestamp": "2025-06-14T11:51:40.690376",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "SHIBUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.42276991338769465,
+      "timestamp": "2025-06-14T11:51:51.254007",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "PEPEUSDT",
+      "timeframe": "1h",
+      "signal": "hold",
+      "confidence": 0.3495756481885551,
+      "timestamp": "2025-06-14T11:52:01.648328",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "PEPEUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.48246195029461725,
+      "timestamp": "2025-06-14T11:52:12.851872",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "PEPEUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.436926236008903,
+      "timestamp": "2025-06-14T11:52:24.467650",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "FLOKIUSDT",
+      "timeframe": "1h",
+      "signal": "buy",
+      "confidence": 0.4960378581257895,
+      "timestamp": "2025-06-14T11:52:38.275592",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "FLOKIUSDT",
+      "timeframe": "4h",
+      "signal": "buy",
+      "confidence": 0.3913583048828837,
+      "timestamp": "2025-06-14T11:53:05.691004",
+      "enhanced_engine": true
+    },
+    {
+      "symbol": "FLOKIUSDT",
+      "timeframe": "1d",
+      "signal": "sell",
+      "confidence": 0.46871642955436094,
+      "timestamp": "2025-06-14T11:53:33.580863",
+      "enhanced_engine": true
+    }
+  ]
+}

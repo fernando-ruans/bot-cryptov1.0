@@ -1,0 +1,30 @@
+{
+  "results": [
+    {
+      "asset": "BTCUSDT",
+      "signal": "ERROR",
+      "confidence": 0.0
+    },
+    {
+      "asset": "ETHUSDT",
+      "signal": "ERROR",
+      "confidence": 0.0
+    },
+    {
+      "asset": "BNBUSDT",
+      "signal": "ERROR",
+      "confidence": 0.0
+    },
+    {
+      "asset": "XRPUSDT",
+      "signal": "ERROR",
+      "confidence": 0.0
+    },
+    {
+      "asset": "ADAUSDT",
+      "signal": "ERROR",
+      "confidence": 0.0
+    }
+  ],
+  "timestamp": "20250614_024955"
+}

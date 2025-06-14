@@ -831,7 +831,7 @@ class MarketAnalyzer:
                 return {
                     "symbol": symbol,
                     "timeframe": timeframe,
-                    "recommendation": "sell",  # Default para SELL quando score insuficiente
+                    "recommendation": "hold",  # Manter HOLD quando score insuficiente
                     "confidence": 0.3,
                     "market_score": market_score,
                     "ai_score": 0.0,
@@ -839,7 +839,7 @@ class MarketAnalyzer:
                     "stop_loss": 0.0,
                     "take_profit": 0.0,
                     "risk_reward": 0.0,
-                    "reasons": ["Score de mercado insuficiente - default SELL"]
+                    "reasons": ["Score de mercado insuficiente - mantendo HOLD"]
                 }
             
             # Obter dados históricos
@@ -848,36 +848,55 @@ class MarketAnalyzer:
                 logger.error(f"Sem dados para recomendação de trade: {symbol} {timeframe}")
                 return {}
               # Preparar features para o modelo de IA
-            df = self.ai_engine.prepare_features(df)
-            
-            # Obter previsão do modelo de IA (sem timeframe - não usado pelo método)
+            df = self.ai_engine.prepare_features(df)            # Obter previsão do modelo de IA (sem timeframe - não usado pelo método)
             ai_prediction = self.ai_engine.predict_signal(df, symbol)
             
             # Extrair sinal e confiança do modelo de IA
-            signal_value = ai_prediction.get('signal', 0)
+            signal_text = ai_prediction.get('signal', 'hold')  # IA retorna string
             confidence = ai_prediction.get('confidence', 0.0)
-              # Converter valor numérico para recomendação - APENAS BUY/SELL
-            if signal_value == 1:  # Sinal de compra
-                recommendation = "buy"
-            elif signal_value == -1:  # Sinal de venda
-                recommendation = "sell"
-            else:  # Sinal neutro (0) - forçar decisão baseada na confiança
-                if confidence > 0.5:
-                    recommendation = "buy"  # Se confiança é alta, default para buy
+            
+            # Mapear sinal da IA para recomendação respeitando a decisão
+            recommendation = signal_text  # Respeitar decisão da IA sem sobrescrita
+            
+            # IMPORTANTE: Respeitar decisão da IA e não sobrescrever BUY/SELL explícitos
+            logger.info(f"🧠 IA decidiu: '{signal_text}' → Recomendação final: '{recommendation}' (confiança: {confidence:.3f})")            # Se IA decidiu HOLD, tentar usar análise técnica como backup
+            if recommendation == 'hold':  # Sempre tentar melhorar HOLD, independente da confiança
+                # Calcular indicadores técnicos se ainda não foi feito
+                if 'df_with_tech' not in locals():
+                    from .technical_indicators import TechnicalIndicators
+                    tech_indicators = TechnicalIndicators(self.config)
+                    df_with_tech = tech_indicators.calculate_all_indicators(df.copy())
+                
+                # Análise técnica como backup para HOLD
+                tech_backup = self._simple_technical_analysis(df_with_tech)
+                tech_signal = tech_backup.get('signal', 'hold')
+                tech_confidence = tech_backup.get('confidence', 0)
+                
+                # Se análise técnica tem uma direção clara, usar ela
+                if tech_signal in ['buy', 'sell'] and tech_confidence > 0.2:  # Threshold baixo
+                    recommendation = tech_signal
+                    # Combinar confiança da IA + técnica
+                    confidence = min(confidence * 0.7 + tech_confidence * 0.6, 0.8)  # Boost significativo
+                    logger.info(f"🔄 HOLD convertido para {tech_signal.upper()} usando análise técnica (IA: {ai_prediction.get('confidence', 0):.3f}, Técnica: {tech_confidence:.3f}, Final: {confidence:.3f})")
                 else:
-                    recommendation = "sell"  # Se confiança é baixa, default para sell
-              # Verificar confiança mínima - Se muito baixa, default para SELL
+                    logger.info(f"🟡 Mantendo HOLD - análise técnica também neutra")
+            
+            # Ajustar confiança baseado no score de mercado (penalizar scores baixos)
+            market_confidence_factor = min(1.0, market_score / 0.7)  # Fator máximo quando score >= 0.7
+            confidence = confidence * market_confidence_factor
+            logger.info(f"📊 Confiança ajustada pelo mercado: {confidence:.3f} (fator: {market_confidence_factor:.2f})")
+            
+            # Verificar APENAS confiança mínima geral (não específica da IA)
             min_confidence = self.config.SIGNAL_CONFIG.get('min_confidence', 0.0)
             if confidence < min_confidence:
-                recommendation = "sell"
-                confidence = max(confidence, 0.3)  # Mínimo de 30% confiança
-            
-            # Verificar confiança mínima da IA
-            min_ai_confidence = self.config.SIGNAL_CONFIG.get('min_ai_confidence', 0.0)
-            if confidence < min_ai_confidence:
-                logger.info(f"Confiança da IA {confidence:.2f} abaixo do mínimo {min_ai_confidence:.2f} para {symbol} {timeframe}")
-                recommendation = "sell"  # Default para SELL quando confiança é baixa
-                confidence = max(confidence, 0.3)
+                logger.info(f"Confiança {confidence:.2f} abaixo do mínimo {min_confidence:.2f} para {symbol}")
+                # Se confiança muito baixa, converter para HOLD
+                if confidence < 0.4:
+                    recommendation = 'hold'
+                    confidence = 0.4
+                    logger.info(f"Convertendo para HOLD devido à baixa confiança")
+                else:
+                    confidence = max(confidence, 0.3)  # Mínimo de 30% confiança
             
             # Calcular preço atual
             current_price = df['close'].iloc[-1]
@@ -912,6 +931,14 @@ class MarketAnalyzer:
             risk_reward = 1.0  # 1:1 por padrão
             if abs(current_price - stop_loss) > 0:  # Sempre há recomendação válida agora
                 risk_reward = abs(take_profit - current_price) / abs(current_price - stop_loss)
+              # Obter análise técnica separadamente para incluir no resultado
+            if 'df_with_tech' not in locals():
+                from .technical_indicators import TechnicalIndicators
+                tech_indicators = TechnicalIndicators(self.config)
+                df_with_tech = tech_indicators.calculate_all_indicators(df.copy())
+            
+            # Análise técnica simplificada para usar como tiebreaker
+            tech_analysis = self._simple_technical_analysis(df_with_tech)
             
             # Gerar razões para a recomendação
             reasons = self._generate_recommendation_reasons(recommendation, df, market_context, ai_prediction)
@@ -925,22 +952,128 @@ class MarketAnalyzer:
                 "ai_score": confidence,
                 "entry_price": current_price,
                 "stop_loss": stop_loss,
-                "take_profit": take_profit,                "risk_reward": risk_reward,
+                "take_profit": take_profit,
+                "risk_reward": risk_reward,
                 "reasons": reasons,
                 "market_context": market_context,
-                "ai_prediction": ai_prediction
+                "ai_prediction": ai_prediction,
+                "technical_analysis": tech_analysis  # Adicionar análise técnica
             }
             
         except Exception as e:
             logger.error(f"Erro na geração de recomendação de trade: {e}")
             return {}
     
+    def _detectar_tendencia(self, df: pd.DataFrame) -> str:
+        """Detecta a tendência atual do mercado (alta, baixa, lateral)"""
+        try:
+            if df.empty or 'close' not in df.columns:
+                return "lateral"
+            
+            # Calcular médias móveis
+            media_curta = df['close'].rolling(window=20).mean()
+            media_longa = df['close'].rolling(window=50).mean()
+            
+            # Últimos valores
+            ultimo_preco = df['close'].iloc[-1]
+            ultima_media_curta = media_curta.iloc[-1]
+            ultima_media_longa = media_longa.iloc[-1]
+              # Detectar cruzamentos
+            if ultima_media_curta > ultima_media_longa:
+                return "alta"
+            elif ultima_media_curta < ultima_media_longa:
+                return "baixa"
+            else:
+                return "lateral"
+        except Exception as e:
+            logger.error(f"Erro na detecção de tendência: {e}")
+            return "lateral"
+    
+    def _simple_technical_analysis(self, df: pd.DataFrame) -> Dict:
+        """Análise técnica simplificada para usar como tiebreaker"""
+        try:
+            if df.empty:
+                return {'signal': 'hold', 'confidence': 0}
+            
+            latest = df.iloc[-1]
+            buy_signals = 0
+            sell_signals = 0
+            total_signals = 0
+            
+            # RSI
+            if 'rsi' in latest and not pd.isna(latest['rsi']):
+                rsi = latest['rsi']
+                total_signals += 1
+                if rsi < 35:
+                    buy_signals += 2
+                elif rsi < 45:
+                    buy_signals += 1
+                elif rsi > 65:
+                    sell_signals += 2
+                elif rsi > 55:
+                    sell_signals += 1
+            
+            # MACD
+            if ('macd' in latest and 'macd_signal' in latest and 
+                not pd.isna(latest['macd']) and not pd.isna(latest['macd_signal'])):
+                total_signals += 1
+                if latest['macd'] > latest['macd_signal']:
+                    buy_signals += 1
+                else:
+                    sell_signals += 1
+            
+            # EMA
+            if ('ema_12' in latest and 'ema_26' in latest and 
+                not pd.isna(latest['ema_12']) and not pd.isna(latest['ema_26'])):
+                total_signals += 1
+                if latest['ema_12'] > latest['ema_26']:
+                    buy_signals += 1
+                else:
+                    sell_signals += 1
+            
+            # Bollinger Bands
+            if ('bb_lower' in latest and 'bb_upper' in latest and 'close' in latest and
+                not pd.isna(latest['bb_lower']) and not pd.isna(latest['bb_upper'])):
+                total_signals += 1
+                close_price = latest['close']
+                bb_position = (close_price - latest['bb_lower']) / (latest['bb_upper'] - latest['bb_lower'])
+                if bb_position <= 0.2:  # Próximo à banda inferior
+                    buy_signals += 1
+                elif bb_position >= 0.8:  # Próximo à banda superior
+                    sell_signals += 1
+              # Determinar sinal com base na força
+            if total_signals == 0:
+                return {'signal': 'hold', 'confidence': 0}
+            
+            buy_strength = buy_signals / max(total_signals, 1)
+            sell_strength = sell_signals / max(total_signals, 1)
+            
+            logger.info(f"📊 Análise técnica simples: Buy:{buy_signals}, Sell:{sell_signals}, Total:{total_signals}")
+            logger.info(f"📊 Força: Buy:{buy_strength:.2f}, Sell:{sell_strength:.2f}")
+            
+            if buy_signals > sell_signals and buy_strength > 0.3:
+                confidence = min(buy_strength, 0.8)
+                logger.info(f"📊 Técnica → BUY (confiança: {confidence:.2f})")
+                return {'signal': 'buy', 'confidence': confidence}
+            elif sell_signals > buy_signals and sell_strength > 0.3:
+                confidence = min(sell_strength, 0.8)
+                logger.info(f"📊 Técnica → SELL (confiança: {confidence:.2f})")
+                return {'signal': 'sell', 'confidence': confidence}
+            else:
+                logger.info(f"📊 Técnica → HOLD (sinais equilibrados)")
+                return {'signal': 'hold', 'confidence': 0}
+                
+        except Exception as e:
+            logger.error(f"Erro na análise técnica simples: {e}")
+            return {'signal': 'hold', 'confidence': 0}
+
     def _generate_recommendation_reasons(self, recommendation: str, df: pd.DataFrame, 
                                         market_context: Dict, ai_prediction: Dict) -> List[str]:
         """Gera razões para a recomendação de trade"""
         reasons = []
         
-        try:            # Razões baseadas no tipo de recomendação
+        try:
+            # Razões baseadas no tipo de recomendação
             confidence_pct = ai_prediction.get('confidence', 0) * 100  # Converter para porcentagem
             
             if recommendation == "buy":

@@ -33,10 +33,12 @@ CORS(app)
 def get_ai_engine():
     """Lazy loading da AI Engine para reduzir cold start"""
     try:
-        from src.ai_engine import AITradingEngine
-        return AITradingEngine()
+        from ai_engine_enhanced import EnhancedAIEngine
+        from src.config import Config
+        config = Config()
+        return EnhancedAIEngine(config)
     except Exception as e:
-        logger.error(f"Erro ao carregar AI Engine: {e}")
+        logger.error(f"Erro ao carregar Enhanced AI Engine: {e}")
         return None
 
 def get_market_data():

@@ -1,0 +1,115 @@
+{
+  "timestamp": "20250614_025402",
+  "total_assets": 20,
+  "successful_tests": 20,
+  "failed_tests": 0,
+  "processing_time": 131.62099528312683,
+  "signal_distribution": {
+    "SELL": 5,
+    "NONE": 4,
+    "BUY": 11
+  },
+  "bias_status": "SLIGHT_IMBALANCE",
+  "results": [
+    {
+      "asset": "BTCUSDT",
+      "signal": "SELL",
+      "confidence": 0.5605221409921801
+    },
+    {
+      "asset": "ETHUSDT",
+      "signal": "NONE",
+      "confidence": 0.0
+    },
+    {
+      "asset": "BNBUSDT",
+      "signal": "SELL",
+      "confidence": 0.5458371585811703
+    },
+    {
+      "asset": "XRPUSDT",
+      "signal": "BUY",
+      "confidence": 0.4602775508642023
+    },
+    {
+      "asset": "ADAUSDT",
+      "signal": "BUY",
+      "confidence": 0.4039717806161477
+    },
+    {
+      "asset": "SOLUSDT",
+      "signal": "SELL",
+      "confidence": 0.5845315691788682
+    },
+    {
+      "asset": "DOTUSDT",
+      "signal": "BUY",
+      "confidence": 0.41731415617062384
+    },
+    {
+      "asset": "DOGEUSDT",
+      "signal": "SELL",
+      "confidence": 0.5456457697818733
+    },
+    {
+      "asset": "AVAXUSDT",
+      "signal": "BUY",
+      "confidence": 0.3830825317575335
+    },
+    {
+      "asset": "LUNAUSDT",
+      "signal": "BUY",
+      "confidence": 0.5089970167035951
+    },
+    {
+      "asset": "LINKUSDT",
+      "signal": "NONE",
+      "confidence": 0.0
+    },
+    {
+      "asset": "LTCUSDT",
+      "signal": "BUY",
+      "confidence": 0.5964669957769204
+    },
+    {
+      "asset": "UNIUSDT",
+      "signal": "NONE",
+      "confidence": 0.0
+    },
+    {
+      "asset": "ATOMUSDT",
+      "signal": "BUY",
+      "confidence": 0.5812956162979062
+    },
+    {
+      "asset": "VETUSDT",
+      "signal": "BUY",
+      "confidence": 0.5314713572903432
+    },
+    {
+      "asset": "EOSUSDT",
+      "signal": "BUY",
+      "confidence": 0.86953094138274
+    },
+    {
+      "asset": "TRXUSDT",
+      "signal": "BUY",
+      "confidence": 0.5475133242917071
+    },
+    {
+      "asset": "XLMUSDT",
+      "signal": "BUY",
+      "confidence": 0.42999488290122556
+    },
+    {
+      "asset": "AAVEUSDT",
+      "signal": "SELL",
+      "confidence": 0.594098399156991
+    },
+    {
+      "asset": "COMPUSDT",
+      "signal": "NONE",
+      "confidence": 0.0
+    }
+  ]
+}

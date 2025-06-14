@@ -1,0 +1,86 @@
+{
+  "timestamp": "20250614_022652",
+  "status": "SUCCESS",
+  "total_tests": 10,
+  "summary": {
+    "buy": 2,
+    "sell": 6,
+    "hold": 0,
+    "none": 2,
+    "details": [
+      {
+        "symbol": "BTCUSDT",
+        "timeframe": "1h",
+        "signal": "sell",
+        "confidence": 0.5604186333189096,
+        "reason": "N/A"
+      },
+      {
+        "symbol": "BTCUSDT",
+        "timeframe": "4h",
+        "signal": "buy",
+        "confidence": 0.5270257761760526,
+        "reason": "N/A"
+      },
+      {
+        "symbol": "ETHUSDT",
+        "timeframe": "1h",
+        "signal": "none",
+        "confidence": 0.0,
+        "reason": "Nenhum sinal gerado"
+      },
+      {
+        "symbol": "ETHUSDT",
+        "timeframe": "4h",
+        "signal": "buy",
+        "confidence": 0.4103573865323846,
+        "reason": "N/A"
+      },
+      {
+        "symbol": "ADAUSDT",
+        "timeframe": "1h",
+        "signal": "sell",
+        "confidence": 0.40328724748563893,
+        "reason": "N/A"
+      },
+      {
+        "symbol": "ADAUSDT",
+        "timeframe": "4h",
+        "signal": "sell",
+        "confidence": 0.39439277930966143,
+        "reason": "N/A"
+      },
+      {
+        "symbol": "DOTUSDT",
+        "timeframe": "1h",
+        "signal": "sell",
+        "confidence": 0.35590109238376977,
+        "reason": "N/A"
+      },
+      {
+        "symbol": "DOTUSDT",
+        "timeframe": "4h",
+        "signal": "sell",
+        "confidence": 0.3741390485167916,
+        "reason": "N/A"
+      },
+      {
+        "symbol": "LINKUSDT",
+        "timeframe": "1h",
+        "signal": "none",
+        "confidence": 0.0,
+        "reason": "Nenhum sinal gerado"
+      },
+      {
+        "symbol": "LINKUSDT",
+        "timeframe": "4h",
+        "signal": "sell",
+        "confidence": 0.39457196597021116,
+        "reason": "N/A"
+      }
+    ]
+  },
+  "buy_percentage": 25.0,
+  "sell_percentage": 75.0,
+  "hold_percentage": 0.0
+}

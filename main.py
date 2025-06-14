@@ -16,7 +16,7 @@ from flask_socketio import SocketIO, emit
 from flask_login import login_required, current_user
 
 # Importar módulos essenciais
-from src.ai_engine import AITradingEngine
+from ai_engine_enhanced import EnhancedAIEngine
 from src.market_data import MarketDataManager
 from src.signal_generator import SignalGenerator
 from src.database import DatabaseManager
@@ -135,7 +135,7 @@ db_manager = DatabaseManager()
 # OTIMIZAÇÃO HEROKU: Inicialização mínima para startup rápido
 logger.info("⚡ Inicialização mínima para startup rápido...")
 market_data = MarketDataManager(config)
-ai_engine = AITradingEngine(config)
+ai_engine = EnhancedAIEngine(config)
 
 # Inicializar sistema de notificações em tempo real
 from src.realtime_updates import RealTimeUpdates
@@ -396,11 +396,11 @@ def api_generate_signal():
         logger.info(f"📊 DEBUG: Chamando signal_generator.generate_signal('{symbol}', '{timeframe}')")
         signal = signal_generator.generate_signal(symbol, timeframe)
         logger.info(f"📊 DEBUG: Resultado do generate_signal: {signal}")
-        
-        # Converter HOLD em BUY/SELL se necessário
-        if signal and signal.signal_type == 'hold':
-            logger.info(f"🔄 Sinal HOLD detectado para {symbol} - convertendo...")
-            signal = convert_hold_to_signal(signal, symbol, timeframe)
+          # DEBUG: Não converter HOLD para permitir sinais balanceados
+        # if signal and signal.signal_type == 'hold':
+        #     logger.info(f"🔄 Sinal HOLD detectado para {symbol} - convertendo...")
+        #     signal = convert_hold_to_signal(signal, symbol, timeframe)
+        logger.info(f"💡 Respeitando sinal original (sem conversão de HOLD): {signal.signal_type if signal else 'None'}")
         
         if signal is None:
             logger.warning(f"⚠️ Nenhum sinal gerado para {symbol}")
@@ -503,20 +503,21 @@ def api_generate_signals_all_pairs():
         logger.info(f"🔄 Gerando sinais para todos os pares (timeframe: {timeframe})")
           # Gerar sinais para todos os pares
         signals = signal_generator.generate_signals_for_all_pairs()
+          # DEBUG: Não converter HOLD para permitir sinais balanceados
+        # converted_signals = []
+        # for signal in signals:
+        #     if signal.signal_type == 'hold':
+        #         logger.info(f"🔄 Convertendo HOLD para {signal.symbol}")
+        #         signal = convert_hold_to_signal(signal, signal.symbol, timeframe)
+        #     converted_signals.append(signal)
+        # signals = converted_signals
         
-        # Converter sinais HOLD em BUY/SELL
-        converted_signals = []
-        for signal in signals:
-            if signal.signal_type == 'hold':
-                logger.info(f"🔄 Convertendo HOLD para {signal.symbol}")
-                signal = convert_hold_to_signal(signal, signal.symbol, timeframe)
-            converted_signals.append(signal)
-        
-        signals = converted_signals
+        logger.info(f"💡 Respeitando sinais originais (sem conversão de HOLD): {len(signals)} sinais")
         
         # Converter sinais para formato de resposta
         signals_data = []
-        for signal in signals:signals_data.append({
+        for signal in signals:
+            signals_data.append({
                 'symbol': signal.symbol,
                 'signal_type': signal.signal_type,
                 'entry_price': signal.entry_price,

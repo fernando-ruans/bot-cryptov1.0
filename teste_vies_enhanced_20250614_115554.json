@@ -1,0 +1,334 @@
+{
+  "timestamp": "2025-06-14T11:55:54.632942",
+  "engine": "EnhancedAIEngine",
+  "total_tests": 60,
+  "results_by_asset": {
+    "BTCUSDT": {
+      "1m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "5m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "15m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "4h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1d": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      }
+    },
+    "ETHUSDT": {
+      "1m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "5m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "15m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "4h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1d": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      }
+    },
+    "BNBUSDT": {
+      "1m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "5m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "15m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "4h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1d": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      }
+    },
+    "XRPUSDT": {
+      "1m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "5m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "15m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "4h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1d": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      }
+    },
+    "ADAUSDT": {
+      "1m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "5m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "15m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "4h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1d": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      }
+    },
+    "SOLUSDT": {
+      "1m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "5m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "15m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "4h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1d": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      }
+    },
+    "DOTUSDT": {
+      "1m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "5m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "15m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "4h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1d": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      }
+    },
+    "LINKUSDT": {
+      "1m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "5m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "15m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "4h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1d": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      }
+    },
+    "LTCUSDT": {
+      "1m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "5m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "15m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "4h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1d": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      }
+    },
+    "MATICUSDT": {
+      "1m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "5m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "15m": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "4h": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      },
+      "1d": {
+        "signal": "ERROR",
+        "confidence": 0,
+        "error": "'EnhancedAIEngine' object has no attribute 'generate_signal'"
+      }
+    }
+  },
+  "results_by_timeframe": {},
+  "overall_distribution": {
+    "BUY": 0,
+    "SELL": 0,
+    "HOLD": 0
+  },
+  "bias_analysis": {}
+}

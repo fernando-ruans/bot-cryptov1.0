@@ -82,7 +82,7 @@ class Signal:
 class SignalGenerator:
     """Gerador principal de sinais de trading"""
     
-    def __init__(self, ai_engine: AITradingEngine, market_data: MarketDataManager):
+    def __init__(self, ai_engine, market_data: MarketDataManager):
         self.ai_engine = ai_engine
         self.market_data = market_data
         self.config = ai_engine.config
@@ -91,9 +91,11 @@ class SignalGenerator:
         self.active_signals = {}
         self.signal_history = []
         self.last_signal_time = {}
-        
+    
     def generate_signal(self, symbol: str, timeframe: str = '1h') -> Optional[Signal]:
         """Gerar sinal de trading baseado em análise de mercado com IA"""
+        print(f"🚨 TESTE DEBUG: generate_signal chamado para {symbol} {timeframe}")  # DEBUG VISÍVEL
+        
         try:
             logger.info(f"=== Iniciando análise de mercado com IA para {symbol} {timeframe} ===")
             
@@ -152,18 +154,49 @@ class SignalGenerator:
                 
             if market_score < min_market_score:
                 logger.info(f"Score de mercado insuficiente para {symbol}: {market_score:.2f} < {min_market_score}")
-                return None            
-            signal_type = market_recommendation.get('recommendation', 'sell')  # Default to sell if uncertain
-            
-            # Se a recomendação for hold, forçar uma decisão baseada na confiança da IA
+                return None              # Extrair recomendação da análise de mercado
+            signal_type = market_recommendation.get('recommendation', 'hold')
+            logger.info(f"💡 Recomendação do mercado: {signal_type.upper()}")            # Estratégia inteligente para HOLD: só converter se há confiança suficiente
             if signal_type == 'hold':
-                # Usar a IA para forçar uma decisão binária
-                ai_signal = market_recommendation.get('ai_signal', 0)
-                if ai_confidence > 0.5:
-                    signal_type = 'buy' if ai_signal == 1 else 'sell'
+                # Converter HOLD para sinal direcional baseado na análise técnica
+                # Se a análise técnica tem uma direção clara, usar ela
+                if ai_confidence > 0.15:  # Threshold muito baixo para permitir conversão
+                    # Buscar sinais da IA para decidir direção
+                    ai_prediction = market_recommendation.get('ai_prediction', {})
+                    ai_breakdown = ai_prediction.get('signals_breakdown', {})
+                    
+                    # Contar sinais positivos vs negativos
+                    positive_signals = 0
+                    negative_signals = 0
+                    
+                    for signal_group in ai_breakdown.values():
+                        if isinstance(signal_group, list):
+                            positive_signals += sum(1 for s in signal_group if s > 0)
+                            negative_signals += sum(1 for s in signal_group if s < 0)
+                    
+                    # Converter com critérios mais flexíveis
+                    if positive_signals > negative_signals:
+                        signal_type = 'buy'
+                        logger.info(f"HOLD → BUY: sinais positivos ({positive_signals} vs {negative_signals})")
+                    elif negative_signals > positive_signals:
+                        signal_type = 'sell'
+                        logger.info(f"HOLD → SELL: sinais negativos ({negative_signals} vs {positive_signals})")
+                    else:
+                        # Se IA está em empate, usar análise técnica como tiebreaker
+                        tech_analysis = market_recommendation.get('technical_analysis', {})
+                        tech_signal = tech_analysis.get('signal', 'hold')
+                        if tech_signal in ['buy', 'sell']:
+                            signal_type = tech_signal
+                            logger.info(f"HOLD → {tech_signal.upper()}: usando análise técnica como desempate")
+                        else:
+                            logger.info(f"HOLD mantido: sinais equilibrados e análise técnica neutra")
                 else:
-                    signal_type = 'sell'  # Default para sell quando incerto
-                logger.info(f"HOLD convertido para {signal_type.upper()} para {symbol} (confiança IA: {ai_confidence:.3f})")
+                    logger.info(f"HOLD mantido: confiança muito baixa ({ai_confidence:.3f} < 0.15)")
+            
+            # Permitir sinais HOLD com confiança baixa (removido filtro restritivo)
+            # if signal_type == 'hold' and ai_confidence < 0.5:
+            #     logger.info(f"Sinal HOLD com baixa confiança descartado para {symbol}")
+            #     return None
             
             # Calcular confiança final (combinando IA e análise de mercado)
             final_confidence = (ai_confidence * 0.6) + (market_score * 0.4)
@@ -430,8 +463,7 @@ class SignalGenerator:
             elif sell_strength >= min_strength and sell_strength > buy_strength:
                 # Se sell é maior mas diferença < min_diff, ainda dar sinal sell com confiança reduzida
                 signal_type = 'sell'
-                confidence = min(sell_strength / 3.0, 0.6)  # Confiança reduzida
-            elif buy_strength >= min_strength and buy_strength == sell_strength:
+                confidence = min(sell_strength / 3.0, 0.6)  # Confiança reduzida            elif buy_strength >= min_strength and buy_strength == sell_strength:
                 # Empate - escolher baseado no primeiro sinal mais forte encontrado
                 if buy_signals and sell_signals:
                     max_buy = max(buy_signals)
@@ -449,13 +481,13 @@ class SignalGenerator:
                     signal_type = 'sell'
                     confidence = min(sell_strength / 2.2, 0.6)
                 else:
-                    # Se não há sinais claros, default para SELL com baixa confiança
-                    signal_type = 'sell'
-                    confidence = 0.3
+                    # Se não há sinais claros, retornar HOLD em vez de forçar SELL
+                    signal_type = 'hold'
+                    confidence = 0.0
             else:
-                # Insuficientes indicadores, default para SELL
-                signal_type = 'sell'
-                confidence = 0.2
+                # Insuficientes indicadores, retornar HOLD em vez de forçar SELL
+                signal_type = 'hold'
+                confidence = 0.0
             
             return {
                 'signal': signal_type,

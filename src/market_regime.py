@@ -144,35 +144,51 @@ class MarketRegimeDetector:
                 vol = returns.rolling(window).std() * np.sqrt(24)  # Anualizar (assumindo dados horários)
                 volatilities[f'vol_{window}'] = vol
                 df[f'volatility_{window}h'] = vol
-            
-            # Percentis de volatilidade para classificação
+              # Percentis de volatilidade para classificação
             vol_20 = volatilities['vol_20']
-            vol_percentiles = vol_20.rolling(100).quantile([0.2, 0.4, 0.6, 0.8])
               # Classificar regime de volatilidade
             volatility_regime = []
             for i, vol in enumerate(vol_20):
                 if pd.isna(vol):
                     regime = 'Unknown'
-                elif i < 100:
-                    # Usar percentis globais para início da série
-                    percentiles = vol_20.quantile([0.2, 0.4, 0.6, 0.8])
-                    p20, p40, p60, p80 = percentiles.iloc[0], percentiles.iloc[1], percentiles.iloc[2], percentiles.iloc[3]
                 else:
-                    # Usar percentis móveis
-                    recent_vol = vol_20.iloc[max(0, i-100):i]
-                    percentiles = recent_vol.quantile([0.2, 0.4, 0.6, 0.8])
-                    p20, p40, p60, p80 = percentiles.iloc[0], percentiles.iloc[1], percentiles.iloc[2], percentiles.iloc[3]
-                
-                if vol <= p20:
-                    regime = 'Very Low Vol'
-                elif vol <= p40:
-                    regime = 'Low Vol'
-                elif vol <= p60:
-                    regime = 'Normal Vol'
-                elif vol <= p80:
-                    regime = 'High Vol'
-                else:
-                    regime = 'Very High Vol'
+                    try:
+                        if i < 100:
+                            # Usar percentis globais para início da série
+                            if len(vol_20.dropna()) < 5:  # Dados insuficientes
+                                regime = 'Unknown'
+                            else:
+                                p20 = vol_20.quantile(0.2)
+                                p40 = vol_20.quantile(0.4)
+                                p60 = vol_20.quantile(0.6)
+                                p80 = vol_20.quantile(0.8)
+                        else:
+                            # Usar percentis móveis
+                            recent_vol = vol_20.iloc[max(0, i-100):i]
+                            if len(recent_vol.dropna()) < 5:  # Dados insuficientes
+                                regime = 'Unknown'
+                            else:
+                                p20 = recent_vol.quantile(0.2)
+                                p40 = recent_vol.quantile(0.4)
+                                p60 = recent_vol.quantile(0.6)
+                                p80 = recent_vol.quantile(0.8)
+                        
+                        # Classificar apenas se temos percentis válidos
+                        if regime != 'Unknown':
+                            if pd.isna(p20) or pd.isna(p40) or pd.isna(p60) or pd.isna(p80):
+                                regime = 'Unknown'
+                            elif vol <= p20:
+                                regime = 'Very Low Vol'
+                            elif vol <= p40:
+                                regime = 'Low Vol'
+                            elif vol <= p60:
+                                regime = 'Normal Vol'
+                            elif vol <= p80:
+                                regime = 'High Vol'
+                            else:
+                                regime = 'Very High Vol'
+                    except Exception:
+                        regime = 'Unknown'
                 
                 volatility_regime.append(regime)
             
@@ -343,19 +359,30 @@ class MarketRegimeDetector:
                     cluster_interpretations = self._interpret_clusters(
                         scaled_features, clusters, feature_names
                     )
-                    
-                    # Mapear para nomes de regime
+                      # Mapear para nomes de regime
                     regime_names = [cluster_interpretations.get(c, f'Regime_{c}') 
                                   for c in cluster_labels]
                     
-                    df['clustering_regime'] = regime_names
-                    df['clustering_regime_id'] = cluster_labels
+                    # Adicionar features de clustering de uma vez (Otimizado)
+                    clustering_features = pd.DataFrame({
+                        'clustering_regime': regime_names,
+                        'clustering_regime_id': cluster_labels
+                    }, index=df.index)
+                    df = pd.concat([df, clustering_features], axis=1)
                 else:
-                    df['clustering_regime'] = 'Insufficient Data'
-                    df['clustering_regime_id'] = -1
+                    # Adicionar features padrão de uma vez (Otimizado)
+                    default_features = pd.DataFrame({
+                        'clustering_regime': 'Insufficient Data',
+                        'clustering_regime_id': -1
+                    }, index=df.index)
+                    df = pd.concat([df, default_features], axis=1)
             else:
-                df['clustering_regime'] = 'Insufficient Features'
-                df['clustering_regime_id'] = -1
+                # Adicionar features padrão de uma vez (Otimizado)
+                default_features = pd.DataFrame({
+                    'clustering_regime': 'Insufficient Features', 
+                    'clustering_regime_id': -1
+                }, index=df.index)
+                df = pd.concat([df, default_features], axis=1)
             
             return df
             
@@ -428,8 +455,7 @@ class MarketRegimeDetector:
                 # Média das correlações absolutas
                 corr_values = [abs(corr.fillna(0)) for _, corr in correlation_features]
                 avg_correlation = np.mean(corr_values, axis=0)
-                
-                # Classificar regime de correlação
+                  # Classificar regime de correlação
                 correlation_regime = []
                 for corr in avg_correlation:
                     if corr > 0.7:
@@ -441,12 +467,19 @@ class MarketRegimeDetector:
                     
                     correlation_regime.append(regime)
                 
-                df['correlation_regime'] = correlation_regime
-                df['correlation_strength'] = avg_correlation
+                # Preparar todas as features de correlação para concatenação
+                correlation_data = {
+                    'correlation_regime': correlation_regime,
+                    'correlation_strength': avg_correlation
+                }
                 
                 # Adicionar correlações individuais
                 for name, corr in correlation_features:
-                    df[name] = corr.fillna(0)
+                    correlation_data[name] = corr.fillna(0)
+                
+                # Concatenar todas as features de uma vez (Otimizado)
+                correlation_df = pd.DataFrame(correlation_data, index=df.index)
+                df = pd.concat([df, correlation_df], axis=1)
             else:
                 df['correlation_regime'] = 'Unknown'
                 df['correlation_strength'] = 0.5
@@ -487,32 +520,21 @@ class MarketRegimeDetector:
                     
                     ensemble_score += normalized_component * weight
                     weights_sum += weight
-            
-            # Normalizar pelo peso total usado
+              # Normalizar pelo peso total usado
             if weights_sum > 0:
                 ensemble_score /= weights_sum
             
-            df['ensemble_regime_score'] = ensemble_score
+            # Classificar regime baseado no score
+            ensemble_regime = pd.Series('Neutral', index=df.index)
+            ensemble_regime[ensemble_score > 0.3] = 'Bull'
+            ensemble_regime[ensemble_score < -0.3] = 'Bear'
             
-            # Classificar regime consolidado
-            ensemble_regime = []
-            for score in ensemble_score:
-                if pd.isna(score):
-                    regime = 'Unknown'
-                elif score > 0.5:
-                    regime = 'Strong Bull'
-                elif score > 0.2:
-                    regime = 'Bull'
-                elif score > -0.2:
-                    regime = 'Neutral'
-                elif score > -0.5:
-                    regime = 'Bear'
-                else:
-                    regime = 'Strong Bear'
-                
-                ensemble_regime.append(regime)
-            
-            df['ensemble_regime'] = ensemble_regime
+            # Adicionar features de ensemble de uma vez (Otimizado)
+            ensemble_features = pd.DataFrame({
+                'ensemble_regime_score': ensemble_score,
+                'ensemble_regime': ensemble_regime
+            }, index=df.index)
+            df = pd.concat([df, ensemble_features], axis=1)
             
             return df
             

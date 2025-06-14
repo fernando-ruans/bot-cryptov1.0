@@ -73,9 +73,11 @@ class AITradingEngine:
             
             # Adicionar features de momentum
             df = self._add_momentum_features(df)
-              # Adicionar features de padrões
+            
+            # Adicionar features de padrões
             df = self._add_pattern_features(df)
-              # MELHORIA 6: Adicionar features de regime de mercado
+            
+            # MELHORIA 6: Adicionar features de regime de mercado
             df = self._add_regime_features(df)
             
             # MELHORIA 7: Adicionar features de correlação cruzada
@@ -97,33 +99,43 @@ class AITradingEngine:
                     df[col] = df[col].fillna(0)
             
             logger.info(f"Features preparadas: {len(df.columns)} colunas, {len(df)} linhas")
+            
+            # Otimizar DataFrame para reduzir fragmentação
+            df = self._optimize_dataframe(df)
+            
             return df
             
         except Exception as e:
             logger.error(f"Erro ao preparar features: {e}")
             return df
-    
+
     def _add_price_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Adicionar features baseadas em preço"""
+        new_features = {}
+        
         # Retornos
         for period in [1, 3, 5, 10, 20]:
-            df[f'return_{period}'] = df['close'].pct_change(period)
+            new_features[f'return_{period}'] = df['close'].pct_change(period)
         
         # Distância das médias móveis
         for period in [10, 20, 50]:
             if f'sma_{period}' in df.columns:
-                df[f'price_sma_{period}_ratio'] = df['close'] / df[f'sma_{period}']
+                new_features[f'price_sma_{period}_ratio'] = df['close'] / df[f'sma_{period}']
         
         # High-Low ratio
-        df['hl_ratio'] = (df['high'] - df['low']) / df['close']
+        new_features['hl_ratio'] = (df['high'] - df['low']) / df['close']
         
         # Open-Close ratio
-        df['oc_ratio'] = (df['close'] - df['open']) / df['open']
+        new_features['oc_ratio'] = (df['close'] - df['open']) / df['open']
         
         # Posição dentro da range
-        df['price_position'] = (df['close'] - df['low']) / (df['high'] - df['low'])
+        new_features['price_position'] = (df['close'] - df['low']) / (df['high'] - df['low'])
         
-        return df
+        # Concatenar todas as features de uma vez
+        new_df = pd.concat([df] + [pd.Series(data, name=name, index=df.index) 
+                                  for name, data in new_features.items()], axis=1)
+        
+        return new_df
     
     def _add_volume_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Adicionar features baseadas em volume"""
@@ -295,13 +307,12 @@ class AITradingEngine:
             df = self.regime_detector.detect_market_regimes(df)
             
             # === FEATURES DE REGIME CONSOLIDADAS ===
-            
-            # Scores numéricos dos regimes
+              # Scores numéricos dos regimes
             regime_scores = ['trend_regime_score', 'volatility_regime_score', 
                            'momentum_regime_score', 'ensemble_regime_score']
             
             for score_col in regime_scores:
-                if score_col in df.columns:
+                if score_col in df.columns and pd.api.types.is_numeric_dtype(df[score_col]):
                     # Score atual
                     df[f'{score_col}_current'] = df[score_col]
                     
@@ -314,17 +325,19 @@ class AITradingEngine:
                     # Extremos do regime (percentis)
                     rolling_window = 50
                     df[f'{score_col}_percentile'] = df[score_col].rolling(rolling_window).rank(pct=True)
-            
-            # === FEATURES DE TRANSIÇÃO DE REGIME ===
-            
-            # Probabilidades de transição (se disponíveis)
+              # === FEATURES DE TRANSIÇÃO DE REGIME ===
+              # Probabilidades de transição (se disponíveis)
             transition_cols = [col for col in df.columns if 'transition_prob' in col]
             for col in transition_cols:
-                # Suavização das probabilidades
-                df[f'{col}_smooth'] = df[col].rolling(5).mean()
-                
-                # Mudanças abruptas de probabilidade
-                df[f'{col}_shock'] = abs(df[col].diff()) > df[col].rolling(20).std() * 2
+                # Verificar se a coluna é numérica
+                if pd.api.types.is_numeric_dtype(df[col]):
+                    # Suavização das probabilidades
+                    df[f'{col}_smooth'] = df[col].rolling(5).mean()
+                    
+                    # Mudanças abruptas de probabilidade - com verificação de tipo
+                    col_diff = df[col].diff()
+                    if pd.api.types.is_numeric_dtype(col_diff):
+                        df[f'{col}_shock'] = abs(col_diff) > df[col].rolling(20).std() * 2
             
             # === FEATURES DE CLUSTERING E CORRELAÇÃO ===
             
@@ -335,14 +348,20 @@ class AITradingEngine:
                 
                 # Tempo no cluster atual
                 df['time_in_cluster'] = df.groupby((df['cluster_regime'] != df['cluster_regime'].shift()).cumsum()).cumcount() + 1
-            
-            # Features de correlação se disponíveis
+              # Features de correlação se disponíveis
             if 'correlation_regime' in df.columns:
-                # Força da correlação
-                df['correlation_strength'] = abs(df['correlation_regime'])
-                
-                # Mudanças de correlação
-                df['correlation_change'] = df['correlation_regime'].diff()
+                # Verificar se correlation_regime é numérico
+                if pd.api.types.is_numeric_dtype(df['correlation_regime']):
+                    # Força da correlação
+                    df['correlation_strength'] = abs(df['correlation_regime'])
+                    
+                    # Mudanças de correlação
+                    df['correlation_change'] = df['correlation_regime'].diff()
+                else:
+                    # Se for string, usar correlation_strength diretamente se disponível
+                    if 'correlation_strength' in df.columns and pd.api.types.is_numeric_dtype(df['correlation_strength']):
+                        # Mudanças na força da correlação
+                        df['correlation_change'] = df['correlation_strength'].diff()
             
             # === FEATURES COMPOSTAS DE REGIME ===
             
@@ -1017,7 +1036,6 @@ class AITradingEngine:
             
         except Exception as e:
             logger.error(f"❌ Erro ao carregar modelos: {e}")
-    
     def predict_signal(self, df: pd.DataFrame, symbol: str = None) -> Dict:
         """
         Método principal para gerar sinais de trading usando a IA
@@ -1031,10 +1049,6 @@ class AITradingEngine:
         """
         try:
             logger.info(f"🧠 Gerando sinal de IA para {symbol or 'ativo'}...")
-            
-            # Preparar features se ainda não estão preparadas
-            if len(df.columns) < 50:  # Se tem poucas colunas, precisa preparar features
-                df = self.prepare_features(df)
             
             # Verificar se temos dados suficientes
             if len(df) < 50:
@@ -1050,25 +1064,34 @@ class AITradingEngine:
             latest_features = df.iloc[-1]
             
             # === ANÁLISE BASEADA EM FEATURES ===
-            
-            # 1. Análise de momentum
+              # 1. Análise de momentum
             momentum_signals = []
             if 'momentum_5' in latest_features:
-                momentum_signals.append(1 if latest_features['momentum_5'] > 0 else -1)
+                momentum_val = latest_features['momentum_5']
+                momentum_signal = 1 if momentum_val > 0 else -1
+                momentum_signals.append(momentum_signal)
+                logger.info(f"🔄 Momentum_5: {momentum_val:.4f} -> Signal: {momentum_signal}")
             if 'roc_5' in latest_features:
-                momentum_signals.append(1 if latest_features['roc_5'] > 2 else -1 if latest_features['roc_5'] < -2 else 0)
-            
-            # 2. Análise de padrões
+                roc_val = latest_features['roc_5']
+                roc_signal = 1 if roc_val > 2 else -1 if roc_val < -2 else 0
+                momentum_signals.append(roc_signal)
+                logger.info(f"🔄 ROC_5: {roc_val:.4f} -> Signal: {roc_signal}")
+              # 2. Análise de padrões
             pattern_signals = []
             if 'bullish_patterns_score' in latest_features and 'bearish_patterns_score' in latest_features:
-                pattern_balance = latest_features['bullish_patterns_score'] - latest_features['bearish_patterns_score']
-                pattern_signals.append(1 if pattern_balance > 0.3 else -1 if pattern_balance < -0.3 else 0)
-            
-            # 3. Análise de regime de mercado
+                bullish_score = latest_features['bullish_patterns_score']
+                bearish_score = latest_features['bearish_patterns_score']
+                pattern_balance = bullish_score - bearish_score
+                pattern_signal = 1 if pattern_balance > 0.3 else -1 if pattern_balance < -0.3 else 0
+                pattern_signals.append(pattern_signal)
+                logger.info(f"📊 Patterns - Bullish: {bullish_score:.4f}, Bearish: {bearish_score:.4f}, Balance: {pattern_balance:.4f} -> Signal: {pattern_signal}")
+              # 3. Análise de regime de mercado
             regime_signals = []
             if 'ensemble_regime_score' in latest_features:
                 regime_score = latest_features['ensemble_regime_score']
-                regime_signals.append(1 if regime_score > 1 else -1 if regime_score < -1 else 0)
+                regime_signal = 1 if regime_score > 1 else -1 if regime_score < -1 else 0
+                regime_signals.append(regime_signal)
+                logger.info(f"🌊 Regime Score: {regime_score:.4f} -> Signal: {regime_signal}")
             
             # 4. Análise de correlação (MELHORIA 7)
             correlation_signals = []
@@ -1090,8 +1113,7 @@ class AITradingEngine:
                 vol_ratio = latest_features['volatility_ratio']
                 # Sinal baseado em volatilidade (alta vol = incerteza = hold)
                 volatility_signals.append(0 if vol_ratio > 2 else 1 if vol_ratio < 0.5 else 0)
-            
-            # === CONSOLIDAÇÃO DOS SINAIS ===
+              # === CONSOLIDAÇÃO DOS SINAIS ===
             
             all_signals = []
             all_signals.extend(momentum_signals)
@@ -1103,30 +1125,67 @@ class AITradingEngine:
             # Remover sinais neutros para calcular consenso
             active_signals = [s for s in all_signals if s != 0]
             
+            logger.info(f"🔍 ANÁLISE DE SINAIS:")
+            logger.info(f"  Momentum signals: {momentum_signals}")
+            logger.info(f"  Pattern signals: {pattern_signals}")
+            logger.info(f"  Regime signals: {regime_signals}")
+            logger.info(f"  Correlation signals: {correlation_signals}")
+            logger.info(f"  Volatility signals: {volatility_signals}")
+            logger.info(f"  All signals: {all_signals}")
+            logger.info(f"  Active signals: {active_signals}")
+            
             if not active_signals:
                 # Nenhum sinal ativo
                 signal = 'hold'
                 confidence = 0.5
                 reason = 'Sinais neutros'
+                logger.info(f"🔴 RESULTADO: {signal} (sem sinais ativos)")
             else:
-                # Calcular consenso
+                # Calcular consenso com thresholds mais rigorosos
                 bullish_count = sum(1 for s in active_signals if s > 0)
                 bearish_count = sum(1 for s in active_signals if s < 0)
                 total_active = len(active_signals)
                 
-                # Determinar sinal principal
-                if bullish_count > bearish_count:
+                logger.info(f"📊 CONSENSO: Bullish={bullish_count}, Bearish={bearish_count}, Total={total_active}")
+                
+                # Calcular percentuais
+                bullish_pct = bullish_count / total_active if total_active > 0 else 0
+                bearish_pct = bearish_count / total_active if total_active > 0 else 0
+                
+                # Thresholds mais rigorosos para sinais definitivos
+                STRONG_THRESHOLD = 0.70  # 70% dos sinais devem concordar
+                MODERATE_THRESHOLD = 0.60  # 60% para sinal moderado
+                
+                # Determinar sinal principal com thresholds rigorosos
+                if bullish_pct >= STRONG_THRESHOLD:
                     signal = 'buy'
-                    confidence = min(0.95, 0.5 + (bullish_count / total_active) * 0.4)
-                    reason = f'Consenso bullish ({bullish_count}/{total_active})'
-                elif bearish_count > bullish_count:
+                    confidence = min(0.95, 0.70 + (bullish_pct - STRONG_THRESHOLD) * 0.8)
+                    reason = f'Consenso bullish forte ({bullish_count}/{total_active} = {bullish_pct:.1%})'
+                    logger.info(f"🟢 RESULTADO: {signal} (consenso bullish forte)")
+                elif bearish_pct >= STRONG_THRESHOLD:
                     signal = 'sell'
-                    confidence = min(0.95, 0.5 + (bearish_count / total_active) * 0.4)
-                    reason = f'Consenso bearish ({bearish_count}/{total_active})'
+                    confidence = min(0.95, 0.70 + (bearish_pct - STRONG_THRESHOLD) * 0.8)
+                    reason = f'Consenso bearish forte ({bearish_count}/{total_active} = {bearish_pct:.1%})'
+                    logger.info(f"🔴 RESULTADO: {signal} (consenso bearish forte)")
+                elif bullish_pct >= MODERATE_THRESHOLD:
+                    signal = 'buy'
+                    confidence = min(0.75, 0.50 + (bullish_pct - MODERATE_THRESHOLD) * 1.0)
+                    reason = f'Consenso bullish moderado ({bullish_count}/{total_active} = {bullish_pct:.1%})'
+                    logger.info(f"🟢 RESULTADO: {signal} (consenso bullish moderado)")
+                elif bearish_pct >= MODERATE_THRESHOLD:
+                    signal = 'sell'
+                    confidence = min(0.75, 0.50 + (bearish_pct - MODERATE_THRESHOLD) * 1.0)
+                    reason = f'Consenso bearish moderado ({bearish_count}/{total_active} = {bearish_pct:.1%})'
+                    logger.info(f"🔴 RESULTADO: {signal} (consenso bearish moderado)")
                 else:
+                    # Sinais inconclusivos ou equilibrados
                     signal = 'hold'
-                    confidence = 0.5
-                    reason = 'Sinais divididos'
+                    confidence = 0.40 + abs(bullish_pct - bearish_pct) * 0.2  # Max 0.60 para HOLD
+                    reason = f'Sinais inconclusivos (B:{bullish_pct:.1%} vs S:{bearish_pct:.1%})'
+                    logger.info(f"🟡 RESULTADO: {signal} (sinais inconclusivos)")
+            
+            # Log da confiança calculada
+            logger.info(f"💯 CONFIANÇA CALCULADA: {confidence:.3f}")
             
             # === AJUSTES DE CONFIANÇA ===
             
@@ -1156,6 +1215,42 @@ class AITradingEngine:
             }
             
             logger.info(f"✅ Sinal gerado: {signal} (confiança: {confidence:.3f}) - {reason}")
+            
+            # === VALIDAÇÃO ANTI-VIÉS ===
+            
+            # Log detalhado da decisão
+            logger.info(f"🔍 VALIDAÇÃO ANTI-VIÉS:")
+            logger.info(f"  Sinal final: {signal}")
+            logger.info(f"  Confiança: {confidence:.3f}")
+            logger.info(f"  Razão: {reason}")
+            
+            # Alerta se padrão suspeito
+            if symbol and hasattr(self, '_last_signals'):
+                if symbol not in self._last_signals:
+                    self._last_signals = getattr(self, '_last_signals', {})
+                    self._last_signals[symbol] = []
+                
+                self._last_signals[symbol].append(signal)
+                if len(self._last_signals[symbol]) > 10:
+                    self._last_signals[symbol] = self._last_signals[symbol][-10:]  # Manter últimos 10
+                
+                # Verificar viés nos últimos sinais
+                recent_signals = self._last_signals[symbol]
+                if len(recent_signals) >= 5:
+                    buy_count = sum(1 for s in recent_signals if s == 'buy')
+                    sell_count = sum(1 for s in recent_signals if s == 'sell')
+                    hold_count = sum(1 for s in recent_signals if s == 'hold')
+                    
+                    total = len(recent_signals)
+                    if buy_count / total > 0.8:
+                        logger.warning(f"⚠️ ALERTA VIÉS: {buy_count}/{total} sinais BUY para {symbol}")
+                    elif sell_count / total > 0.8:
+                        logger.warning(f"⚠️ ALERTA VIÉS: {sell_count}/{total} sinais SELL para {symbol}")
+                    elif hold_count / total > 0.8:
+                        logger.warning(f"⚠️ ALERTA VIÉS: {hold_count}/{total} sinais HOLD para {symbol}")
+                    else:
+                        logger.info(f"✅ Distribuição saudável: B:{buy_count} S:{sell_count} H:{hold_count}")
+            
             return result
             
         except Exception as e:
@@ -1166,3 +1261,48 @@ class AITradingEngine:
                 'reason': f'Erro: {str(e)}',
                 'ai_features': 0
             }
+    
+    def _optimize_dataframe(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Otimizar DataFrame para reduzir fragmentação"""
+        try:
+            # Copiar DataFrame para desfragmentar
+            df_optimized = df.copy()
+            logger.info(f"DataFrame otimizado: {len(df_optimized.columns)} colunas")
+            return df_optimized
+        except Exception as e:
+            logger.error(f"Erro na otimização do DataFrame: {e}")
+            return df
+def concat_features_optimized(df, new_features_dict):
+    """
+    Função otimizada para adicionar múltiplas features ao DataFrame
+    sem causar fragmentação
+    
+    Args:
+        df: DataFrame principal
+        new_features_dict: Dicionário com {nome_coluna: Series/array}
+    
+    Returns:
+        DataFrame com as novas features adicionadas
+    """
+    if not new_features_dict:
+        return df
+    
+    try:
+        import pandas as pd
+        
+        # Criar DataFrame com as novas features
+        new_features_df = pd.DataFrame(new_features_dict, index=df.index)
+        
+        # Concatenar uma única vez
+        result_df = pd.concat([df, new_features_df], axis=1)
+        
+        return result_df
+        
+    except Exception as e:
+        # Fallback para método tradicional se houver erro
+        print(f"Warning: Fallback para método tradicional devido a erro: {e}")
+        result_df = df.copy()
+        for col_name, col_data in new_features_dict.items():
+            result_df[col_name] = col_data
+        return result_df
+
