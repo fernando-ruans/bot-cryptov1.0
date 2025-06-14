@@ -1086,6 +1086,18 @@ class SimpleTradingDashboard {    constructor() {
         const formattedPrice = `$${this.formatPrice(price, symbol)}`;
         element.textContent = formattedPrice;
         
+        // Atualiza também o preço no header mobile
+        const mobilePriceElement = document.getElementById('mobilePriceValue');
+        if (mobilePriceElement) {
+            mobilePriceElement.textContent = formattedPrice;
+        }
+        
+        // Atualiza também o nome do ativo no header mobile
+        const mobileSymbolElement = document.querySelector('.mobile-price-symbol');
+        if (mobileSymbolElement && symbol) {
+            mobileSymbolElement.textContent = symbol;
+        }
+        
         if (priceChanged) {
             // Remover classes anteriores
             element.classList.remove('price-up', 'price-down');
@@ -1351,11 +1363,16 @@ class SimpleTradingDashboard {    constructor() {
         updateElement('currentSymbol', newSymbol);
         updateElement('navCurrentAsset', newSymbol);
         updateElement('selectedAssetBadge', newSymbol);
-        
-        // Atualizar título do card do gráfico
+          // Atualizar título do card do gráfico
         const chartTitle = document.querySelector('.card-header h5');
         if (chartTitle) {
             chartTitle.innerHTML = `<i class="fas fa-chart-candlestick me-2"></i>Análise Técnica - ${newSymbol}`;
+        }
+        
+        // Atualizar nome do ativo no header mobile IMEDIATAMENTE
+        const mobileSymbolElement = document.querySelector('.mobile-price-symbol');
+        if (mobileSymbolElement) {
+            mobileSymbolElement.textContent = newSymbol;
         }
           // Atualizar gráfico TradingView
         this.updateTradingViewChart(newSymbol);

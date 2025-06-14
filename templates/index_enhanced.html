@@ -1378,10 +1378,17 @@ document.addEventListener('click', function(event) {
 });
 
 // Update mobile price display
-function updateMobilePrice(price, symbol = 'BTCUSDT') {
+function updateMobilePrice(price, symbol = null) {
     const priceElement = document.getElementById('mobilePriceValue');
     if (priceElement) {
         priceElement.textContent = price;
+    }
+    // Só atualiza o símbolo se for fornecido explicitamente
+    if (symbol) {
+        const symbolElement = document.querySelector('.mobile-price-symbol');
+        if (symbolElement) {
+            symbolElement.textContent = symbol;
+        }
     }
 }
 
@@ -1439,9 +1446,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (timeframeSelector) {
         timeframeSelector.addEventListener('change', updateChartDisplay);
     }
-    
-    // Initial update
-    updateChartDisplay();
 });
     </script>
 </body>
