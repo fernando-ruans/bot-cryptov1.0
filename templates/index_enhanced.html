@@ -386,7 +386,31 @@
             outline: none;
         }
 
-        /* Active Trades Card */
+        /* Signal Generator Selectors */
+.card .form-select-sm {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.card .form-select-sm:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+}
+
+.card .form-label {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+.card .alert-light {
+    background-color: #f8f9fc;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.75rem;
+}        /* Active Trades Card */
         .active-trades-card {
             border: 2px solid var(--accent-color);
             box-shadow: var(--shadow-lg);
@@ -1040,17 +1064,41 @@
         <div class="row">
             <!-- Enhanced Chart Section -->
             <div class="col-lg-8 mb-4">
-                <div class="card">                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5>
+                <div class="card">                    <div class="card-header d-flex justify-content-between align-items-center">                        <h5>
                             <i class="fas fa-chart-candlestick me-2"></i>
                             Análise Técnica - <span id="currentAsset">BTCUSDT</span>
-                        </h5><div class="d-flex gap-3 align-items-center">
-                            <!-- Asset Selector -->
-                            <div class="asset-selector-container">
-                                <label for="assetSelector" class="form-label text-white fw-bold mb-2">
-                                    <i class="fas fa-coins me-1"></i>Ativo
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div id="tradingview_chart" class="chart-container"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enhanced Control Panel -->
+            <div class="col-lg-4">
+                <!-- Signal Generator -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-brain me-2"></i>Gerador de Sinais IA</h5>
+                    </div>                    <div class="card-body">
+                        <!-- Instrução para o usuário -->
+                        <div class="alert alert-light border-0 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle text-primary me-2"></i>
+                                <small class="text-muted mb-0">
+                                    <strong>Selecione o ativo e timeframe desejado para gerar um sinal inteligente</strong>
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Seletores de Ativo e Timeframe -->
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <label for="assetSelector" class="form-label fw-bold mb-2">
+                                    <i class="fas fa-coins me-1 text-warning"></i>Ativo
                                 </label>
-                                <select id="assetSelector" class="form-select">
+                                <select id="assetSelector" class="form-select form-select-sm">
                                     <optgroup label="📈 Principais">
                                         <option value="BTCUSDT" selected>BTC/USDT</option>
                                         <option value="ETHUSDT">ETH/USDT</option>
@@ -1071,12 +1119,11 @@
                                     </optgroup>
                                 </select>
                             </div>
-                            <!-- Timeframe Selector -->
-                            <div class="asset-selector-container">
-                                <label for="timeframeSelector" class="form-label text-white fw-bold mb-2">
-                                    <i class="fas fa-clock me-1"></i>Período
+                            <div class="col-6">
+                                <label for="timeframeSelector" class="form-label fw-bold mb-2">
+                                    <i class="fas fa-clock me-1 text-info"></i>Período
                                 </label>
-                                <select id="timeframeSelector" class="form-select">
+                                <select id="timeframeSelector" class="form-select form-select-sm">
                                     <option value="1m">1 Minuto</option>
                                     <option value="5m" selected>5 Minutos</option>
                                     <option value="15m">15 Minutos</option>
@@ -1088,39 +1135,28 @@
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div id="tradingview_chart" class="chart-container"></div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Enhanced Control Panel -->
-            <div class="col-lg-4">
-                <!-- Signal Generator -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h5><i class="fas fa-brain me-2"></i>Gerador de Sinais IA</h5>
-                    </div>
-                    <div class="card-body text-center">
-                        <div id="signalContent" style="display: none;">
-                            <div class="alert alert-info">
-                                <i class="fas fa-info-circle me-2"></i>
-                                Analisando mercado...
+                        <!-- Conteúdo do sinal -->
+                        <div class="text-center">
+                            <div id="signalContent" style="display: none;">
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Analisando mercado...
+                                </div>
                             </div>
-                        </div>
-                        <div id="signalActions" style="display: none;">
-                            <button id="executeSignalBtn" class="btn btn-success btn-lg w-100 mb-3">
-                                <i class="fas fa-rocket me-2"></i>Executar Trade
+                            <div id="signalActions" style="display: none;">
+                                <button id="executeSignalBtn" class="btn btn-success btn-lg w-100 mb-3">
+                                    <i class="fas fa-rocket me-2"></i>Executar Trade
+                                </button>
+                            </div>
+                            <button id="generateSignalBtn" class="btn btn-primary btn-lg w-100">
+                                <i class="fas fa-magic me-2"></i>Gerar Sinal Inteligente
                             </button>
+                            <p class="text-muted mt-3 mb-0 small">
+                                <i class="fas fa-lightbulb me-1"></i>
+                                IA analisa múltiplos indicadores técnicos
+                            </p>
                         </div>
-                        <button id="generateSignalBtn" class="btn btn-primary btn-lg w-100">
-                            <i class="fas fa-magic me-2"></i>Gerar Sinal Inteligente
-                        </button>
-                        <p class="text-muted mt-3 mb-0 small">
-                            <i class="fas fa-lightbulb me-1"></i>
-                            IA analisa múltiplos indicadores técnicos
-                        </p>
                     </div>
                 </div>
 
@@ -1351,6 +1387,45 @@ document.addEventListener('DOMContentLoaded', function() {
         // Initial sync
         updateMobilePrice(priceElement.textContent);
     }
+});
+
+// Sync selectors with chart display
+document.addEventListener('DOMContentLoaded', function() {
+    const assetSelector = document.getElementById('assetSelector');
+    const timeframeSelector = document.getElementById('timeframeSelector');
+    const currentAssetDisplay = document.getElementById('currentAsset');
+    
+    // Update chart display when selectors change
+    function updateChartDisplay() {
+        if (assetSelector && currentAssetDisplay) {
+            const selectedAsset = assetSelector.value;
+            const selectedTimeframe = timeframeSelector ? timeframeSelector.value : '5m';
+            
+            // Update display
+            currentAssetDisplay.textContent = selectedAsset;
+            
+            // Update chart if TradingView widget exists
+            if (typeof widget !== 'undefined' && widget.setSymbol) {
+                const symbol = selectedAsset.replace('USDT', 'USD');
+                widget.setSymbol(`BINANCE:${symbol}`, selectedTimeframe);
+            }
+            
+            // Update mobile price display
+            updateMobilePrice('$' + Math.random().toFixed(2), selectedAsset);
+        }
+    }
+    
+    // Add event listeners
+    if (assetSelector) {
+        assetSelector.addEventListener('change', updateChartDisplay);
+    }
+    
+    if (timeframeSelector) {
+        timeframeSelector.addEventListener('change', updateChartDisplay);
+    }
+    
+    // Initial update
+    updateChartDisplay();
 });
     </script>
 </body>
