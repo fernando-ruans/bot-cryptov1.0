@@ -1,0 +1,1298 @@
+{
+  "timestamp": "2025-06-14T22:09:21.202666",
+  "engine_name": "UltraEnhancedAIEngine",
+  "test_config": {
+    "symbols": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "ADAUSDT",
+      "XRPUSDT",
+      "SOLUSDT"
+    ],
+    "timeframes": [
+      "1m",
+      "5m",
+      "15m",
+      "1h"
+    ],
+    "total_tests": 20
+  },
+  "performance_metrics": {
+    "BTCUSDT": [
+      {
+        "symbol": "BTCUSDT",
+        "timeframe": "1m",
+        "response_time": 0.0931,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "hold",
+          "confidence": 0.5,
+          "reason": "Sinais neutros",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              0
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "hold",
+        "confidence": 0.5,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "BTCUSDT",
+        "timeframe": "5m",
+        "response_time": 0.1095,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "sell",
+          "confidence": 0.95,
+          "reason": "Consenso bearish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              -1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "sell",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "BTCUSDT",
+        "timeframe": "15m",
+        "response_time": 0.1195,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "buy",
+          "confidence": 0.95,
+          "reason": "Consenso bullish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "buy",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "BTCUSDT",
+        "timeframe": "1h",
+        "response_time": 0.1008,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "hold",
+          "confidence": 0.5,
+          "reason": "Sinais neutros",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              0
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "hold",
+        "confidence": 0.5,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      }
+    ],
+    "ETHUSDT": [
+      {
+        "symbol": "ETHUSDT",
+        "timeframe": "1m",
+        "response_time": 0.1147,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "buy",
+          "confidence": 0.95,
+          "reason": "Consenso bullish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "buy",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "ETHUSDT",
+        "timeframe": "5m",
+        "response_time": 0.0995,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "sell",
+          "confidence": 0.95,
+          "reason": "Consenso bearish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              -1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "sell",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "ETHUSDT",
+        "timeframe": "15m",
+        "response_time": 0.0848,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "buy",
+          "confidence": 0.95,
+          "reason": "Consenso bullish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "buy",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "ETHUSDT",
+        "timeframe": "1h",
+        "response_time": 0.1106,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "hold",
+          "confidence": 0.5,
+          "reason": "Sinais neutros",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              0
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "hold",
+        "confidence": 0.5,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      }
+    ],
+    "ADAUSDT": [
+      {
+        "symbol": "ADAUSDT",
+        "timeframe": "1m",
+        "response_time": 0.1091,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "buy",
+          "confidence": 0.95,
+          "reason": "Consenso bullish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "buy",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "ADAUSDT",
+        "timeframe": "5m",
+        "response_time": 0.0902,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "hold",
+          "confidence": 0.5,
+          "reason": "Sinais neutros",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              0
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "hold",
+        "confidence": 0.5,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "ADAUSDT",
+        "timeframe": "15m",
+        "response_time": 0.0993,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "buy",
+          "confidence": 0.95,
+          "reason": "Consenso bullish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "buy",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "ADAUSDT",
+        "timeframe": "1h",
+        "response_time": 0.0983,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "buy",
+          "confidence": 0.95,
+          "reason": "Consenso bullish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "buy",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      }
+    ],
+    "XRPUSDT": [
+      {
+        "symbol": "XRPUSDT",
+        "timeframe": "1m",
+        "response_time": 0.1044,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "sell",
+          "confidence": 0.95,
+          "reason": "Consenso bearish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              -1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "sell",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "XRPUSDT",
+        "timeframe": "5m",
+        "response_time": 0.098,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "hold",
+          "confidence": 0.5,
+          "reason": "Sinais neutros",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              0
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "hold",
+        "confidence": 0.5,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "XRPUSDT",
+        "timeframe": "15m",
+        "response_time": 0.0793,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "buy",
+          "confidence": 0.95,
+          "reason": "Consenso bullish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "buy",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "XRPUSDT",
+        "timeframe": "1h",
+        "response_time": 0.0761,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "buy",
+          "confidence": 0.95,
+          "reason": "Consenso bullish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "buy",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      }
+    ],
+    "SOLUSDT": [
+      {
+        "symbol": "SOLUSDT",
+        "timeframe": "1m",
+        "response_time": 0.0994,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "buy",
+          "confidence": 0.95,
+          "reason": "Consenso bullish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "buy",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "SOLUSDT",
+        "timeframe": "5m",
+        "response_time": 0.0955,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "sell",
+          "confidence": 0.95,
+          "reason": "Consenso bearish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              -1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "sell",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "SOLUSDT",
+        "timeframe": "15m",
+        "response_time": 0.1119,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "buy",
+          "confidence": 0.95,
+          "reason": "Consenso bullish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "buy",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      },
+      {
+        "symbol": "SOLUSDT",
+        "timeframe": "1h",
+        "response_time": 0.1144,
+        "signal_generated": true,
+        "signal_data": {
+          "signal": "sell",
+          "confidence": 0.95,
+          "reason": "Consenso bearish forte (1/1 = 100.0%)",
+          "ai_features": 96,
+          "signals_breakdown": {
+            "momentum": [
+              -1
+            ],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        },
+        "success": true,
+        "error": null,
+        "signal_type": "sell",
+        "confidence": 0.95,
+        "entry_price": 0,
+        "take_profit": 0,
+        "stop_loss": 0,
+        "features_count": 0,
+        "reasoning_length": 0
+      }
+    ]
+  },
+  "signal_quality": [
+    {
+      "symbol": "BTCUSDT",
+      "timeframe": "1m",
+      "response_time": 0.0931,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "hold",
+        "confidence": 0.5,
+        "reason": "Sinais neutros",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            0
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "hold",
+      "confidence": 0.5,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "BTCUSDT",
+      "timeframe": "5m",
+      "response_time": 0.1095,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "sell",
+        "confidence": 0.95,
+        "reason": "Consenso bearish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            -1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "sell",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "BTCUSDT",
+      "timeframe": "15m",
+      "response_time": 0.1195,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "buy",
+        "confidence": 0.95,
+        "reason": "Consenso bullish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "buy",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "BTCUSDT",
+      "timeframe": "1h",
+      "response_time": 0.1008,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "hold",
+        "confidence": 0.5,
+        "reason": "Sinais neutros",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            0
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "hold",
+      "confidence": 0.5,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "ETHUSDT",
+      "timeframe": "1m",
+      "response_time": 0.1147,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "buy",
+        "confidence": 0.95,
+        "reason": "Consenso bullish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "buy",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "ETHUSDT",
+      "timeframe": "5m",
+      "response_time": 0.0995,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "sell",
+        "confidence": 0.95,
+        "reason": "Consenso bearish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            -1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "sell",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "ETHUSDT",
+      "timeframe": "15m",
+      "response_time": 0.0848,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "buy",
+        "confidence": 0.95,
+        "reason": "Consenso bullish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "buy",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "ETHUSDT",
+      "timeframe": "1h",
+      "response_time": 0.1106,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "hold",
+        "confidence": 0.5,
+        "reason": "Sinais neutros",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            0
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "hold",
+      "confidence": 0.5,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "timeframe": "1m",
+      "response_time": 0.1091,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "buy",
+        "confidence": 0.95,
+        "reason": "Consenso bullish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "buy",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "timeframe": "5m",
+      "response_time": 0.0902,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "hold",
+        "confidence": 0.5,
+        "reason": "Sinais neutros",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            0
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "hold",
+      "confidence": 0.5,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "timeframe": "15m",
+      "response_time": 0.0993,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "buy",
+        "confidence": 0.95,
+        "reason": "Consenso bullish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "buy",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "ADAUSDT",
+      "timeframe": "1h",
+      "response_time": 0.0983,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "buy",
+        "confidence": 0.95,
+        "reason": "Consenso bullish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "buy",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "XRPUSDT",
+      "timeframe": "1m",
+      "response_time": 0.1044,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "sell",
+        "confidence": 0.95,
+        "reason": "Consenso bearish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            -1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "sell",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "XRPUSDT",
+      "timeframe": "5m",
+      "response_time": 0.098,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "hold",
+        "confidence": 0.5,
+        "reason": "Sinais neutros",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            0
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "hold",
+      "confidence": 0.5,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "XRPUSDT",
+      "timeframe": "15m",
+      "response_time": 0.0793,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "buy",
+        "confidence": 0.95,
+        "reason": "Consenso bullish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "buy",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "XRPUSDT",
+      "timeframe": "1h",
+      "response_time": 0.0761,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "buy",
+        "confidence": 0.95,
+        "reason": "Consenso bullish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "buy",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "SOLUSDT",
+      "timeframe": "1m",
+      "response_time": 0.0994,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "buy",
+        "confidence": 0.95,
+        "reason": "Consenso bullish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "buy",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "SOLUSDT",
+      "timeframe": "5m",
+      "response_time": 0.0955,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "sell",
+        "confidence": 0.95,
+        "reason": "Consenso bearish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            -1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "sell",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "SOLUSDT",
+      "timeframe": "15m",
+      "response_time": 0.1119,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "buy",
+        "confidence": 0.95,
+        "reason": "Consenso bullish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "buy",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    },
+    {
+      "symbol": "SOLUSDT",
+      "timeframe": "1h",
+      "response_time": 0.1144,
+      "signal_generated": true,
+      "signal_data": {
+        "signal": "sell",
+        "confidence": 0.95,
+        "reason": "Consenso bearish forte (1/1 = 100.0%)",
+        "ai_features": 96,
+        "signals_breakdown": {
+          "momentum": [
+            -1
+          ],
+          "patterns": [],
+          "regime": [],
+          "correlation": [],
+          "volatility": []
+        }
+      },
+      "success": true,
+      "error": null,
+      "signal_type": "sell",
+      "confidence": 0.95,
+      "entry_price": 0,
+      "take_profit": 0,
+      "stop_loss": 0,
+      "features_count": 0,
+      "reasoning_length": 0
+    }
+  ],
+  "summary": {
+    "total_time": 4.07,
+    "total_tests": 20,
+    "successful_tests": 20,
+    "success_rate": 1.0,
+    "signals_generated": 20,
+    "signal_rate": 1.0,
+    "performance": {
+      "avg_response_time": 0.1004,
+      "min_response_time": 0.0761,
+      "max_response_time": 0.1195,
+      "tests_per_second": 4.92
+    },
+    "signal_quality": {
+      "avg_confidence": 0.838,
+      "signal_types": {
+        "hold": 5,
+        "sell": 5,
+        "buy": 10
+      },
+      "confidence_distribution": {
+        "high_confidence": 15,
+        "medium_confidence": 0,
+        "low_confidence": 5
+      }
+    },
+    "symbol_performance": {
+      "BTCUSDT": {
+        "total_tests": 4,
+        "success_rate": 1.0,
+        "signal_rate": 1.0,
+        "avg_response_time": 0.105725,
+        "avg_confidence": 0.725
+      },
+      "ETHUSDT": {
+        "total_tests": 4,
+        "success_rate": 1.0,
+        "signal_rate": 1.0,
+        "avg_response_time": 0.1024,
+        "avg_confidence": 0.8374999999999999
+      },
+      "ADAUSDT": {
+        "total_tests": 4,
+        "success_rate": 1.0,
+        "signal_rate": 1.0,
+        "avg_response_time": 0.09922500000000001,
+        "avg_confidence": 0.8374999999999999
+      },
+      "XRPUSDT": {
+        "total_tests": 4,
+        "success_rate": 1.0,
+        "signal_rate": 1.0,
+        "avg_response_time": 0.08945,
+        "avg_confidence": 0.8374999999999999
+      },
+      "SOLUSDT": {
+        "total_tests": 4,
+        "success_rate": 1.0,
+        "signal_rate": 1.0,
+        "avg_response_time": 0.1053,
+        "avg_confidence": 0.95
+      }
+    }
+  }
+}

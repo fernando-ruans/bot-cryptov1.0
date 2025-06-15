@@ -1,0 +1,282 @@
+[
+  {
+    "engine_name": "AITradingEngine",
+    "available": true,
+    "init_success": true,
+    "methods_tested": {
+      "predict_signal": {
+        "success": true,
+        "time": 0.0004,
+        "result": {
+          "signal": "hold",
+          "confidence": 0.5,
+          "reason": "Sinais neutros",
+          "ai_features": 6,
+          "signals_breakdown": {
+            "momentum": [],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        }
+      }
+    },
+    "performance_metrics": {
+      "avg_time": 0.0004,
+      "min_time": 0.0004,
+      "max_time": 0.0004,
+      "methods_count": 1,
+      "speed_score": 2500.0
+    },
+    "signals_generated": [
+      {
+        "method": "predict_signal",
+        "signal": "hold",
+        "confidence": 0.5,
+        "time": 0.0003781318664550781
+      }
+    ],
+    "errors": [],
+    "init_time": 0.0,
+    "signal_analysis": {
+      "signals_count": 1,
+      "unique_signals": [
+        "hold"
+      ],
+      "avg_confidence": 0.5,
+      "max_confidence": 0.5,
+      "min_confidence": 0.5,
+      "non_hold_signals": 0
+    },
+    "final_score": 0.5983
+  },
+  {
+    "engine_name": "UltraFastAIEngine",
+    "available": true,
+    "init_success": true,
+    "methods_tested": {
+      "predict_signal": {
+        "success": true,
+        "time": 0.0351,
+        "result": {
+          "signal": "2",
+          "signal_type": "hold",
+          "confidence": 0.5137546933667083,
+          "entry_price": 67033.41617447155,
+          "stop_loss": 0,
+          "take_profit": 0,
+          "model_used": "UltraFast",
+          "processing_time": 0.035064697265625,
+          "optimized_v4": true
+        }
+      },
+      "ultra_fast_predict": {
+        "success": true,
+        "time": 0.0029,
+        "result": {
+          "signal": "2",
+          "signal_type": "hold",
+          "confidence": 0.5137546933667083,
+          "entry_price": 67033.41617447155,
+          "stop_loss": 0,
+          "take_profit": 0,
+          "model_used": "UltraFast",
+          "processing_time": 0.035064697265625,
+          "optimized_v4": true
+        }
+      },
+      "optimized_predict_signal": {
+        "success": true,
+        "time": 0.003,
+        "result": {
+          "signal": "2",
+          "signal_type": "hold",
+          "confidence": 0.5137546933667083,
+          "entry_price": 67033.41617447155,
+          "stop_loss": 0,
+          "take_profit": 0,
+          "model_used": "UltraFast",
+          "processing_time": 0.035064697265625,
+          "optimized_v4": true
+        }
+      }
+    },
+    "performance_metrics": {
+      "avg_time": 0.0137,
+      "min_time": 0.0029,
+      "max_time": 0.0351,
+      "methods_count": 3,
+      "speed_score": 73.17
+    },
+    "signals_generated": [
+      {
+        "method": "predict_signal",
+        "signal": "hold",
+        "confidence": 0.5137546933667083,
+        "time": 0.03511357307434082
+      },
+      {
+        "method": "ultra_fast_predict",
+        "signal": "hold",
+        "confidence": 0.5137546933667083,
+        "time": 0.0029425621032714844
+      },
+      {
+        "method": "optimized_predict_signal",
+        "signal": "hold",
+        "confidence": 0.5137546933667083,
+        "time": 0.0030257701873779297
+      }
+    ],
+    "errors": [],
+    "init_time": 0.0001,
+    "signal_analysis": {
+      "signals_count": 3,
+      "unique_signals": [
+        "hold"
+      ],
+      "avg_confidence": 0.514,
+      "max_confidence": 0.514,
+      "min_confidence": 0.514,
+      "non_hold_signals": 0
+    },
+    "final_score": 0.3588
+  },
+  {
+    "engine_name": "OptimizedAIEngineV3",
+    "available": true,
+    "init_success": true,
+    "methods_tested": {
+      "predict_signal": {
+        "success": true,
+        "time": 0.0002,
+        "result": {
+          "signal": "hold",
+          "confidence": 0.5,
+          "reason": "Sinais neutros",
+          "ai_features": 6,
+          "signals_breakdown": {
+            "momentum": [],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        }
+      },
+      "optimized_predict_signal": {
+        "success": true,
+        "time": 17.5644,
+        "result": {
+          "signal": 2,
+          "signal_type": "HOLD",
+          "confidence": 0.39122780075042674,
+          "entry_price": 67033.41617447155,
+          "stop_loss": 0,
+          "take_profit": 0,
+          "model_used": "OptimizedV3",
+          "optimized_v3": true,
+          "probabilities": [
+            0.3475895631382903,
+            0.2531984002466954,
+            0.3992120415820681
+          ],
+          "confluence": 0.4,
+          "base_confidence": 0.3992120415820681,
+          "confluence_boost": 0.98,
+          "performance_boost": 1.0,
+          "adaptive_threshold": 0.4,
+          "model_accuracy": 0.4243243243243244
+        }
+      }
+    },
+    "performance_metrics": {
+      "avg_time": 8.7823,
+      "min_time": 0.0002,
+      "max_time": 17.5644,
+      "methods_count": 2,
+      "speed_score": 0.11
+    },
+    "signals_generated": [
+      {
+        "method": "predict_signal",
+        "signal": "hold",
+        "confidence": 0.5,
+        "time": 0.00021076202392578125
+      },
+      {
+        "method": "optimized_predict_signal",
+        "signal": "HOLD",
+        "confidence": 0.39122780075042674,
+        "time": 17.564443588256836
+      }
+    ],
+    "errors": [],
+    "init_time": 0.0,
+    "signal_analysis": {
+      "signals_count": 2,
+      "unique_signals": [
+        "HOLD",
+        "hold"
+      ],
+      "avg_confidence": 0.446,
+      "max_confidence": 0.5,
+      "min_confidence": 0.391,
+      "non_hold_signals": 0
+    },
+    "final_score": 0.3028
+  },
+  {
+    "engine_name": "UltraEnhancedAIEngine",
+    "available": true,
+    "init_success": true,
+    "methods_tested": {
+      "predict_signal": {
+        "success": true,
+        "time": 0.0003,
+        "result": {
+          "signal": "hold",
+          "confidence": 0.5,
+          "reason": "Sinais neutros",
+          "ai_features": 6,
+          "signals_breakdown": {
+            "momentum": [],
+            "patterns": [],
+            "regime": [],
+            "correlation": [],
+            "volatility": []
+          }
+        }
+      }
+    },
+    "performance_metrics": {
+      "avg_time": 0.0003,
+      "min_time": 0.0003,
+      "max_time": 0.0003,
+      "methods_count": 1,
+      "speed_score": 3333.33
+    },
+    "signals_generated": [
+      {
+        "method": "predict_signal",
+        "signal": "hold",
+        "confidence": 0.5,
+        "time": 0.00025725364685058594
+      }
+    ],
+    "errors": [],
+    "init_time": 0.0,
+    "signal_analysis": {
+      "signals_count": 1,
+      "unique_signals": [
+        "hold"
+      ],
+      "avg_confidence": 0.5,
+      "max_confidence": 0.5,
+      "min_confidence": 0.5,
+      "non_hold_signals": 0
+    },
+    "final_score": 0.5983
+  }
+]

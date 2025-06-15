@@ -1,0 +1,216 @@
+{
+  "timestamp": "20250614_214935",
+  "test_type": "definitive_engine_comparison",
+  "engines_tested": [
+    "UltraEnhanced",
+    "V3Optimized",
+    "BaseEngine"
+  ],
+  "symbols_tested": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "BNBUSDT"
+  ],
+  "results": [
+    {
+      "engine_name": "UltraEnhanced",
+      "symbol": "BTCUSDT",
+      "total_time": 0.05872082710266113,
+      "avg_processing_time": 0.00275806188583374,
+      "predictions_made": 20,
+      "signal_distribution": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 0
+      },
+      "signal_diversity": 1.0,
+      "avg_confidence": 0.5,
+      "max_confidence": 0.5,
+      "confidence_std": 0.0,
+      "simulated_accuracy": 0.5,
+      "performance_score": 18878.67225960936,
+      "success": true
+    },
+    {
+      "engine_name": "UltraEnhanced",
+      "symbol": "ETHUSDT",
+      "total_time": 0.03928017616271973,
+      "avg_processing_time": 0.0018114924430847168,
+      "predictions_made": 20,
+      "signal_distribution": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 0
+      },
+      "signal_diversity": 1.0,
+      "avg_confidence": 0.5,
+      "max_confidence": 0.5,
+      "confidence_std": 0.0,
+      "simulated_accuracy": 0.5,
+      "performance_score": 28351.550418204908,
+      "success": true
+    },
+    {
+      "engine_name": "UltraEnhanced",
+      "symbol": "BNBUSDT",
+      "total_time": 0.04385066032409668,
+      "avg_processing_time": 0.0020241856575012205,
+      "predictions_made": 20,
+      "signal_distribution": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 0
+      },
+      "signal_diversity": 1.0,
+      "avg_confidence": 0.5,
+      "max_confidence": 0.5,
+      "confidence_std": 0.0,
+      "simulated_accuracy": 0.5,
+      "performance_score": 25451.291511828556,
+      "success": true
+    },
+    {
+      "engine_name": "V3Optimized",
+      "symbol": "BTCUSDT",
+      "total_time": 0.8810739517211914,
+      "avg_processing_time": 0.04374783039093018,
+      "predictions_made": 20,
+      "signal_distribution": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 0
+      },
+      "signal_diversity": 1.0,
+      "avg_confidence": 0.9499999999999998,
+      "max_confidence": 0.95,
+      "confidence_std": 1.1102230246251565e-16,
+      "simulated_accuracy": 0.5,
+      "performance_score": 1937.9138211701127,
+      "success": true
+    },
+    {
+      "engine_name": "V3Optimized",
+      "symbol": "ETHUSDT",
+      "total_time": 0.8452157974243164,
+      "avg_processing_time": 0.041949009895324706,
+      "predictions_made": 20,
+      "signal_distribution": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 0
+      },
+      "signal_diversity": 1.0,
+      "avg_confidence": 0.9499999999999998,
+      "max_confidence": 0.95,
+      "confidence_std": 1.1102230246251565e-16,
+      "simulated_accuracy": 0.5,
+      "performance_score": 1986.923245024493,
+      "success": true
+    },
+    {
+      "engine_name": "V3Optimized",
+      "symbol": "BNBUSDT",
+      "total_time": 0.8480689525604248,
+      "avg_processing_time": 0.042097938060760495,
+      "predictions_made": 20,
+      "signal_distribution": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 0
+      },
+      "signal_diversity": 1.0,
+      "avg_confidence": 0.9499999999999998,
+      "max_confidence": 0.95,
+      "confidence_std": 1.1102230246251565e-16,
+      "simulated_accuracy": 0.5,
+      "performance_score": 1982.7066265771582,
+      "success": true
+    },
+    {
+      "engine_name": "BaseEngine",
+      "symbol": "BTCUSDT",
+      "total_time": 0.07102131843566895,
+      "avg_processing_time": 0.00331956148147583,
+      "predictions_made": 20,
+      "signal_distribution": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 0
+      },
+      "signal_diversity": 1.0,
+      "avg_confidence": 0.5,
+      "max_confidence": 0.5,
+      "confidence_std": 0.0,
+      "simulated_accuracy": 0.5,
+      "performance_score": 15812.230441886772,
+      "success": true
+    },
+    {
+      "engine_name": "BaseEngine",
+      "symbol": "ETHUSDT",
+      "total_time": 0.07057690620422363,
+      "avg_processing_time": 0.0033042073249816895,
+      "predictions_made": 20,
+      "signal_distribution": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 0
+      },
+      "signal_diversity": 1.0,
+      "avg_confidence": 0.5,
+      "max_confidence": 0.5,
+      "confidence_std": 0.0,
+      "simulated_accuracy": 0.5,
+      "performance_score": 15882.22237054301,
+      "success": true
+    },
+    {
+      "engine_name": "BaseEngine",
+      "symbol": "BNBUSDT",
+      "total_time": 0.05105996131896973,
+      "avg_processing_time": 0.002367115020751953,
+      "predictions_made": 20,
+      "signal_distribution": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 0
+      },
+      "signal_diversity": 1.0,
+      "avg_confidence": 0.5,
+      "max_confidence": 0.5,
+      "confidence_std": 0.0,
+      "simulated_accuracy": 0.5,
+      "performance_score": 21872.75895411144,
+      "success": true
+    }
+  ],
+  "summary": {
+    "UltraEnhanced": {
+      "count": 3,
+      "avg_accuracy": 0.5,
+      "avg_confidence": 0.5,
+      "avg_diversity": 1.0,
+      "total_score": 72681.51418964282,
+      "accuracy_std": 0.0,
+      "confidence_std": 0.0
+    },
+    "V3Optimized": {
+      "count": 3,
+      "avg_accuracy": 0.5,
+      "avg_confidence": 0.9499999999999998,
+      "avg_diversity": 1.0,
+      "total_score": 5907.543692771764,
+      "accuracy_std": 0.0,
+      "confidence_std": 0.0
+    },
+    "BaseEngine": {
+      "count": 3,
+      "avg_accuracy": 0.5,
+      "avg_confidence": 0.5,
+      "avg_diversity": 1.0,
+      "total_score": 53567.21176654122,
+      "accuracy_std": 0.0,
+      "confidence_std": 0.0
+    }
+  }
+}

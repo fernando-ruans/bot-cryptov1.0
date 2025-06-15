@@ -1,0 +1,42 @@
+[
+  {
+    "engine_name": "AITradingEngine",
+    "available": true,
+    "init_success": true,
+    "speed_test": 0.003,
+    "error": null,
+    "init_time": 0.0,
+    "methods_available": 1,
+    "speed_score": 358.55
+  },
+  {
+    "engine_name": "UltraFastAIEngine",
+    "available": true,
+    "init_success": true,
+    "speed_test": 0.0,
+    "error": null,
+    "init_time": 0.0,
+    "methods_available": 0,
+    "speed_score": 1000.0
+  },
+  {
+    "engine_name": "OptimizedAIEngineV3",
+    "available": true,
+    "init_success": true,
+    "speed_test": 0.002,
+    "error": null,
+    "init_time": 0.0,
+    "methods_available": 1,
+    "speed_score": 484.83
+  },
+  {
+    "engine_name": "UltraEnhancedAIEngine",
+    "available": true,
+    "init_success": true,
+    "speed_test": 0.002,
+    "error": null,
+    "init_time": 0.0,
+    "methods_available": 1,
+    "speed_score": 422.86
+  }
+]

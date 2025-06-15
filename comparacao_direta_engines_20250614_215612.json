@@ -1,0 +1,87 @@
+{
+  "timestamp": "20250614_215612",
+  "comparison_type": "direct_ultra_vs_v3",
+  "results": [
+    {
+      "engine": "UltraEnhanced",
+      "symbol": "BTCUSDT",
+      "total_predictions": 15,
+      "total_time": 1.0934536457061768,
+      "avg_prediction_time": 0.07254764238993326,
+      "max_prediction_time": 0.08093643188476562,
+      "min_prediction_time": 0.06553435325622559,
+      "avg_confidence": 0.7699999999999998,
+      "confidence_std": 0.220454076850486,
+      "signal_counts": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 15
+      },
+      "signal_diversity": 0.0,
+      "mobile_score": 34.08094304402669,
+      "predictions_per_second": 13.784045450093915,
+      "success": true
+    },
+    {
+      "engine": "V3Optimized",
+      "symbol": "BTCUSDT",
+      "total_predictions": 15,
+      "total_time": 0.6725413799285889,
+      "avg_prediction_time": 0.04450955390930176,
+      "max_prediction_time": 0.09749746322631836,
+      "min_prediction_time": 0.037262678146362305,
+      "avg_confidence": 0.9499999999999996,
+      "confidence_std": 3.3306690738754696e-16,
+      "signal_counts": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 15
+      },
+      "signal_diversity": 0.0,
+      "mobile_score": 50.69617843627928,
+      "predictions_per_second": 22.46708655040051,
+      "success": true
+    },
+    {
+      "engine": "UltraEnhanced",
+      "symbol": "ETHUSDT",
+      "total_predictions": 15,
+      "total_time": 1.2638514041900635,
+      "avg_prediction_time": 0.08384297688802084,
+      "max_prediction_time": 0.11026501655578613,
+      "min_prediction_time": 0.06313014030456543,
+      "avg_confidence": 0.7699999999999998,
+      "confidence_std": 0.220454076850486,
+      "signal_counts": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 15
+      },
+      "signal_diversity": 0.0,
+      "mobile_score": 29.56280924479166,
+      "predictions_per_second": 11.927057424685456,
+      "success": true
+    },
+    {
+      "engine": "V3Optimized",
+      "symbol": "ETHUSDT",
+      "total_predictions": 15,
+      "total_time": 0.7473340034484863,
+      "avg_prediction_time": 0.04945039749145508,
+      "max_prediction_time": 0.06060600280761719,
+      "min_prediction_time": 0.03859710693359375,
+      "avg_confidence": 0.9499999999999996,
+      "confidence_std": 3.3306690738754696e-16,
+      "signal_counts": {
+        "buy": 0,
+        "sell": 0,
+        "hold": 15
+      },
+      "signal_diversity": 0.0,
+      "mobile_score": 48.719841003417955,
+      "predictions_per_second": 20.22228436430259,
+      "success": true
+    }
+  ],
+  "summary": "Comparação direta entre UltraEnhanced e V3Optimized para app mobile"
+}

@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-06-14T21:35:33.666269",
+  "recommended_engine": "UltraFastAIEngine",
+  "scores": {
+    "composite_score": 236.25,
+    "accuracy": 30.0,
+    "speed": 580827.17,
+    "reliability": 0.0,
+    "efficiency": 500000.0,
+    "total_signals": 0,
+    "avg_time": 0.002
+  },
+  "reasoning": "Escolhida baseada no maior score composto (236.25)",
+  "implementation_guide": {
+    "import_statement": "from ultrafastaiengine import UltraFastAIEngine",
+    "initialization": "ai_engine = UltraFastAIEngine(config)",
+    "usage": "ai_engine.generate_signal(data, symbol, timeframe)"
+  }
+}

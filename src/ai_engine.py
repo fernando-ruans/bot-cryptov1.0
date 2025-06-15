@@ -495,10 +495,9 @@ class AITradingEngine:
         try:
             # Calcular retorno futuro
             future_return = df['close'].shift(-lookahead_periods) / df['close'] - 1
-            
-            # Definir thresholds
-            buy_threshold = 0.02   # 2% de alta
-            sell_threshold = -0.02 # 2% de queda
+              # Definir thresholds ajustados para maior sensibilidade (OTIMIZAÇÃO PÓS-COMPARAÇÃO)
+            buy_threshold = 0.01   # 1% de alta (era 2%)
+            sell_threshold = -0.01 # 1% de queda (era 2%)
             
             # Criar labels
             labels = pd.Series(index=df.index, dtype=int)
@@ -1151,10 +1150,9 @@ class AITradingEngine:
                 # Calcular percentuais
                 bullish_pct = bullish_count / total_active if total_active > 0 else 0
                 bearish_pct = bearish_count / total_active if total_active > 0 else 0
-                
-                # Thresholds mais rigorosos para sinais definitivos
-                STRONG_THRESHOLD = 0.70  # 70% dos sinais devem concordar
-                MODERATE_THRESHOLD = 0.60  # 60% para sinal moderado
+                  # Thresholds ajustados para maior sensibilidade (OTIMIZAÇÃO PÓS-COMPARAÇÃO)
+                STRONG_THRESHOLD = 0.40  # 40% dos sinais devem concordar (era 70%)
+                MODERATE_THRESHOLD = 0.30  # 30% para sinal moderado (era 60%)
                 
                 # Determinar sinal principal com thresholds rigorosos
                 if bullish_pct >= STRONG_THRESHOLD:
