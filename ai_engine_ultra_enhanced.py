@@ -504,8 +504,7 @@ class UltraEnhancedAIEngine(AITradingEngine):
             
             # Confiança final
             final_confidence = base_confidence * confluence_boost * volatility_adjustment
-            final_confidence = min(final_confidence, 0.95)  # Cap máximo
-              # Decisão de sinal com threshold adaptativo
+            final_confidence = min(final_confidence, 0.95)  # Cap máximo            # Decisão de sinal com threshold adaptativo
             adaptive_threshold = self.min_confidence_threshold
             
             # Ajustar threshold baseado no regime de mercado (menos conservador)
@@ -519,21 +518,21 @@ class UltraEnhancedAIEngine(AITradingEngine):
                 if not np.isnan(confluence) and confluence > 0.7:
                     adaptive_threshold -= 0.1  # Reduzir threshold com alta confluence
             
+            # Determinar sinal usando formato consistente
             if final_confidence < adaptive_threshold:
-                signal_type = 'HOLD'
-                signal_value = 2
+                signal_type = 'hold'
+                signal_value = 'hold'  # FIXADO: usar string consistente
             else:
                 if prediction == 1:
-                    signal_type = 'BUY'
-                    signal_value = 1
+                    signal_type = 'buy'
+                    signal_value = 'buy'  # FIXADO: usar string consistente
                 elif prediction == 0:
-                    signal_type = 'SELL'
-                    signal_value = 0
+                    signal_type = 'sell'
+                    signal_value = 'sell'  # FIXADO: usar string consistente
                 else:
-                    signal_type = 'HOLD'
-                    signal_value = 2
-            
-            # Stop loss e take profit dinâmicos
+                    signal_type = 'hold'
+                    signal_value = 'hold'  # FIXADO: usar string consistente
+              # Stop loss e take profit dinâmicos
             current_price = df_enhanced['close'].iloc[-1]
             atr = df_enhanced.get('atr', pd.Series([current_price * 0.02])).iloc[-1]
             
@@ -547,40 +546,61 @@ class UltraEnhancedAIEngine(AITradingEngine):
             elif 'low_volatility' in df_enhanced.columns and df_enhanced['low_volatility'].iloc[-1] == 1:
                 atr_multiplier = 1.0  # SL/TP mais apertados em baixa volatilidade
             
-            if signal_type == 'BUY':
+            if signal_value == 'buy':
                 stop_loss = current_price - (atr * atr_multiplier)
                 take_profit = current_price + (atr * atr_multiplier * 2)
-            elif signal_type == 'SELL':
+            elif signal_value == 'sell':
                 stop_loss = current_price + (atr * atr_multiplier)
                 take_profit = current_price - (atr * atr_multiplier * 2)
             else:
                 stop_loss = 0
                 take_profit = 0
             
+            # ESTRUTURA CORRIGIDA: Compatível com sistema
             result = {
-                'signal': signal_value,
-                'signal_type': signal_type,
-                'confidence': final_confidence,
-                'entry_price': current_price,
-                'stop_loss': stop_loss,
-                'take_profit': take_profit,
+                'signal': signal_value,  # FIXADO: string consistente (buy/sell/hold)
+                'signal_type': signal_type,  # Campo adicional para compatibilidade
+                'confidence': round(final_confidence, 3),  # FIXADO: rounded para consistência
+                'entry_price': round(current_price, 8),  # FIXADO: preço válido
+                'stop_loss': round(stop_loss, 8) if stop_loss > 0 else 0,
+                'take_profit': round(take_profit, 8) if take_profit > 0 else 0,
+                'reason': f'UltraEnhanced ML prediction (conf: {final_confidence:.3f})',  # FIXADO: adicionar reason
+                'ai_features': len(feature_cols),  # FIXADO: contagem de features
                 'model_used': 'UltraEnhancedV2',
                 'ultra_enhanced': True,
                 'probabilities': probabilities.tolist(),
                 'confluence': df_enhanced.get('confluence_strength', pd.Series([0])).iloc[-1],
-                'base_confidence': base_confidence,
-                'confluence_boost': confluence_boost,
-                'volatility_adjustment': volatility_adjustment,
-                'adaptive_threshold': adaptive_threshold
-            }
-            
+                'base_confidence': round(base_confidence, 3),
+                'confluence_boost': round(confluence_boost, 3),
+                'volatility_adjustment': round(volatility_adjustment, 3),
+                'adaptive_threshold': round(adaptive_threshold, 3),
+                'signals_breakdown': {  # FIXADO: adicionar breakdown como na base
+                    'momentum': [prediction],
+                    'patterns': [],
+                    'regime': [],
+                    'correlation': [],
+                    'volatility': []
+                }
+            }            
             logger.info(f"🎯 {symbol}: {signal_type} (conf: {final_confidence:.3f}, base: {base_confidence:.3f})")
             
             return result
             
         except Exception as e:
             logger.error(f"❌ Erro na predição ultra: {e}")
-            return self.predict_signal(df, symbol)
+            logger.warning(f"⚠️ Fallback para predição normal")
+            # FIXADO: Garantir que fallback retorne estrutura válida
+            fallback_result = self.predict_signal(df, symbol)
+            # Adicionar campos obrigatórios se ausentes
+            if 'entry_price' not in fallback_result and len(df) > 0:
+                fallback_result['entry_price'] = round(df['close'].iloc[-1], 8)
+            if 'signal_type' not in fallback_result:
+                fallback_result['signal_type'] = fallback_result.get('signal', 'hold')
+            if 'stop_loss' not in fallback_result:
+                fallback_result['stop_loss'] = 0
+            if 'take_profit' not in fallback_result:
+                fallback_result['take_profit'] = 0
+            return fallback_result
 
 def test_ultra_engine():
     """Teste do engine ultra melhorado"""

@@ -1,0 +1,39 @@
+{
+  "timestamp": "2025-06-17T12:41:20.430693",
+  "engine": "UltraEnhancedAIEngine",
+  "sucessos": [
+    "✅ Método ultra_predict_signal existe",
+    "✅ Método create_ultra_features existe",
+    "✅ Método train_ultra_model existe",
+    "✅ Método predict_signal existe",
+    "✅ Atributo ensemble_models existe",
+    "✅ Atributo feature_scalers existe",
+    "✅ Atributo feature_selectors existe",
+    "✅ Atributo min_confidence_threshold existe",
+    "✅ Sinais consistentes com mesmos dados",
+    "✅ Campo obrigatório confidence presente",
+    "✅ BTCUSDT: Confiança válida (0.950)",
+    "✅ ETHUSDT: Confiança válida (0.950)",
+    "✅ ADAUSDT: Confiança válida (0.950)",
+    "✅ Sistema de fallback funcionando",
+    "✅ Performance adequada (média: 0.086s)",
+    "✅ Performance consistente"
+  ],
+  "warnings": [],
+  "problemas": [
+    "❌ Campo signal_type ausente",
+    "❌ Campo entry_price ausente",
+    "❌ BTCUSDT: Tipo de sinal inválido ()",
+    "❌ BTCUSDT: Preço de entrada inválido",
+    "❌ ETHUSDT: Tipo de sinal inválido ()",
+    "❌ ETHUSDT: Preço de entrada inválido",
+    "❌ ADAUSDT: Tipo de sinal inválido ()",
+    "❌ ADAUSDT: Preço de entrada inválido",
+    "❌ Fallback não retorna estrutura válida"
+  ],
+  "resumo": {
+    "total_sucessos": 16,
+    "total_warnings": 0,
+    "total_problemas": 9
+  }
+}

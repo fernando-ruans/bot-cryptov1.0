@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-06-17T12:49:07.365616",
+  "engine": "UltraEnhancedAIEngine",
+  "sucessos": [
+    "✅ Método ultra_predict_signal existe",
+    "✅ Método create_ultra_features existe",
+    "✅ Método train_ultra_model existe",
+    "✅ Método predict_signal existe",
+    "✅ Atributo ensemble_models existe",
+    "✅ Atributo feature_scalers existe",
+    "✅ Atributo feature_selectors existe",
+    "✅ Atributo min_confidence_threshold existe",
+    "✅ Sinais consistentes com mesmos dados",
+    "✅ Campo obrigatório confidence presente",
+    "✅ BTCUSDT: Confiança válida (0.500)",
+    "✅ BTCUSDT: Tipo de sinal válido (hold)",
+    "✅ ETHUSDT: Confiança válida (0.500)",
+    "✅ ETHUSDT: Tipo de sinal válido (hold)",
+    "✅ ADAUSDT: Confiança válida (0.500)",
+    "✅ ADAUSDT: Tipo de sinal válido (hold)",
+    "✅ Sistema de fallback funcionando",
+    "✅ Performance adequada (média: 0.085s)"
+  ],
+  "warnings": [
+    "⚠️ Campo signal_type ausente - Engine usando fallback",
+    "⚠️ Campo entry_price ausente - Engine usando fallback",
+    "⚠️ Performance inconsistente (variação: 84.9%)"
+  ],
+  "problemas": [
+    "❌ BTCUSDT: Preço de entrada inválido",
+    "❌ ETHUSDT: Preço de entrada inválido",
+    "❌ ADAUSDT: Preço de entrada inválido",
+    "❌ Fallback não retorna estrutura válida"
+  ],
+  "resumo": {
+    "total_sucessos": 18,
+    "total_warnings": 3,
+    "total_problemas": 4
+  }
+}
